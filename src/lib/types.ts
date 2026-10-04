@@ -13,3 +13,38 @@ export type GalleryImage = {
   /** Alt text, also shown as the photo's name between the mobile carousel arrows. */
   alt: string;
 };
+
+/** A photo shown in a circle. `position` is a CSS object-position, to frame the subject. */
+export type CircleImage = {
+  src: string;
+  alt: string;
+  position?: string;
+};
+
+/** A photo with a caption, e.g. in a card. `position` is a CSS object-position. */
+export type CaptionedImage = {
+  src: string;
+  alt: string;
+  caption: string;
+  position?: string;
+};
+
+/** Which icon a room feature tile shows. */
+export type RoomFeatureIcon = "bathroom" | "kitchen" | "size" | "room";
+
+export type Room = {
+  name: string;
+  /** Display price, e.g. "£245 per week". */
+  price: string;
+  image: CircleImage;
+  /** Shown as a 2 × 2 grid of icon tiles. */
+  features: { icon: RoomFeatureIcon; label: string }[];
+  href: string;
+};
+
+export type Testimonial = {
+  name: string;
+  image: CircleImage;
+  /** .mp4 URL or a YouTube/Vimeo link. */
+  video?: string;
+};

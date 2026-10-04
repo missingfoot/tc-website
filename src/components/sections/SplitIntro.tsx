@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import type { Cta } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
+import Section from "@/components/ui/Section";
+import { text } from "@/lib/styles";
 
 type SplitIntroProps = {
   heading: string;
@@ -13,14 +15,14 @@ type SplitIntroProps = {
 /** Big right-aligned heading on the left, body text and a button on the right. */
 export default function SplitIntro({ heading, children, cta }: SplitIntroProps) {
   return (
-    <section className="w-full bg-white py-20 lg:py-[100px]">
-      <Container className="grid gap-10 lg:grid-cols-[1fr_509px] lg:gap-[117px]">
-        <h2 className="text-5xl font-bold leading-[1.2] text-ink lg:text-right xl:text-[64px]">
+    <Section className="bg-white">
+      <Container className="grid gap-10 lg:grid-cols-[1fr_509px] lg:gap-28">
+        <h2 className="text-5xl font-bold leading-tight text-ink lg:text-right xl:text-6xl">
           {heading}
         </h2>
 
-        <div className="flex max-w-[484px] flex-col items-start gap-[30px] lg:pt-[18px]">
-          <div className="flex flex-col gap-5 text-base font-[450] leading-[1.6] text-stone">
+        <div className="flex max-w-lg flex-col items-start gap-8 lg:pt-4">
+          <div className={`flex flex-col gap-5 ${text.body}`}>
             {typeof children === "string" ? <p>{children}</p> : children}
           </div>
 
@@ -31,6 +33,6 @@ export default function SplitIntro({ heading, children, cta }: SplitIntroProps) 
           )}
         </div>
       </Container>
-    </section>
+    </Section>
   );
 }

@@ -62,7 +62,7 @@ export default function MobileMenu({ groups = mobileNav }: { groups?: MobileNavG
       {/* -z-10 puts the panel behind the header's logo and button */}
       <div
         id="mobile-menu"
-        className={`fixed inset-0 -z-10 overflow-y-auto bg-ink pt-[100px] text-white duration-300 lg:hidden ${
+        className={`fixed inset-0 -z-10 overflow-y-auto bg-ink pt-24 text-white duration-300 lg:hidden ${
           // Visible immediately on open; hidden only after the fade-out
           open ? "visible opacity-100 transition-opacity" : "invisible opacity-0 transition-[opacity,visibility]"
         }`}

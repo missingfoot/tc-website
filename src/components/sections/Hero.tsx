@@ -29,7 +29,7 @@ const curvedMask = {
 export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, cta, curved = true, parallax = 0.4 }: HeroProps) {
   return (
     <div className="@container">
-      <section className="relative h-[640px] w-full overflow-hidden bg-black" style={curved ? curvedMask : undefined}>
+      <section className="relative h-160 w-full overflow-hidden bg-black" style={curved ? curvedMask : undefined}>
         <ParallaxImage
           src={image}
           alt={imageAlt}
@@ -44,15 +44,15 @@ export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, c
           className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.3)_37.03%,rgba(0,0,0,0.6)_116.41%)]"
         />
 
-        <Container className="relative pt-[190px] text-white">
-          <div className="flex max-w-[384px] flex-col gap-2.5 tracking-[-0.02em]">
-            {eyebrow && <p className="text-[22px] font-bold leading-[1.1]">{eyebrow}</p>}
-            <h1 className="text-[64px] font-black leading-[1.1]">{title}</h1>
-            {subtitle && <p className="text-lg font-medium leading-[1.2] sm:whitespace-nowrap">{subtitle}</p>}
+        <Container className="relative pt-48 text-white">
+          <div className="flex max-w-sm flex-col gap-2.5 tracking-tight">
+            {eyebrow && <p className="text-2xl font-bold leading-tight">{eyebrow}</p>}
+            <h1 className="text-6xl font-black leading-tight">{title}</h1>
+            {subtitle && <p className="text-lg font-medium leading-tight sm:whitespace-nowrap">{subtitle}</p>}
           </div>
 
           {cta && (
-            <Button href={cta.href} arrow className="mt-[30px]">
+            <Button href={cta.href} arrow className="mt-8">
               {cta.label}
             </Button>
           )}

@@ -17,9 +17,9 @@ export function useMobileMenu() {
 /**
  * Fixed site header with three looks:
  * - top of page: transparent with white text (over the hero)
- * - scrolled: white with dark text (and shorter on desktop: 120px → 72px)
+ * - scrolled: white with dark text (and shorter on desktop)
  * - mobile menu open: dark with white text, so it becomes the menu's top bar
- * Mobile stays 100px tall so the logo and menu button never move.
+ * Mobile keeps one height (h-24) so the logo and menu button never move.
  * Children inherit the text colour (logo and icons use currentColor).
  */
 export default function StickyHeader({ children }: { children: ReactNode }) {
@@ -34,16 +34,16 @@ export default function StickyHeader({ children }: { children: ReactNode }) {
   }, []);
 
   const look = open
-    ? "bg-ink text-white lg:h-[120px]"
+    ? "bg-ink text-white lg:h-28"
     : scrolled
-      ? "bg-white text-ink lg:h-[72px]"
-      : "bg-transparent text-white lg:h-[120px]";
+      ? "bg-white text-ink lg:h-20"
+      : "bg-transparent text-white lg:h-28";
 
   return (
     <MobileMenuContext.Provider value={{ open, setOpen }}>
       <header
         data-scrolled={scrolled}
-        className={`fixed inset-x-0 top-0 z-50 h-[100px] transition-[height,background-color,color] duration-300 ease-out ${look}`}
+        className={`fixed inset-x-0 top-0 z-50 h-24 transition-[height,background-color,color] duration-300 ease-out ${look}`}
       >
         {children}
       </header>
