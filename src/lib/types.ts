@@ -21,13 +21,6 @@ export type CircleImage = {
   position?: string;
 };
 
-/** A photo with a caption, e.g. in a card. `position` is a CSS object-position. */
-export type CaptionedImage = {
-  src: string;
-  alt: string;
-  caption: string;
-  position?: string;
-};
 
 /** Which icon a room feature tile shows. */
 export type RoomFeatureIcon = "bathroom" | "kitchen" | "size" | "room";

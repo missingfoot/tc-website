@@ -61,8 +61,8 @@ export default function Testimonials({ heading, intro, testimonials }: Testimoni
           <li aria-hidden="true" className="w-[calc(100%-18.75rem-2rem)] shrink-0" />
         </ul>
 
-        {/* Dots: centred under the first portrait on mobile, under the page on desktop */}
-        <div className="mt-6 flex w-75 justify-center lg:mt-12 lg:w-full">
+        {/* Dots, centred across the page */}
+        <div className="mt-6 flex justify-center lg:mt-12">
           {testimonials.map((t, i) => (
             <button
               key={t.name + i}

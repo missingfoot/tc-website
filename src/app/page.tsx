@@ -2,7 +2,6 @@ import Hero from "@/components/sections/Hero";
 import SplitIntro from "@/components/sections/SplitIntro";
 import Gallery from "@/components/sections/Gallery";
 import CollageSplit from "@/components/sections/CollageSplit";
-import OverlapCards from "@/components/sections/OverlapCards";
 import RoomCards from "@/components/sections/RoomCards";
 import FeatureGroups from "@/components/sections/FeatureGroups";
 import Testimonials from "@/components/sections/Testimonials";
@@ -70,7 +69,7 @@ export default function Home() {
         </p>
       </CollageSplit>
 
-      <OverlapCards {...oldOakCommunityCards} />
+      <PromoCards cards={oldOakCommunityCards} />
 
       <RoomCards
         heading="Explore the rooms"

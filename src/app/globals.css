@@ -6,7 +6,6 @@
   --color-cream: #f0eee4;
   --color-cream-dark: #e6e3d5;
   --color-ash: #aaaaaa;
-  --drop-shadow-card: 0 20px 60px rgb(0 0 0 / 0.3);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   --font-sans: var(--font-circular), ui-sans-serif, system-ui, sans-serif;
 }

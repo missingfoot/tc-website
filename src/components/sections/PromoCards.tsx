@@ -34,8 +34,9 @@ function PromoCardItem({ card }: { card: PromoCard }) {
         className="-z-10 object-cover"
         style={{ objectPosition: card.image.position ?? "center" }}
       />
-      {/* Darkens the photo so the white heading reads */}
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/45" />
+      {/* Black gradient behind the heading, clear through the middle so the photo keeps its
+          brightness, with a light lift at the bottom for the button */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-b from-black/65 via-black/10 via-50% to-black/30" />
 
       <h2 className="text-3xl font-bold leading-tight tracking-tight text-white">{card.heading}</h2>
       <Button href={card.cta.href} arrow className="w-full justify-center lg:w-auto lg:self-start">

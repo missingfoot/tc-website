@@ -1,4 +1,4 @@
-import type { CaptionedImage, CircleImage, Cta, GalleryImage, PromoCard, Room, Testimonial } from "@/lib/types";
+import type { CircleImage, GalleryImage, PromoCard, Room, Testimonial } from "@/lib/types";
 
 const gallery = "/images/old-oak/gallery";
 const thumbs = `${gallery}/thumbs`;
@@ -27,18 +27,19 @@ export const oldOakBenefitsImages: { main: CircleImage; top: CircleImage; bottom
 
 const community = "/images/old-oak/community";
 
-export const oldOakCommunityCards: { cta: { image: CircleImage; link: Cta }; top: CaptionedImage; bottom: CaptionedImage } = {
-  cta: {
+// TODO: link targets
+export const oldOakCommunityCards: PromoCard[] = [
+  {
+    heading: "Unforgettable events",
     image: { src: `${community}/events-party.jpg`, alt: "Residents dancing at an Old Oak party" },
-    link: { label: "Join events", href: "#" },
+    cta: { label: "Join events", href: "#" },
   },
-  top: { src: `${community}/performers.jpg`, alt: "Costumed performers on stage at an Old Oak event", caption: "Lashings of fun to be had" },
-  bottom: {
-    src: `${community}/community-hosts.jpg`,
-    alt: "Four community hosts sitting together on a sofa",
-    caption: "Meet your community hosts who will guide you through life at Old Oak",
+  {
+    heading: "Meet your community hosts",
+    image: { src: `${community}/community-hosts.jpg`, alt: "Four community hosts sitting together on a sofa", position: "bottom" },
+    cta: { label: "Meet the team", href: "#" },
   },
-};
+];
 
 const rooms = "/images/old-oak/rooms";
 
