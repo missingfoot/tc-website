@@ -4,7 +4,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { GalleryImage } from "@/lib/types";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { sizes2x } from "@/lib/images";
@@ -17,6 +17,8 @@ type GalleryProps = {
   images: GalleryImage[];
   /** Shown under the thumbnails, e.g. a button. */
   footer?: ReactNode;
+  /** Section background (default cream). */
+  tone?: SectionTone;
 };
 
 /**
@@ -24,12 +26,12 @@ type GalleryProps = {
  * - below lg: a swipeable carousel of square slides, with arrows either side of the photo's name
  * - lg and up: a main image with side arrows, the photo's name and a thumbnail strip
  */
-export default function Gallery({ heading, intro, images, footer }: GalleryProps) {
+export default function Gallery({ heading, intro, images, footer, tone = "cream" }: GalleryProps) {
   const { ref: carouselRef, index, goTo, go } = useSnapCarousel(images.length);
   const current = images[index];
 
   return (
-    <Section className="bg-cream">
+    <Section tone={tone}>
       {/* Left-aligned below lg (site-wide rule for content blocks), centred on desktop */}
       <Container className="flex flex-col items-start text-left lg:items-center lg:text-center">
         <SectionIntro heading={heading} intro={intro} />
@@ -93,7 +95,7 @@ export default function Gallery({ heading, intro, images, footer }: GalleryProps
                 aria-label={`Show ${image.alt}`}
                 aria-current={i === index}
                 className={`relative block size-14 overflow-hidden rounded-xl transition ${
-                  i === index ? "ring-2 ring-ink ring-offset-2 ring-offset-cream" : "opacity-80 hover:opacity-100"
+                  i === index ? "ring-2 ring-ink ring-offset-2 ring-offset-transparent" : "opacity-80 hover:opacity-100"
                 }`}
               >
                 <Image src={image.thumb} alt="" fill sizes="56px" className="object-cover" />

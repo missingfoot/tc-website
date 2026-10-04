@@ -1,7 +1,7 @@
 import type { Cta } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import { Facebook, Instagram, Mail, Twitter, YouTube } from "@/components/icons";
 import { pressable } from "@/lib/styles";
@@ -11,6 +11,8 @@ const PLATFORM_ICONS = { youtube: YouTube, twitter: Twitter, facebook: Facebook,
 export type SocialLink = { platform: keyof typeof PLATFORM_ICONS; label: string; href: string };
 
 type SocialLinksProps = {
+  /** Section background (default cream). */
+  tone?: SectionTone;
   heading: string;
   intro?: string;
   links: SocialLink[];
@@ -21,9 +23,9 @@ type SocialLinksProps = {
  * Heading and intro, a row of square social icon links and a call-to-action button.
  * Centred on desktop; on mobile the icons spread across the width and the button is full width.
  */
-export default function SocialLinks({ heading, intro, links, cta }: SocialLinksProps) {
+export default function SocialLinks({ heading, intro, links, cta, tone = "cream" }: SocialLinksProps) {
   return (
-    <Section className="bg-cream">
+    <Section tone={tone}>
       <Container className="flex flex-col items-start lg:items-center">
         <SectionIntro heading={heading} intro={intro} />
 

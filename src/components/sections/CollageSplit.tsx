@@ -1,11 +1,13 @@
 import { Children, type ReactNode } from "react";
 import type { CircleImage } from "@/lib/types";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import { text } from "@/lib/styles";
 import CircleCollage from "@/components/ui/CircleCollage";
 
 type CollageSplitProps = {
+  /** Section background (default white). */
+  tone?: SectionTone;
   /** A string, or JSX to control line breaks (e.g. keep a hyphenated word together). */
   heading: ReactNode;
   /** Body copy: a string, or several <p> elements. On mobile the collage sits after the first one. */
@@ -19,12 +21,12 @@ const bodyText = `flex flex-col gap-6 ${text.body}`;
  * Floating circle collage on the left, heading and body text on the right. On mobile it
  * stacks as heading, first paragraph, collage, remaining paragraphs.
  */
-export default function CollageSplit({ heading, children, images }: CollageSplitProps) {
+export default function CollageSplit({ heading, children, images, tone = "white" }: CollageSplitProps) {
   const [first, ...rest] = typeof children === "string" ? [<p key="body">{children}</p>] : Children.toArray(children);
 
   return (
     // overflow-hidden: the collage's outer ring deliberately bleeds past the page edge
-    <Section className="overflow-hidden bg-white">
+    <Section tone={tone} className="overflow-hidden">
       <Container>
         {/* Desktop: collage column starts a little in and spans all rows; text column runs
             slightly into the right gutter (as in the Figma). Text sits above the collage (z-10) so a

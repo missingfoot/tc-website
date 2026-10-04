@@ -6,24 +6,26 @@ import type { Testimonial } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Carousel from "@/components/ui/Carousel";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import VideoModal from "@/components/ui/VideoModal";
 import { Play } from "@/components/icons";
 import { sizes2x } from "@/lib/images";
 
 type TestimonialsProps = {
+  /** Section background (default cream). */
+  tone?: SectionTone;
   heading: string;
   intro?: string;
   testimonials: Testimonial[];
 };
 
 /** Carousel of resident portraits, each with a "Meet <name>" button that plays their video. */
-export default function Testimonials({ heading, intro, testimonials }: TestimonialsProps) {
+export default function Testimonials({ heading, intro, testimonials, tone = "cream" }: TestimonialsProps) {
   const [playing, setPlaying] = useState<Testimonial | null>(null);
 
   return (
-    <Section className="overflow-hidden bg-cream">
+    <Section tone={tone} className="overflow-hidden">
       <Container>
         <SectionIntro heading={heading} intro={intro} />
         <Carousel

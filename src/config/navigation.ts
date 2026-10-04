@@ -1,18 +1,3 @@
-export type NavLink = {
-  label: string;
-  href: string;
-  /** Shows a dropdown chevron. Menu contents aren't wired up yet. */
-  dropdown?: boolean;
-};
-
-export const mainNav: NavLink[] = [
-  { label: "Co-Living", href: "/co-living" },
-  { label: "Locations", href: "#", dropdown: true },
-  { label: "Mission", href: "#" },
-  { label: "Working", href: "#" },
-  { label: "More", href: "#", dropdown: true },
-];
-
 export type MobileNavItem = {
   label: string;
   href: string;
@@ -26,7 +11,7 @@ export type MobileNavGroup = {
   items: MobileNavItem[];
 };
 
-// TODO: these routes don't exist yet
+// TODO: most of these routes don't exist yet
 export const mobileNav: MobileNavGroup[] = [
   {
     items: [
@@ -42,7 +27,7 @@ export const mobileNav: MobileNavGroup[] = [
         ],
       },
       { label: "Co-Living", href: "/co-living" },
-      { label: "Co-Working", href: "/co-working" },
+      { label: "Working", href: "/working" },
     ],
   },
   {
@@ -71,9 +56,28 @@ export const mobileNav: MobileNavGroup[] = [
   },
 ];
 
+export type NavLink = {
+  label: string;
+  href: string;
+  /** Opens a dropdown of these groups instead of linking (each group is a column). */
+  menu?: MobileNavGroup[];
+};
+
+const locations = mobileNav[0].items.find((item) => item.label === "Locations")?.children ?? [];
+
+/** Desktop nav. Dropdowns reuse the mobile menu's data so both always list the same pages. */
+export const mainNav: NavLink[] = [
+  { label: "Co-Living", href: "/co-living" },
+  { label: "Locations", href: "/locations", menu: [{ items: locations }] },
+  { label: "Mission", href: "/mission" },
+  { label: "Working", href: "/working" },
+  { label: "More", href: "#", menu: mobileNav.filter((group) => group.label) },
+];
+
 /** Short page titles shown in the middle of the mobile top bar, by path. */
 export const pageTitles: Record<string, string> = {
   "/": "The Collective",
   "/locations/old-oak": "Old Oak",
   "/co-living": "Co-Living",
+  "/working": "Working",
 };

@@ -559,3 +559,21 @@ export function Mail(props: Pick<IconProps, "title" | "className">) {
     </BrandIcon>
   );
 }
+
+/** Opening quotation mark (filled), for pull quotes. */
+export function QuoteMark({ className = "", title }: Pick<IconProps, "title" | "className">) {
+  return (
+    <BrandIcon viewBox="0 0 32 24" title={title} className={className}>
+      <path d="M0 24V14.4C0 6.6 4.2 1.8 12.6 0l1.6 3.3C9.7 4.6 7.5 7.2 7.2 10.8H13V24H0Zm18 0V14.4C18 6.6 22.2 1.8 30.6 0l1.6 3.3c-4.5 1.3-6.7 3.9-7 7.5H31V24H18Z" />
+    </BrandIcon>
+  );
+}
+
+/** Tick. */
+export function Check(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 12.5L9.5 18L20 6.5" />
+    </Icon>
+  );
+}

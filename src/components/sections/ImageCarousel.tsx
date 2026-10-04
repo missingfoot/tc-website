@@ -5,12 +5,14 @@ import type { ReactNode } from "react";
 import type { CircleImage } from "@/lib/types";
 import Carousel from "@/components/ui/Carousel";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import { text } from "@/lib/styles";
 import { sizes2x } from "@/lib/images";
 
 type ImageCarouselProps = {
+  /** Section background (default white). */
+  tone?: SectionTone;
   heading: string;
   intro?: string;
   images: CircleImage[];
@@ -19,9 +21,9 @@ type ImageCarouselProps = {
 };
 
 /** Carousel of square photos, e.g. an Instagram feed. */
-export default function ImageCarousel({ heading, intro, images, footer }: ImageCarouselProps) {
+export default function ImageCarousel({ heading, intro, images, footer, tone = "white" }: ImageCarouselProps) {
   return (
-    <Section className="overflow-hidden bg-white">
+    <Section tone={tone} className="overflow-hidden">
       <Container>
         <SectionIntro heading={heading} intro={intro} />
         <Carousel

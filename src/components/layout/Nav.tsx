@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { mainNav, type NavLink } from "@/config/navigation";
 import Container from "@/components/ui/Container";
-import { ChevronDown } from "@/components/icons";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
+import NavDropdown from "./NavDropdown";
+import NavItem from "./NavItem";
 import PageTitle from "./PageTitle";
 import StickyHeader, { HeaderDock } from "./StickyHeader";
 
@@ -27,14 +27,13 @@ export default function Nav({ links = mainNav }: NavProps) {
 
         <nav aria-label="Main">
           <ul className="hidden items-center gap-10 text-base font-medium leading-5 lg:flex">
-            {links.map((link) => (
-              <li key={link.label}>
-                <Link href={link.href} className="flex items-center gap-0.5 hover:opacity-80">
-                  {link.label}
-                  {link.dropdown && <ChevronDown />}
-                </Link>
-              </li>
-            ))}
+            {links.map((link) =>
+              link.menu ? (
+                <NavDropdown key={link.label} link={link} />
+              ) : (
+                <NavItem key={link.label} link={link} />
+              ),
+            )}
           </ul>
         </nav>
 

@@ -4,13 +4,15 @@ import { useState } from "react";
 import type { TravelMode } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import { Bus, Car, ChevronDown, Roundel, Train } from "@/components/icons";
 
 const MODE_ICONS = { underground: Roundel, overground: Train, bus: Bus, car: Car };
 
 type DirectionsProps = {
+  /** Section background (default white). */
+  tone?: SectionTone;
   heading: string;
   intro?: string;
   modes: TravelMode[];
@@ -19,11 +21,11 @@ type DirectionsProps = {
 };
 
 /** Accordion of travel modes with step-by-step directions, and a map (beside it on desktop, below on mobile). */
-export default function Directions({ heading, intro, modes, mapEmbedUrl }: DirectionsProps) {
+export default function Directions({ heading, intro, modes, mapEmbedUrl, tone = "white" }: DirectionsProps) {
   const [open, setOpen] = useState(0);
 
   return (
-    <Section className="bg-white">
+    <Section tone={tone}>
       <Container>
         <SectionIntro heading={heading} intro={intro} />
         <div className="mt-10 grid gap-8 lg:mt-16 lg:grid-cols-[22.5rem_1fr]">

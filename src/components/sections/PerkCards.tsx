@@ -4,20 +4,22 @@ import Image from "next/image";
 import type { Perk } from "@/lib/types";
 import Carousel from "@/components/ui/Carousel";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import { sizes2x } from "@/lib/images";
 
 type PerkCardsProps = {
+  /** Section background (default cream). */
+  tone?: SectionTone;
   heading: string;
   intro?: string;
   perks: Perk[];
 };
 
 /** Carousel of partner perk cards: photo with the partner's logo badge, name and description. */
-export default function PerkCards({ heading, intro, perks }: PerkCardsProps) {
+export default function PerkCards({ heading, intro, perks, tone = "cream" }: PerkCardsProps) {
   return (
-    <Section className="overflow-hidden bg-cream">
+    <Section tone={tone} className="overflow-hidden">
       <Container>
         <SectionIntro heading={heading} intro={intro} />
         <Carousel

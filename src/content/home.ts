@@ -10,11 +10,11 @@ export const homeMainLinks: LinkCard[] = [
     cta: { label: "Explore Co-Living", href: "/co-living" },
   },
   {
-    title: "Co-Working",
+    title: "Working",
     text: "Starting with London, our focus is on creating ground-breaking spaces and the greatest possible experiences within them. We’re redefining the way people can choose to live, work and play.",
     // TODO: only a 354px copy exists, so it's soft; swap for a larger original
-    image: { src: `${home}/co-working.jpg`, alt: "Members working at long tables in the co-working space" },
-    cta: { label: "Explore Co-Working", href: "/co-working" },
+    image: { src: `${home}/working.jpg`, alt: "Members working at long tables in the workspace" },
+    cta: { label: "Explore Working", href: "/working" },
   },
 ];
 

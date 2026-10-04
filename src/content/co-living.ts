@@ -3,7 +3,7 @@ import {
 } from "@/components/icons";
 import type { FaqItem } from "@/components/sections/Faq";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
-import type { CircleImage, LinkCard, Perk, PressQuote, PromoCard } from "@/lib/types";
+import type { CircleImage, GalleryImage, LinkCard, Perk, PressQuote, PromoCard } from "@/lib/types";
 
 const img = "/images/co-living";
 
@@ -175,3 +175,17 @@ export const coLivingPromos: PromoCard[] = [
     cta: { label: "Find out more", href: "/locations/old-oak" },
   },
 ];
+
+const community = `${img}/community`;
+// Caption shown under the photo (also its alt text, like the Old Oak gallery)
+export const coLivingCommunity: GalleryImage[] = [
+  ["01-cabaret-night", "Cabaret night"],
+  ["02-swing-dance", "Swing dance class"],
+  ["03-cooking-club", "Cooking club"],
+  ["04-movie-night", "Movie night"],
+  ["05-halloween", "Halloween party"],
+  ["06-rooftop-social", "Rooftop social"],
+  ["07-fancy-dress", "Fancy dress"],
+  ["08-games-night", "Games night"],
+  ["09-record-club", "Record club"],
+].map(([file, caption]) => ({ src: `${community}/${file}.jpg`, thumb: `${community}/thumbs/${file}.jpg`, alt: caption }));

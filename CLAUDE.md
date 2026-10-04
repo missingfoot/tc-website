@@ -11,6 +11,7 @@ Next.js (App Router) + Tailwind v4 rebuild of The Collective site from Figma (14
 - `src/components/sections/` — full-width page blocks that take content as props
 - `src/content/` — per-page content/data; `src/config/` — site config (nav links)
 - Colours are theme tokens in `src/app/globals.css` (`ink`, `stone`, `cream`, `cream-dark`, `ash`)
+- Large headings (hero titles, section and intro headings, card titles) use `leading-heading` (1.1, a theme token); body copy uses `leading-relaxed`.
 - Font: Circular Std, self-hosted from `src/app/fonts/` via `next/font/local`. Only weights 450 (Book), 500, 700 and 900 exist, so use `font-normal` (renders Book 450), `font-medium`, `font-bold`, `font-black`, never `font-semibold`.
 
 ## Design rules
@@ -20,7 +21,7 @@ Next.js (App Router) + Tailwind v4 rebuild of The Collective site from Figma (14
 - Wrap block content in `Container` for the 1440px max width and standard gutters.
 - Washes over photos (to make text readable) are **black gradients only** — never flat fills, and never the brand `ink` colour (it muddies photos). Darken where the text sits and keep the rest of the photo clear.
 - **Use Tailwind's scales for everything, not raw Figma values** (spacing, sizes, text size, leading, tracking, radii, max-widths), matching the Figma as closely as the scale allows. The Figma files predate auto layout and are full of one-off numbers (30px, 31px, 117px…): round to the nearest scale step (`mt-8`, `gap-6`, `text-4xl`, `leading-relaxed`, `rounded-2xl`…). Recurring design values become theme tokens in `globals.css` (e.g. `drop-shadow-card`); shared text styles live in `src/lib/styles.ts`. Arbitrary values are only for layout geometry (column widths, collage/card positions, aspect ratios, gradients).
-- Every content block uses the `Section` component (`src/components/ui/Section.tsx`) for its vertical padding — `py-12 lg:py-20` — so spacing between blocks is consistent. Don't add per-block section padding.
+- Every content block uses the `Section` component (`src/components/ui/Section.tsx`) for its vertical padding (`py-12 lg:py-20`) and background. Don't add per-block padding or background classes: every section component takes a `tone` prop (`"white"` | `"cream"`) with a sensible default, so pages can alternate backgrounds.
 
 ## Images
 - Photos must look high-res: never downscale or heavily compress the source to save bytes.

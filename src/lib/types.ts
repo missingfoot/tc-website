@@ -1,3 +1,5 @@
+import type { ComponentType } from "react";
+
 /** A call-to-action link, used by buttons and section blocks. */
 export type Cta = {
   label: string;
@@ -22,16 +24,16 @@ export type CircleImage = {
 };
 
 
-/** Which icon a room feature tile shows. */
-export type RoomFeatureIcon = "bathroom" | "kitchen" | "size" | "room";
-
+/** A room type or a location, shown as a card with feature tiles. */
 export type Room = {
   name: string;
+  /** Line under the name, e.g. a postcode. */
+  subtitle?: string;
   /** Display price, e.g. "£245 per week". */
   price: string;
   image: CircleImage;
   /** Shown as a 2 × 2 grid of icon tiles. */
-  features: { icon: RoomFeatureIcon; label: string }[];
+  features: { icon: ComponentType<{ className?: string }>; label: string }[];
   href: string;
 };
 

@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import type { Cta } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import { ChevronDown } from "@/components/icons";
 import { text } from "@/lib/styles";
@@ -12,6 +12,8 @@ import { text } from "@/lib/styles";
 export type FaqItem = { question: string; answer: string | string[] };
 
 type FaqProps = {
+  /** Section background (default white). */
+  tone?: SectionTone;
   heading: string;
   intro?: string;
   items: FaqItem[];
@@ -21,7 +23,7 @@ type FaqProps = {
 };
 
 /** Heading, then an accordion of questions (several can be open), with an optional closing line and button. */
-export default function Faq({ heading, intro, items, outro, cta }: FaqProps) {
+export default function Faq({ heading, intro, items, outro, cta, tone = "white" }: FaqProps) {
   const [open, setOpen] = useState<Set<number>>(() => new Set([0]));
   const toggle = (i: number) =>
     setOpen((prev) => {
@@ -32,7 +34,7 @@ export default function Faq({ heading, intro, items, outro, cta }: FaqProps) {
     });
 
   return (
-    <Section className="bg-white">
+    <Section tone={tone}>
       <Container>
         <SectionIntro heading={heading} intro={intro} />
         <ul className="mx-auto mt-10 flex max-w-3xl flex-col gap-2.5 lg:mt-16">

@@ -51,7 +51,7 @@ export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, c
         <Container className="relative flex h-full flex-col items-start justify-end pb-18 text-white lg:justify-start lg:pt-48 lg:pb-0">
           <div className="flex max-w-sm flex-col gap-2.5 tracking-tight lg:max-w-2xl">
             {eyebrow && <p className="text-2xl font-bold leading-tight">{eyebrow}</p>}
-            <h1 className="text-5xl font-black leading-tight lg:text-6xl">{title}</h1>
+            <h1 className="text-5xl font-bold leading-heading lg:text-6xl">{title}</h1>
             {subtitle && <p className="max-w-xl text-lg font-medium leading-tight text-balance">{subtitle}</p>}
           </div>
 

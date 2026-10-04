@@ -16,7 +16,7 @@ export default function Home() {
         imageAlt="Residents sharing dinner around a long table"
         eyebrow="The Collective"
         title="A new way to live work and play"
-        video={{ label: "Watch our video", url: "https://youtu.be/XkZbmXgOWOA" }}
+        video={{ label: "Watch video", url: "https://youtu.be/XkZbmXgOWOA" }}
       />
 
       <Intro raised layout="stacked" heading="We're unlocking the world's greatest cities for the creative and ambitious" cta={{ label: "Read more", href: "/our-story" }}>
@@ -24,13 +24,13 @@ export default function Home() {
         within them. By doing this, we’re redefining the way people can choose to live, work and play.
       </Intro>
 
-      <LinkCards cards={homeMainLinks} tone="dark" />
+      <LinkCards cards={homeMainLinks} cardStyle="dark" />
 
       <Testimonials heading="Residents love our spaces" testimonials={oldOakTestimonials} />
 
       <PressQuotes heading="The Collective in the Press" quotes={homePress} />
 
-      <LinkCards heading="What’s New" cards={homeWhatsNew} tone="light" />
+      <LinkCards heading="What’s New" cards={homeWhatsNew} cardStyle="light" />
 
       <SocialLinks
         heading="Connect with us"

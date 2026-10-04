@@ -1,37 +1,33 @@
 import Image from "next/image";
-import type { ComponentType } from "react";
-import type { Room, RoomFeatureIcon } from "@/lib/types";
+import type { Room } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import Pill from "@/components/ui/Pill";
-import Section from "@/components/ui/Section";
+import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
-import { Basin, Bed, Hob, TapeMeasure } from "@/components/icons";
 import { sizes2x } from "@/lib/images";
 
-const FEATURE_ICONS: Record<RoomFeatureIcon, ComponentType<{ className?: string }>> = {
-  bathroom: Basin,
-  kitchen: Hob,
-  size: TapeMeasure,
-  room: Bed,
-};
-
 type RoomCardsProps = {
+  /** Section background (default cream). */
+  tone?: SectionTone;
   heading: string;
   intro?: string;
   rooms: Room[];
+  /** Button label on each card (default "View Room"). */
+  ctaLabel?: string;
 };
 
-/** Section heading and intro, then a card per room type: photo, price, feature tiles and a link. */
-export default function RoomCards({ heading, intro, rooms }: RoomCardsProps) {
+/** Section heading and intro, then a card per room type or location: photo, name, price, feature tiles and a link. */
+export default function RoomCards({ heading, intro, rooms, ctaLabel = "View Room", tone = "cream" }: RoomCardsProps) {
   return (
-    <Section className="bg-cream">
+    <Section tone={tone}>
       <Container>
         <SectionIntro heading={heading} intro={intro} />
-        <ul className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
+        {/* Three columns for 3, 6…; otherwise two (e.g. 4 cards make a tidy 2 × 2) */}
+        <ul className={`mt-12 grid gap-8 md:grid-cols-2 lg:gap-10 ${rooms.length % 3 === 0 ? "lg:grid-cols-3" : "mx-auto max-w-4xl"}`}>
           {rooms.map((room) => (
             <li key={room.name}>
-              <RoomCard room={room} />
+              <RoomCard room={room} ctaLabel={ctaLabel} />
             </li>
           ))}
         </ul>
@@ -40,7 +36,7 @@ export default function RoomCards({ heading, intro, rooms }: RoomCardsProps) {
   );
 }
 
-function RoomCard({ room }: { room: Room }) {
+function RoomCard({ room, ctaLabel }: { room: Room; ctaLabel: string }) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-white text-center">
       <div className="relative aspect-[7/5]">
@@ -57,11 +53,12 @@ function RoomCard({ room }: { room: Room }) {
 
       <div className="flex flex-1 flex-col items-center p-8">
         <h3 className="text-2xl font-medium text-ink">{room.name}</h3>
+        {room.subtitle && <p className="mt-1 text-sm text-stone">{room.subtitle}</p>}
         <Pill className="mt-4">{room.price}</Pill>
 
         <ul className="mt-8 grid w-full grid-cols-2 gap-5">
           {room.features.map(({ icon, label }) => {
-            const FeatureIcon = FEATURE_ICONS[icon];
+            const FeatureIcon = icon;
             return (
               <li key={label} className="flex flex-col items-center gap-2 rounded-2xl bg-cream/40 px-2 py-5">
                 <FeatureIcon className="text-ink" />
@@ -72,7 +69,7 @@ function RoomCard({ room }: { room: Room }) {
         </ul>
 
         <Button href={room.href} variant="dark" arrow className="mt-8 w-full justify-center">
-          View Room
+          {ctaLabel}
         </Button>
       </div>
     </article>

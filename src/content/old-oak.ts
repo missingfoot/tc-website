@@ -1,3 +1,4 @@
+import { Basin, Bed, Hob, TapeMeasure } from "@/components/icons";
 import type { CircleImage, GalleryImage, PromoCard, Room, Testimonial } from "@/lib/types";
 
 const gallery = "/images/old-oak/gallery";
@@ -13,7 +14,7 @@ export const oldOakGallery: GalleryImage[] = [
   { src: `${gallery}/07-cinema.jpg`, thumb: `${thumbs}/07-cinema.jpg`, alt: "Cinema room" },
   { src: `${gallery}/08-gym.jpg`, thumb: `${thumbs}/08-gym.jpg`, alt: "Gym" },
   { src: `${gallery}/09-restaurant.jpg`, thumb: `${thumbs}/09-restaurant.jpg`, alt: "Restaurant" },
-  { src: `${gallery}/10-coworking.jpg`, thumb: `${thumbs}/10-coworking.jpg`, alt: "Co-working space" },
+  { src: `${gallery}/10-coworking.jpg`, thumb: `${thumbs}/10-coworking.jpg`, alt: "Workspace" },
   { src: `${gallery}/11-spa.jpg`, thumb: `${thumbs}/11-spa.jpg`, alt: "Spa" },
 ];
 
@@ -49,10 +50,10 @@ export const oldOakRooms: Room[] = [
     price: "£245 per week",
     image: { src: `${rooms}/ensuite.jpg`, alt: "Ensuite bedroom with a double bed and window" },
     features: [
-      { icon: "bathroom", label: "Private Bathroom" },
-      { icon: "kitchen", label: "Private Kitchenette" },
-      { icon: "size", label: "11.6 Square Metres" },
-      { icon: "room", label: "Single Room" },
+      { icon: Basin, label: "Private Bathroom" },
+      { icon: Hob, label: "Private Kitchenette" },
+      { icon: TapeMeasure, label: "11.6 Square Metres" },
+      { icon: Bed, label: "Single Room" },
     ],
     href: "#",
   },
@@ -61,10 +62,10 @@ export const oldOakRooms: Room[] = [
     price: "£290 per week",
     image: { src: `${rooms}/studio.jpg`, alt: "Studio room with a bed by a large window" },
     features: [
-      { icon: "bathroom", label: "Private Bathroom" },
-      { icon: "kitchen", label: "Shared Kitchen" },
-      { icon: "size", label: "12 Square Metres" },
-      { icon: "room", label: "Double Room" },
+      { icon: Basin, label: "Private Bathroom" },
+      { icon: Hob, label: "Shared Kitchen" },
+      { icon: TapeMeasure, label: "12 Square Metres" },
+      { icon: Bed, label: "Double Room" },
     ],
     href: "#",
   },
@@ -73,10 +74,10 @@ export const oldOakRooms: Room[] = [
     price: "£365 per week",
     image: { src: `${rooms}/one-bed-flat.jpg`, alt: "One bed flat with a kitchen and living space" },
     features: [
-      { icon: "bathroom", label: "Private Bathroom" },
-      { icon: "kitchen", label: "Private Kitchenette" },
-      { icon: "size", label: "28 Square Metres" },
-      { icon: "room", label: "Double Room" },
+      { icon: Basin, label: "Private Bathroom" },
+      { icon: Hob, label: "Private Kitchenette" },
+      { icon: TapeMeasure, label: "28 Square Metres" },
+      { icon: Bed, label: "Double Room" },
     ],
     href: "#",
   },

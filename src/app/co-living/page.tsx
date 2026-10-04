@@ -12,7 +12,7 @@ import ImageCarousel from "@/components/sections/ImageCarousel";
 import PromoCards from "@/components/sections/PromoCards";
 import SocialLinks from "@/components/sections/SocialLinks";
 import {
-  coLivingFaq, coLivingGrowImages, coLivingIncluded, coLivingInstagram, coLivingLocations, coLivingPerks, coLivingPress,
+  coLivingCommunity, coLivingFaq, coLivingGrowImages, coLivingIncluded, coLivingInstagram, coLivingLocations, coLivingPerks, coLivingPress,
   coLivingPromos, coLivingVideo,
 } from "@/content/co-living";
 import { oldOakGallery, oldOakTestimonials, socialLinks } from "@/content/old-oak";
@@ -25,12 +25,12 @@ export default function CoLiving() {
       <Hero
         image="/images/old-oak/promos/friends-chatting.jpg"
         imageAlt="Two residents laughing together in the lounge"
-        title="Co-living is a new way to rent in cities"
-        subtitle="Combining private ensuites with beautiful shared spaces and a programme of inspiring events, all included in one monthly bill, we help our members get the most out of city living."
+        title="A new way to rent"
+        subtitle="Combining private ensuites with beautiful shared spaces and a host of inspiring events, all included in one monthly bill."
         video={{ label: "Watch video", url: coLivingVideo }}
       />
 
-      <Intro raised layout="stacked" heading="What is co-living?" cta={{ label: "Read more about Co-Living", href: "#faq" }}>
+      <Intro raised layout="stacked" heading="What is co-living?" cta={{ label: "Read more", href: "#faq" }}>
         Co-living is a way of living in cities that is focused on community and convenience. Live as part of a
         community, sharing wonderfully designed spaces and inspiring events, with the comfort of being able to retreat
         to your own fully furnished private apartment at the end of the day. Everything you need to make the most of
@@ -39,15 +39,16 @@ export default function CoLiving() {
 
       <FeatureGroups heading="What’s included" groups={coLivingIncluded} />
 
-      <LinkCards heading="Locations" cards={coLivingLocations} tone="dark" />
+      <LinkCards heading="Locations" cards={coLivingLocations} cardStyle="dark" />
 
       <Testimonials heading="See what our members say" testimonials={oldOakTestimonials} />
 
-      <Intro layout="stacked" heading="Community">
-        Our spaces are nothing without people, and it’s our members that make it a home. You will have endless
-        opportunities to start new and interesting conversations, share ideas and experiences with like-minded
-        individuals, leave your mark and help to build this amazing community.
-      </Intro>
+      <Gallery
+        tone="white"
+        heading="Community"
+        intro="Our spaces are nothing without people, and it’s our members that make it a home. You will have endless opportunities to start new and interesting conversations, share ideas and experiences with like-minded individuals, leave your mark and help to build this amazing community."
+        images={coLivingCommunity}
+      />
 
       <Gallery
         heading="Shared spaces"
@@ -93,7 +94,7 @@ export default function CoLiving() {
 
       <PressQuotes heading="In the press" quotes={coLivingPress} />
 
-      <PromoCards cards={coLivingPromos} />
+      <PromoCards cards={coLivingPromos} mobileShape="tall" />
 
       <SocialLinks
         heading="Connect with us"
