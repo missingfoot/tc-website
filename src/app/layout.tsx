@@ -16,8 +16,8 @@ const circular = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "TC",
-  description: "A new way to live",
+  title: { default: "The Collective", template: "%s | The Collective" },
+  description: "A new way to live, work and play",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

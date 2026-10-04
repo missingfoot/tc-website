@@ -58,3 +58,28 @@ export type PromoCard = {
   image: CircleImage;
   cta: Cta;
 };
+
+/** A card with a photo, title, short text and a button. */
+export type LinkCard = {
+  title: string;
+  text: string;
+  image: CircleImage;
+  cta: Cta;
+};
+
+/** A press quote with the publication's name. */
+export type PressQuote = {
+  quote: string;
+  publication: string;
+  /** Publication logo (SVG, drawn white on the dark card). Falls back to the name as text. */
+  logo?: string;
+  href?: string;
+};
+
+/** A partner perk: photo, partner logo, name and description. */
+export type Perk = {
+  name: string;
+  text: string;
+  image: string;
+  logo?: string;
+};

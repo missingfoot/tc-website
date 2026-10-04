@@ -84,16 +84,16 @@ export const oldOakRooms: Room[] = [
 
 const residents = "/images/old-oak/residents";
 
-// TODO: placeholder names (only "Alex" was in the design) and one shared video; replace with
-// each resident's real name and their own video.
+// Names from the old site. Alex and TJ are confirmed by the design; Amna, Josie and Fab are
+// matched to portraits by best guess. TODO: confirm, and add each resident's own video.
 const residentVideo = "https://youtu.be/XkZbmXgOWOA";
 
 export const oldOakTestimonials: Testimonial[] = [
   { name: "Alex", image: { src: `${residents}/resident-1.jpg`, alt: "Alex, an Old Oak resident" }, video: residentVideo },
-  { name: "Sophie", image: { src: `${residents}/resident-2.jpg`, alt: "Sophie, an Old Oak resident" }, video: residentVideo },
-  { name: "Jess", image: { src: `${residents}/resident-3.jpg`, alt: "Jess, an Old Oak resident" }, video: residentVideo },
-  { name: "Amara", image: { src: `${residents}/resident-4.jpg`, alt: "Amara, an Old Oak resident" }, video: residentVideo },
-  { name: "Tom", image: { src: `${residents}/resident-5.jpg`, alt: "Tom, an Old Oak resident" }, video: residentVideo },
+  { name: "Fab", image: { src: `${residents}/resident-2.jpg`, alt: "Fab, an Old Oak resident" }, video: residentVideo },
+  { name: "Josie", image: { src: `${residents}/resident-3.jpg`, alt: "Josie, an Old Oak resident" }, video: residentVideo },
+  { name: "Amna", image: { src: `${residents}/resident-4.jpg`, alt: "Amna, an Old Oak resident" }, video: residentVideo },
+  { name: "TJ", image: { src: `${residents}/resident-5.jpg`, alt: "TJ, an Old Oak resident" }, video: residentVideo },
 ];
 
 // TODO: real profile links and the newsletter sign-up URL

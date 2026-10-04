@@ -6,7 +6,7 @@ export type NavLink = {
 };
 
 export const mainNav: NavLink[] = [
-  { label: "Co-Living", href: "#" },
+  { label: "Co-Living", href: "/co-living" },
   { label: "Locations", href: "#", dropdown: true },
   { label: "Mission", href: "#" },
   { label: "Working", href: "#" },
@@ -73,5 +73,7 @@ export const mobileNav: MobileNavGroup[] = [
 
 /** Short page titles shown in the middle of the mobile top bar, by path. */
 export const pageTitles: Record<string, string> = {
-  "/": "Old Oak",
+  "/": "The Collective",
+  "/locations/old-oak": "Old Oak",
+  "/co-living": "Co-Living",
 };

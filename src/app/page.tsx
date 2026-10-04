@@ -1,100 +1,36 @@
 import Hero from "@/components/sections/Hero";
-import SplitIntro from "@/components/sections/SplitIntro";
-import Gallery from "@/components/sections/Gallery";
-import CollageSplit from "@/components/sections/CollageSplit";
-import RoomCards from "@/components/sections/RoomCards";
-import FeatureGroups from "@/components/sections/FeatureGroups";
+import Intro from "@/components/sections/Intro";
+import LinkCards from "@/components/sections/LinkCards";
 import Testimonials from "@/components/sections/Testimonials";
-import Directions from "@/components/sections/Directions";
+import PressQuotes from "@/components/sections/PressQuotes";
 import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
-import { oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
-import { oldOakIncluded } from "@/content/included";
-import Button from "@/components/ui/Button";
-import { Icon360 } from "@/components/icons";
-import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakRooms, oldOakPromos, oldOakTestimonials, socialLinks } from "@/content/old-oak";
+import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
+import { oldOakPromos, oldOakTestimonials, socialLinks } from "@/content/old-oak";
 
 export default function Home() {
   return (
     <>
       <Hero
-        image="/images/hero-cover-old-oak.jpg"
-        imageAlt="The Collective Old Oak lounge"
-        eyebrow="North London"
-        title="Old Oak"
-        subtitle="Live somewhere that's home, and so much more."
-        cta={{ label: "Apply Now", href: "#" }}
+        image="/images/old-oak/benefits/shared-dinner.jpg"
+        imageAlt="Residents sharing dinner around a long table"
+        eyebrow="The Collective"
+        title="A new way to live work and play"
+        video={{ label: "Watch our video", url: "https://youtu.be/XkZbmXgOWOA" }}
       />
 
-      <SplitIntro raised heading="Co-living at Old Oak" cta={{ label: "Read more", href: "#" }}>
-        More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses
-        shared spaces and facilities to create a more fulfilling lifestyle. Home to over 500 people
-        from all walks of life, all our members share a curious mind and a desire to live their life
-        in a more connected way with the people around them.
-      </SplitIntro>
+      <Intro raised layout="stacked" heading="We're unlocking the world's greatest cities for the creative and ambitious" cta={{ label: "Read more", href: "/our-story" }}>
+        Starting with London, our focus is on creating ground-breaking spaces and the greatest possible experiences
+        within them. By doing this, we’re redefining the way people can choose to live, work and play.
+      </Intro>
 
-      <Gallery
-        heading="Explore the spaces"
-        intro="Co-living is a living experience that's bold, exciting and unique. By combining shared spaces with events and opportunities to connect, collective living provides a platform for you to maximise your potential."
-        images={oldOakGallery}
-        footer={
-          <Button href="#" variant="dark">
-            <Icon360 />
-            View 3D Tour
-          </Button>
-        }
-      />
+      <LinkCards cards={homeMainLinks} tone="dark" />
 
-      <CollageSplit
-        heading={
-          <>
-            The benefits of <span className="whitespace-nowrap">co-living</span>
-          </>
-        }
-        images={oldOakBenefitsImages}
-      >
-        <p>
-          We know that one of the most daunting things about moving is feeling isolated or alone.
-          Whether you&apos;re new to the city, trying to meet new people, starting a business or
-          building your career, co-living at Old Oak helps you to feel part of something bigger. Old
-          Oak is a place fuelled by experiences. Our diverse group of members creates the perfect
-          environment for you to immerse yourself and discover something new every single day.
-        </p>
-        <p>
-          Whether it&apos;s in your private apartment, or in one of our more quiet shared spaces like
-          the library or spa, Old Oak provides ample space for you to take a bit of much needed time
-          out. The age-old &apos;work hard, play harder&apos; is realized at Old Oak. With a games room,
-          cinema room, multiple restaurants and bars, and a roof garden, there&apos;s more than enough
-          to keep even the most active busy.
-        </p>
-      </CollageSplit>
+      <Testimonials heading="Residents love our spaces" testimonials={oldOakTestimonials} />
 
-      <PromoCards cards={oldOakCommunityCards} />
+      <PressQuotes heading="The Collective in the Press" quotes={homePress} />
 
-      <RoomCards
-        heading="Explore the rooms"
-        intro="Each room in Old Oak has unique co-living feel that is designed to make you feel at home but not keep you in your room where you are encouraged to explore and make connections with other members."
-        rooms={oldOakRooms}
-      />
-
-      <FeatureGroups
-        heading="What’s included"
-        intro="More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses shared spaces and facilities to create a more fulfilling lifestyle."
-        groups={oldOakIncluded}
-      />
-
-      <Testimonials
-        heading="Residents love our spaces"
-        intro="More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses shared spaces and facilities to create a more fulfilling lifestyle."
-        testimonials={oldOakTestimonials}
-      />
-
-      <Directions
-        heading="Well connected"
-        intro="Situated on the banks of the canal in Willesden Junction, Old Oak is perfectly positioned to access London, with both tube and rail connections close by."
-        modes={oldOakTravelModes}
-        mapEmbedUrl={oldOakMapEmbed}
-      />
+      <LinkCards heading="What’s New" cards={homeWhatsNew} tone="light" />
 
       <SocialLinks
         heading="Connect with us"
