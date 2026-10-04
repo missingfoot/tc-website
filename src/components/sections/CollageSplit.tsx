@@ -37,7 +37,7 @@ export default function CollageSplit({ heading, children, images }: CollageSplit
 
           {/* Below lg, shift left 6.8%: at rest the circles' group sits right of the box centre (as
               in the desktop design), which crowds the right edge on phones */}
-          <div className="mx-auto mt-10 mb-8 w-[min(409px,85vw)] max-lg:-translate-x-[6.8%] lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:my-0 lg:w-full">
+          <div className="mx-auto mt-10 mb-8 w-5/6 max-w-104 max-lg:-translate-x-[6.8%] lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:my-0 lg:w-full">
             <CircleCollage {...images} />
           </div>
 

@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight } from "@/components/icons";
+import { pressable } from "@/lib/styles";
 
 type ArrowButtonProps = {
   direction: "left" | "right";
@@ -15,7 +16,7 @@ export default function ArrowButton({ direction, onClick, label, className = "" 
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`flex size-10 shrink-0 items-center justify-center rounded-full bg-ink text-white transition hover:bg-ink/85 ${className}`}
+      className={`flex size-10 shrink-0 items-center justify-center rounded-full bg-ink text-white hover:bg-ink/85 ${pressable} ${className}`}
     >
       {direction === "left" ? <ArrowLeft className="size-4" /> : <ArrowRight className="size-4" />}
     </button>

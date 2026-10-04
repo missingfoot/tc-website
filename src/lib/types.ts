@@ -48,3 +48,20 @@ export type Testimonial = {
   /** .mp4 URL or a YouTube/Vimeo link. */
   video?: string;
 };
+
+/** One way of getting there, shown as an accordion row with step-by-step directions. */
+export type TravelMode = {
+  label: string;
+  /** Icon name (a string so content can pass it from server to client components). */
+  icon: "underground" | "overground" | "bus" | "car";
+  steps: string[];
+  /** Google Maps link for this mode, e.g. a directions URL with the right travel mode. */
+  mapsUrl: string;
+};
+
+/** A photo card with a heading and a button, e.g. "Like what you see? / Apply now". */
+export type PromoCard = {
+  heading: string;
+  image: CircleImage;
+  cta: Cta;
+};

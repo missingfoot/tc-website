@@ -6,10 +6,14 @@ import OverlapCards from "@/components/sections/OverlapCards";
 import RoomCards from "@/components/sections/RoomCards";
 import FeatureGroups from "@/components/sections/FeatureGroups";
 import Testimonials from "@/components/sections/Testimonials";
+import Directions from "@/components/sections/Directions";
+import SocialLinks from "@/components/sections/SocialLinks";
+import PromoCards from "@/components/sections/PromoCards";
+import { oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
 import { oldOakIncluded } from "@/content/included";
 import Button from "@/components/ui/Button";
 import { Icon360 } from "@/components/icons";
-import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakRooms, oldOakTestimonials } from "@/content/old-oak";
+import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakRooms, oldOakPromos, oldOakTestimonials, socialLinks } from "@/content/old-oak";
 
 export default function Home() {
   return (
@@ -23,7 +27,7 @@ export default function Home() {
         cta={{ label: "Apply Now", href: "#" }}
       />
 
-      <SplitIntro heading="Co-living at Old Oak" cta={{ label: "Read more", href: "#" }}>
+      <SplitIntro raised heading="Co-living at Old Oak" cta={{ label: "Read more", href: "#" }}>
         More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses
         shared spaces and facilities to create a more fulfilling lifestyle. Home to over 500 people
         from all walks of life, all our members share a curious mind and a desire to live their life
@@ -85,6 +89,22 @@ export default function Home() {
         intro="More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses shared spaces and facilities to create a more fulfilling lifestyle."
         testimonials={oldOakTestimonials}
       />
+
+      <Directions
+        heading="Well connected"
+        intro="Situated on the banks of the canal in Willesden Junction, Old Oak is perfectly positioned to access London, with both tube and rail connections close by."
+        modes={oldOakTravelModes}
+        mapEmbedUrl={oldOakMapEmbed}
+      />
+
+      <SocialLinks
+        heading="Connect with us"
+        intro="Keep up with what we are up to on social media, and get the chance to get promotions!"
+        links={socialLinks}
+        cta={{ label: "Sign up for a newsletter", href: "#" }}
+      />
+
+      <PromoCards cards={oldOakPromos} />
     </>
   );
 }

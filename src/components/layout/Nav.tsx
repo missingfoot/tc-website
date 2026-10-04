@@ -4,21 +4,26 @@ import Container from "@/components/ui/Container";
 import { ChevronDown } from "@/components/icons";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
-import StickyHeader from "./StickyHeader";
+import PageTitle from "./PageTitle";
+import StickyHeader, { HeaderDock } from "./StickyHeader";
 
 type NavProps = {
   links?: NavLink[];
 };
 
 /**
- * Site header. Starts transparent over the top of the page (so the first block should be a
- * dark Hero), then turns white and compact once scrolled.
+ * Site header: transparent over the top of the page (so the first block should be a dark
+ * Hero), then a floating dark pill once scrolled.
  */
 export default function Nav({ links = mainNav }: NavProps) {
   return (
     <StickyHeader>
-      <Container className="flex h-full items-center justify-between">
+      {/* relative + isolate so the dock pill can sit behind the content (-z-10). On mobile the
+          content sits further in (max-md:px-9) so it has 24px of room inside the pill. */}
+      <Container className="relative isolate flex h-full items-center justify-between max-md:px-9">
+        <HeaderDock />
         <Logo />
+        <PageTitle />
 
         <nav aria-label="Main">
           <ul className="hidden items-center gap-10 text-base font-medium leading-5 lg:flex">

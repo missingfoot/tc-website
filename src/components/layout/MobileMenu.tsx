@@ -7,13 +7,13 @@ import { mobileNav, type MobileNavGroup, type MobileNavItem } from "@/config/nav
 import { ChevronDown, Close, Menu } from "@/components/icons";
 import { useMobileMenu } from "./StickyHeader";
 
-const itemBase = "flex w-full items-center gap-0.5 rounded-xl p-4 text-left font-medium transition";
+const itemBase = "flex w-full items-center gap-0.5 rounded-full px-6 py-4 text-left font-medium transition";
 const activeBg = "bg-white/6";
 
 /**
- * Menu/close button plus the full-screen dark menu it toggles. Shown below lg.
- * The panel sits behind the header (which turns dark while open), so the logo and
- * button stay exactly where they are.
+ * Menu/close button plus the floating dark menu card it toggles. Shown below lg. While
+ * open the header shows its dock pill, the card floats just under it, and the page stays
+ * visible (dimmed) around it; tapping outside closes it.
  */
 export default function MobileMenu({ groups = mobileNav }: { groups?: MobileNavGroup[] }) {
   const { open, setOpen } = useMobileMenu();
@@ -54,23 +54,34 @@ export default function MobileMenu({ groups = mobileNav }: { groups?: MobileNavG
         aria-expanded={open}
         aria-controls="mobile-menu"
         onClick={() => setOpen(!open)}
-        className="-mr-3 flex size-12 items-center justify-center lg:hidden"
+        className="-mr-3 flex size-12 items-center justify-center rounded-full lg:hidden"
       >
         {open ? <Close /> : <Menu />}
       </button>
 
-      {/* -z-10 puts the panel behind the header's logo and button */}
+      {/* Dimmed page behind the card; tapping it closes the menu */}
       <div
-        id="mobile-menu"
-        className={`fixed inset-0 -z-10 overflow-y-auto bg-ink pt-24 text-white duration-300 lg:hidden ${
-          // Visible immediately on open; hidden only after the fade-out
+        aria-hidden="true"
+        onClick={close}
+        className={`fixed inset-0 -z-20 bg-black/40 duration-300 lg:hidden ${
           open ? "visible opacity-100 transition-opacity" : "invisible opacity-0 transition-[opacity,visibility]"
         }`}
+      />
+
+      {/* Floating card under the dock pill, lined up with its edges */}
+      <div
+        id="mobile-menu"
+        className={`fixed inset-x-3 top-22 bottom-3 -z-10 origin-top overflow-y-auto overscroll-contain rounded-4xl bg-ink/95 text-white shadow-2xl shadow-black/30 backdrop-blur-md duration-300 ease-smooth md:inset-x-6 lg:hidden ${
+          // Visible immediately on open; hidden only after the fade-out
+          open
+            ? "visible translate-y-0 scale-100 opacity-100 transition-[opacity,translate,scale]"
+            : "invisible -translate-y-2 scale-98 opacity-0 transition-[opacity,translate,scale,visibility]"
+        }`}
       >
-        <nav aria-label="Mobile" className="p-4 pb-20">
+        <nav aria-label="Mobile" className="p-4">
           {groups.map((group, i) => (
             <div key={group.label ?? i}>
-              {group.label && <p className="px-4 pt-6 pb-1 text-sm font-bold leading-5 text-ash">{group.label}</p>}
+              {group.label && <p className="px-6 pt-6 pb-1 text-sm font-bold leading-5 text-ash">{group.label}</p>}
               <ul>
                 {group.items.map((item) => (
                   <li key={item.href}>

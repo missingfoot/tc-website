@@ -70,3 +70,8 @@ export const mobileNav: MobileNavGroup[] = [
     ],
   },
 ];
+
+/** Short page titles shown in the middle of the mobile top bar, by path. */
+export const pageTitles: Record<string, string> = {
+  "/": "Old Oak",
+};

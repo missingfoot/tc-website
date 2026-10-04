@@ -55,7 +55,7 @@ export default function Gallery({ heading, intro, images, footer }: GalleryProps
           <div className="relative aspect-[800/520] w-full max-w-200 overflow-hidden rounded-2xl bg-ink/10">
             {/* All photos side by side; the strip slides to the current one */}
             <ul
-              className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+              className="flex h-full transition-transform duration-700 ease-smooth motion-reduce:transition-none"
               style={{ transform: `translateX(-${index * 100}%)` }}
             >
               {images.map((image, i) => (

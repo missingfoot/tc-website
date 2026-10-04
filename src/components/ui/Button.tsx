@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "@/components/icons";
+import { pressable } from "@/lib/styles";
 
 type ButtonProps = {
   children: ReactNode;
@@ -20,7 +21,7 @@ const variants = {
 
 /** Pill button from the Figma. Always 48px tall. A link with `href`, a button with `onClick`. */
 export default function Button({ children, variant = "light", arrow = false, className = "", ...action }: ButtonProps) {
-  const classes = `inline-flex h-12 items-center gap-2.5 rounded-full px-6 text-base font-bold leading-6 transition ${variants[variant]} ${className}`;
+  const classes = `inline-flex h-12 items-center gap-2.5 rounded-full px-6 text-base font-bold leading-6 ${pressable} ${variants[variant]} ${className}`;
   const content = (
     <>
       {children}

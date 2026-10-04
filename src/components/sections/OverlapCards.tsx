@@ -33,7 +33,7 @@ export default function OverlapCards({ cta, top, bottom }: OverlapCardsProps) {
   return (
     <Section className="bg-white">
       <Container>
-        <div className="flex flex-col gap-10 lg:relative lg:mx-auto lg:block lg:max-w-[893px]">
+        <div className="flex flex-col gap-10 lg:relative lg:mx-auto lg:block lg:max-w-224">
           {/* Sizes the desktop group; cards are absolutely positioned inside it */}
           <div aria-hidden="true" className="hidden lg:block" style={{ aspectRatio: GROUP_RATIO }} />
 

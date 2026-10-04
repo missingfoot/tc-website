@@ -5,3 +5,6 @@ export const text = {
   /** Body copy in content blocks. font-normal renders Circular Book (450, the lightest weight we ship). */
   body: "text-base leading-relaxed text-stone",
 } as const;
+
+/** Shared interaction feedback for buttons and button-like links: a slight press on click. */
+export const pressable = "transition active:scale-97 motion-reduce:active:scale-100";

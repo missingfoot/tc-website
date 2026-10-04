@@ -38,7 +38,7 @@ export default function VideoModal({ video, title, onClose }: VideoModalProps) {
       aria-label={title}
       onClose={onClose}
       onClick={(e) => e.target === e.currentTarget && onClose()}
-      className="m-auto w-[min(64rem,calc(100%-2rem))] overflow-visible bg-transparent p-0 backdrop:bg-ink/80"
+      className="m-auto w-11/12 max-w-5xl overflow-visible bg-transparent p-0 backdrop:bg-ink/80"
     >
       <button type="button" onClick={onClose} aria-label="Close video" className="absolute -top-12 right-0 flex size-10 items-center justify-center text-white">
         <Close />

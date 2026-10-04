@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Footer from "@/components/layout/Footer";
 import Nav from "@/components/layout/Nav";
 import "./globals.css";
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col font-sans">
         <Nav />
         <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   );

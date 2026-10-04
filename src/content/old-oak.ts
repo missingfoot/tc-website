@@ -1,4 +1,4 @@
-import type { CaptionedImage, CircleImage, Cta, GalleryImage, Room, Testimonial } from "@/lib/types";
+import type { CaptionedImage, CircleImage, Cta, GalleryImage, PromoCard, Room, Testimonial } from "@/lib/types";
 
 const gallery = "/images/old-oak/gallery";
 const thumbs = `${gallery}/thumbs`;
@@ -93,4 +93,29 @@ export const oldOakTestimonials: Testimonial[] = [
   { name: "Jess", image: { src: `${residents}/resident-3.jpg`, alt: "Jess, an Old Oak resident" }, video: residentVideo },
   { name: "Amara", image: { src: `${residents}/resident-4.jpg`, alt: "Amara, an Old Oak resident" }, video: residentVideo },
   { name: "Tom", image: { src: `${residents}/resident-5.jpg`, alt: "Tom, an Old Oak resident" }, video: residentVideo },
+];
+
+// TODO: real profile links and the newsletter sign-up URL
+export const socialLinks: import("@/components/sections/SocialLinks").SocialLink[] = [
+  { platform: "youtube", label: "The Collective on YouTube", href: "#" },
+  { platform: "twitter", label: "The Collective on Twitter", href: "#" },
+  { platform: "facebook", label: "The Collective on Facebook", href: "#" },
+  { platform: "instagram", label: "The Collective on Instagram", href: "#" },
+  { platform: "email", label: "Email The Collective", href: "mailto:hello@example.com" },
+];
+
+const promos = "/images/old-oak/promos";
+
+// TODO: link targets
+export const oldOakPromos: PromoCard[] = [
+  {
+    heading: "Is Co-Living for me?",
+    image: { src: `${promos}/friends-chatting.jpg`, alt: "Two residents laughing together in the lounge" },
+    cta: { label: "Find out now", href: "#" },
+  },
+  {
+    heading: "Like what you see?",
+    image: { src: `${promos}/bar-night.jpg`, alt: "Residents chatting at the bar" },
+    cta: { label: "Apply now", href: "#" },
+  },
 ];

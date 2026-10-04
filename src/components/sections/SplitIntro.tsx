@@ -10,14 +10,16 @@ type SplitIntroProps = {
   /** Body copy. Pass a string, or JSX for several paragraphs. */
   children: ReactNode;
   cta?: Cta;
+  /** Overlap the block above with rounded corners on mobile (use directly under the Hero). */
+  raised?: boolean;
 };
 
 /** Big right-aligned heading on the left, body text and a button on the right. */
-export default function SplitIntro({ heading, children, cta }: SplitIntroProps) {
+export default function SplitIntro({ heading, children, cta, raised = false }: SplitIntroProps) {
   return (
-    <Section className="bg-white">
+    <Section className="bg-white" raised={raised}>
       <Container className="grid gap-10 lg:grid-cols-[1fr_509px] lg:gap-28">
-        <h2 className="text-5xl font-bold leading-tight text-ink lg:text-right xl:text-6xl">
+        <h2 className="text-3xl font-bold leading-tight text-ink lg:text-right lg:text-5xl xl:text-6xl">
           {heading}
         </h2>
 

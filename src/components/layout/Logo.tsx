@@ -10,7 +10,7 @@ type LogoProps = {
 export function LogoMark({ variant = "full", className = "" }: LogoProps) {
   if (variant === "icon") {
     return (
-      <svg viewBox="0 0 37 42" fill="currentColor" aria-hidden="true" className={`h-10 w-auto ${className}`}>
+      <svg viewBox="0 0 37 42" fill="currentColor" aria-hidden="true" className={`h-8 w-auto ${className}`}>
       <path fillRule="evenodd" clipRule="evenodd" d="M36.2439 31.3685L18.1218 41.8247L0 31.3685V10.4582L18.1218 20.9123L36.2439 10.4561V17.4277L18.1218 27.8817L6.98132 21.4547V28.4331L18.1218 34.8487L36.2439 24.3947V31.3685Z" />
       <path fillRule="evenodd" clipRule="evenodd" d="M4.52393 7.83569L18.1216 15.689L31.7111 7.83426L18.1216 0L13.6094 2.60364L22.6572 7.83569L18.1177 10.4494L9.05661 5.21877L4.52393 7.83569Z" />
       </svg>
@@ -18,7 +18,7 @@ export function LogoMark({ variant = "full", className = "" }: LogoProps) {
   }
 
   return (
-    <svg viewBox="0 0 250 42" fill="currentColor" aria-hidden="true" className={`h-10 w-auto ${className}`}>
+    <svg viewBox="0 0 250 42" fill="currentColor" aria-hidden="true" className={`h-8 w-auto ${className}`}>
       <path fillRule="evenodd" clipRule="evenodd" d="M36.2439 31.5438L18.1218 42L0 31.5438V10.6335L18.1218 21.0876L36.2439 10.6313V17.603L18.1218 28.057L6.98132 21.63V28.6084L18.1218 35.024L36.2439 24.57V31.5438Z" />
       <path fillRule="evenodd" clipRule="evenodd" d="M4.52393 8.01099L18.1216 15.8643L31.7111 8.00955L18.1216 0.175293L13.6094 2.77893L22.6572 8.01099L18.1177 10.6247L9.05661 5.39406L4.52393 8.01099Z" />
       <path fillRule="evenodd" clipRule="evenodd" d="M52.7976 16.5696H48.4912V14.3594H59.5106V16.5696H55.2031V27.9311H52.7976V16.5696Z" />
