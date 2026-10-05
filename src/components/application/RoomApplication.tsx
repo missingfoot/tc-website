@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { useModalDialog } from "@/hooks/useModalDialog";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import StickyBar from "@/components/ui/StickyBar";
 import { Check } from "@/components/icons";
-import { dialCodes, formatMoney, nationalities, paymentPlans, periodMonths, roomCosts, type ApplicationRoom } from "@/lib/application";
-import { field, text } from "@/lib/styles";
+import { formatMoney, nationalities, paymentPlans, periodMonths, roomCosts, type ApplicationRoom } from "@/lib/application";
+import { text } from "@/lib/styles";
 import ApplicationStep, { type StepState } from "./ApplicationStep";
 import ApplicationSummary from "./ApplicationSummary";
 import DateOfBirth from "./DateOfBirth";
-import { Details, RadioGroup, TextField } from "./fields";
+import { Details, PhoneField, RadioGroup, TextField } from "./fields";
 
 type Answers = Record<string, string>;
 const STEPS = ["Contact details", "Personal information", "Payment plan", "Payment"] as const;
@@ -92,15 +93,7 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
                 <TextField id="firstName" label="First name" autoComplete="given-name" required defaultValue={contact.firstName} />
                 <TextField id="lastName" label="Last name" autoComplete="family-name" required defaultValue={contact.lastName} />
                 <TextField id="email" label="Email" type="email" autoComplete="email" required defaultValue={contact.email} />
-                <div>
-                  <label htmlFor="mobile" className={`block ${text.label}`}>
-                    Mobile number (only used about your booking)
-                  </label>
-                  <div className="mt-2 flex gap-2">
-                    <Select aria-label="Country code" name="dialCode" options={dialCodes} defaultValue={contact.dialCode ?? "+44"} className="w-40 shrink-0" />
-                    <input id="mobile" name="mobile" type="tel" autoComplete="tel-national" required defaultValue={contact.mobile} className={field} />
-                  </div>
-                </div>
+                <PhoneField id="mobile" label="Mobile number (only used about your booking)" defaultValue={contact} />
                 <StepSubmit>Next</StepSubmit>
               </form>
             ) : (
@@ -330,17 +323,7 @@ function PaymentForm({ total, onSubmit }: { total: number; onSubmit: (e: FormEve
  * matching the page's own ("Show info" becomes "Hide info").
  */
 function SummarySheet({ room, open, onClose }: { room: ApplicationRoom; open: boolean; onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) {
-      dialog.showModal();
-      // Focus the page itself, not its first button (which would pop open a "?" tooltip)
-      dialog.focus();
-    }
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
+  const ref = useModalDialog(open);
 
   return (
     <dialog

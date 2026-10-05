@@ -1,6 +1,4 @@
 import type { ComponentType, ReactNode } from "react";
-import type { Cta } from "@/lib/types";
-import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import Section, { type SectionTone } from "@/components/ui/Section";
 import { text } from "@/lib/styles";
@@ -14,7 +12,8 @@ type LocationIntroProps = {
   features: { icon: ComponentType<{ className?: string }>; label: string }[];
   /** Body copy. Pass a string, or JSX for several paragraphs. */
   children: ReactNode;
-  cta?: Cta;
+  /** A button under the text, e.g. "Enquire now". */
+  action?: ReactNode;
   /** Section background (default white). */
   tone?: SectionTone;
   /** Overlap the block above with rounded corners on mobile (use directly under the Hero). */
@@ -22,7 +21,7 @@ type LocationIntroProps = {
 };
 
 /** A location's name and postcode, then its feature rows beside the intro text on desktop. */
-export default function LocationIntro({ name, subtitle, features, children, cta, tone = "white", raised = false }: LocationIntroProps) {
+export default function LocationIntro({ name, subtitle, features, children, action, tone = "white", raised = false }: LocationIntroProps) {
   return (
     <Section tone={tone} raised={raised}>
       <Container>
@@ -42,11 +41,7 @@ export default function LocationIntro({ name, subtitle, features, children, cta,
 
           <div className="flex max-w-lg flex-col items-start gap-8">
             <div className={`flex flex-col gap-5 ${text.body}`}>{typeof children === "string" ? <p>{children}</p> : children}</div>
-            {cta && (
-              <Button href={cta.href} arrow>
-                {cta.label}
-              </Button>
-            )}
+            {action}
           </div>
         </div>
       </Container>

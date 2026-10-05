@@ -1,5 +1,5 @@
-import type { Cta, Price } from "@/lib/types";
-import Button from "@/components/ui/Button";
+import type { ReactNode } from "react";
+import type { Price } from "@/lib/types";
 import Container from "@/components/ui/Container";
 import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
@@ -8,13 +8,14 @@ type PricingProps = {
   heading: string;
   intro?: string;
   prices: Price[];
-  cta?: Cta;
+  /** Under the cards, e.g. an "Enquire now" button (made full width below lg). */
+  action?: ReactNode;
   /** Section background (default cream; the cards are white). */
   tone?: SectionTone;
 };
 
 /** Heading and intro, then side-by-side price cards and an optional button (full width below lg). */
-export default function Pricing({ heading, intro, prices, cta, tone = "cream" }: PricingProps) {
+export default function Pricing({ heading, intro, prices, action, tone = "cream" }: PricingProps) {
   return (
     <Section tone={tone}>
       <Container>
@@ -29,11 +30,7 @@ export default function Pricing({ heading, intro, prices, cta, tone = "cream" }:
               </li>
             ))}
           </ul>
-          {cta && (
-            <Button href={cta.href} variant="dark" arrow className="w-full justify-center lg:w-auto">
-              {cta.label}
-            </Button>
-          )}
+          {action && <div className="w-full *:w-full *:justify-center lg:w-auto lg:*:w-auto">{action}</div>}
         </div>
       </Container>
     </Section>

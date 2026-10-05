@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { PromoCard } from "@/lib/types";
 import Button from "@/components/ui/Button";
+import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import Container from "@/components/ui/Container";
 import Section, { type SectionTone } from "@/components/ui/Section";
 import { sizes2x } from "@/lib/images";
@@ -49,9 +50,13 @@ function PromoCardItem({ card, shape }: { card: PromoCard; shape: string }) {
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-b from-black/65 via-black/10 via-50% to-black/30" />
 
       <h2 className="text-3xl font-bold leading-heading tracking-tight text-white">{card.heading}</h2>
-      <Button href={card.cta.href} arrow className="w-full justify-center lg:w-auto lg:self-start">
-        {card.cta.label}
-      </Button>
+      {card.cta.enquiry ? (
+        <EnquiryButton kind={card.cta.enquiry} variant="light" className="w-full justify-center lg:w-auto lg:self-start" />
+      ) : (
+        <Button href={card.cta.href} arrow className="w-full justify-center lg:w-auto lg:self-start">
+          {card.cta.label}
+        </Button>
+      )}
     </article>
   );
 }

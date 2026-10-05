@@ -1,16 +1,15 @@
 "use client";
 
-import type { Cta } from "@/lib/types";
-import Button from "@/components/ui/Button";
+import type { ReactNode } from "react";
 import { useInView } from "@/hooks/useInView";
 
 /**
- * A button that stays on screen while the page scrolls: bottom centre on mobile, bottom right
+ * Holds a button (children) that stays on screen while the page scrolls: bottom centre on mobile, bottom right
  * on desktop. Sits under the header and mobile menu (z-40), clear of the phone's home bar.
  * Comes in once the page's first block (the hero) has scrolled away, and fades out again once
  * the site footer is in view, so it never covers the footer's links.
  */
-export default function FloatingButton({ cta }: { cta: Cta }) {
+export default function FloatingButton({ children }: { children: ReactNode }) {
   const heroInView = useInView("main > :first-child", true);
   const footerInView = useInView("footer");
   const hidden = heroInView || footerInView;
@@ -22,9 +21,8 @@ export default function FloatingButton({ cta }: { cta: Cta }) {
         hidden ? "translate-y-4 opacity-0" : ""
       }`}
     >
-      <Button href={cta.href} variant="dark" arrow className="shadow-lg shadow-black/20">
-        {cta.label}
-      </Button>
+      {/* The drop shadow lifts the button off whatever's behind it */}
+      <div className="rounded-full shadow-lg shadow-black/20">{children}</div>
     </div>
   );
 }

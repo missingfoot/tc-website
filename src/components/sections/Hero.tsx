@@ -1,4 +1,5 @@
 import type { StaticImageData } from "next/image";
+import type { ReactNode } from "react";
 import type { Cta } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
@@ -14,6 +15,8 @@ type HeroProps = {
   title?: string;
   subtitle?: string;
   cta?: Cta;
+  /** A button of your own in place of `cta`, e.g. one that opens a form. */
+  action?: ReactNode;
   /** Shows a "play" button that opens this video in the lightbox (instead of `cta`). */
   video?: { label: string; url: string };
   /** Curved bottom edge from the Figma "Mask" (desktop only). On by default. */
@@ -33,7 +36,7 @@ type HeroProps = {
 // stays visible.
 const curvedMask = "[--mask-r:max(429cqw-1178px,120cqw)] lg:[clip-path:circle(var(--mask-r)_at_50%_calc(100%-var(--mask-r)))]";
 
-export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, cta, video, curved = true, wash = true, parallax = 0.4 }: HeroProps) {
+export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, cta, action, video, curved = true, wash = true, parallax = 0.4 }: HeroProps) {
   // Photo only (no title): a shorter banner
   const photoOnly = !title;
   return (
@@ -69,7 +72,8 @@ export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, c
             </div>
 
             {video && <VideoButton label={video.label} video={video.url} className="mt-8" />}
-            {cta && !video && (
+            {action && !video && <div className="mt-8">{action}</div>}
+            {cta && !action && !video && (
               <Button href={cta.href} arrow className="mt-8">
                 {cta.label}
               </Button>

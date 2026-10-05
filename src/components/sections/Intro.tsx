@@ -12,6 +12,8 @@ type IntroProps = {
   /** Body copy. Pass a string, or JSX for several paragraphs. */
   children: ReactNode;
   cta?: Cta;
+  /** A button of your own in place of `cta`, e.g. one that opens a form. */
+  action?: ReactNode;
   /**
    * "split": big right-aligned heading beside the text on desktop (suits short headings).
    * "stacked": heading above the text, centred on desktop (suits long headings).
@@ -23,15 +25,17 @@ type IntroProps = {
 };
 
 /** Introductory heading, body text and an optional button. */
-export default function Intro({ heading, children, cta, layout = "split", raised = false, tone = "white" }: IntroProps) {
+export default function Intro({ heading, children, cta, action, layout = "split", raised = false, tone = "white" }: IntroProps) {
   const body = (
     <div className={`flex flex-col gap-5 ${text.body}`}>{typeof children === "string" ? <p>{children}</p> : children}</div>
   );
-  const button = cta && (
-    <Button href={cta.href} arrow>
-      {cta.label}
-    </Button>
-  );
+  const button =
+    action ??
+    (cta && (
+      <Button href={cta.href} arrow>
+        {cta.label}
+      </Button>
+    ));
 
   if (layout === "stacked") {
     return (

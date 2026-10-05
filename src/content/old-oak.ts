@@ -174,6 +174,6 @@ export const oldOakPromos: PromoCard[] = [
   {
     heading: "Like what you see?",
     image: { src: `${promos}/bar-night.jpg`, alt: "Residents chatting at the bar" },
-    cta: { label: "Apply now", href: "#" },
+    cta: { label: "Apply now", href: "#", enquiry: "living" },
   },
 ];

@@ -54,11 +54,15 @@ export type TravelMode = {
   mapsUrl: string;
 };
 
+/** Which enquiry form a button opens: co-living (a tour or a room) or a working space (a trial day). */
+export type EnquiryKind = "living" | "working";
+
 /** A photo card with a heading and a button, e.g. "Like what you see? / Apply now". */
 export type PromoCard = {
   heading: string;
   image: CircleImage;
-  cta: Cta;
+  /** A link, or `enquiry` to open that enquiry form instead (the href is then unused). */
+  cta: Cta & { enquiry?: EnquiryKind };
 };
 
 /** A card with a photo, title, short text and a button. */

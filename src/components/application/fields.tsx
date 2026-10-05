@@ -1,5 +1,7 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
+import Select from "@/components/ui/Select";
 import { Help } from "@/components/icons";
+import { dialCodes } from "@/lib/application";
 import { field, text } from "@/lib/styles";
 
 /** A labelled text input. Extra props go to the <input>. */
@@ -10,6 +12,21 @@ export function TextField({ label, id, className = "", ...props }: InputHTMLAttr
         {label}
       </label>
       <input id={id} name={id} {...props} className={`mt-2 ${field}`} />
+    </div>
+  );
+}
+
+/** A mobile number: country code picker beside the number. Submits `dialCode` and `mobile`. */
+export function PhoneField({ id, label = "Phone number", defaultValue }: { id: string; label?: string; defaultValue?: { dialCode?: string; mobile?: string } }) {
+  return (
+    <div>
+      <label htmlFor={id} className={`block ${text.label}`}>
+        {label}
+      </label>
+      <div className="mt-2 flex gap-2">
+        <Select aria-label="Country code" name="dialCode" options={dialCodes} defaultValue={defaultValue?.dialCode ?? "+44"} className="w-36 shrink-0" />
+        <input id={id} name="mobile" type="tel" autoComplete="tel-national" required defaultValue={defaultValue?.mobile} className={field} />
+      </div>
     </div>
   );
 }

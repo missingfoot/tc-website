@@ -12,6 +12,7 @@ import { oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
 import { oldOakIncluded } from "@/content/included";
 import Button from "@/components/ui/Button";
 import FloatingButton from "@/components/ui/FloatingButton";
+import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import { Icon360 } from "@/components/icons";
 import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakRooms, oldOakPromos, oldOakTestimonials, socialLinks } from "@/content/old-oak";
 
@@ -26,7 +27,7 @@ export default function OldOak() {
         eyebrow="North London"
         title="Old Oak"
         subtitle="Live somewhere that's home, and so much more."
-        cta={{ label: "Apply Now", href: "#" }}
+        action={<EnquiryButton kind="living" variant="light" />}
       />
 
       <Intro raised heading="Co-living at Old Oak" cta={{ label: "Read more", href: "#" }}>
@@ -108,8 +109,9 @@ export default function OldOak() {
 
       <PromoCards cards={oldOakPromos} />
 
-      {/* TODO: enquiry link */}
-      <FloatingButton cta={{ label: "Enquire now", href: "#" }} />
+      <FloatingButton>
+        <EnquiryButton kind="living" />
+      </FloatingButton>
     </>
   );
 }

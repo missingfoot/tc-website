@@ -10,6 +10,7 @@ import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
 import Button from "@/components/ui/Button";
 import FloatingButton from "@/components/ui/FloatingButton";
+import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import { Icon360 } from "@/components/icons";
 import { mapEmbedUrl } from "@/content/directions";
 import { workingLocationIncluded, workingLocationPages } from "@/content/working";
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: PageProps<"/working/[slug]">)
   return { title: findLocation(slug).name };
 }
 
-// TODO: link targets ("Read more", 3D tour, enquiries)
+// TODO: link target for the 3D tour
 export default async function WorkingLocation({ params }: PageProps<"/working/[slug]">) {
   const { slug } = await params;
   const location = findLocation(slug);
@@ -47,7 +48,7 @@ export default async function WorkingLocation({ params }: PageProps<"/working/[s
         name={location.name}
         subtitle={`${location.area}, ${location.postcode}`}
         features={location.features}
-        cta={{ label: "Read more", href: "#" }}
+        action={<EnquiryButton kind="working" variant="light" />}
       >
         {location.intro.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
@@ -74,7 +75,7 @@ export default async function WorkingLocation({ params }: PageProps<"/working/[s
         heading="Pricing"
         intro="Simple monthly memberships, with everything above included."
         prices={location.prices}
-        cta={{ label: "Enquire now", href: "#" }}
+        action={<EnquiryButton kind="working" />}
       />
 
       <Directions
@@ -93,7 +94,9 @@ export default async function WorkingLocation({ params }: PageProps<"/working/[s
 
       <PromoCards cards={oldOakPromos} />
 
-      <FloatingButton cta={{ label: "Enquire now", href: "#" }} />
+      <FloatingButton>
+        <EnquiryButton kind="working" />
+      </FloatingButton>
     </>
   );
 }

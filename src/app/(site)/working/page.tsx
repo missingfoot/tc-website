@@ -6,6 +6,7 @@ import RoomCards from "@/components/sections/RoomCards";
 import FeatureGroups from "@/components/sections/FeatureGroups";
 import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
+import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import { workingHowItWorks, workingIncluded, workingLocations, workingSpaces } from "@/content/working";
 import { oldOakPromos, socialLinks } from "@/content/old-oak";
 
@@ -19,10 +20,10 @@ export default function Working() {
         imageAlt="Members working at long tables in The Den"
         title="The future of work."
         subtitle="Changing the way we view work. Get collaborative and communal with our beautiful and productive working spaces."
-        cta={{ label: "Get a free day trial", href: "#" }}
+        action={<EnquiryButton kind="working" variant="light" />}
       />
 
-      <Intro raised heading="Work. Connect. Create." cta={{ label: "Read more", href: "/mission" }}>
+      <Intro raised heading="Work. Connect. Create." action={<EnquiryButton kind="working" variant="light" />}>
         <p>
           When we built The Den we wanted to make the perfect environment for the next generation of creators to turn
           their ideas into reality.
