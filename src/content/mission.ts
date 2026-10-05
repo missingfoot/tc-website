@@ -12,7 +12,6 @@ export const missionValues: ChecklistItem[] = [
   { icon: Crowd, title: "Community", text: "We are obsessive about human connection, whether it’s building lasting relationships or engaging and giving back to our communities." },
 ];
 
-// TODO: /event-spaces and /serviced-living don't exist yet
 export const missionProducts: LinkCard[] = [
   {
     title: "Co-Living",
@@ -55,7 +54,6 @@ export const missionLeaders: Person[] = [
   ["Irina Listovskaya", "Product Director", "irina"],
 ].map(([name, role, file]) => ({ name, role, image: { src: `${img}/team/${file}.jpg`, alt: `${name}, ${role}` } }));
 
-// TODO: /serviced-living doesn't exist yet
 export const missionPromos: PromoCard[] = [
   {
     heading: "Co-living at Old Oak",

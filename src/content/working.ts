@@ -5,8 +5,8 @@ import {
 } from "@/components/icons";
 import type { ChecklistItem } from "@/components/sections/Checklist";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
-import { directionsUrl, oldOakAddress, oldOakTravelModes } from "@/content/directions";
-import type { CircleImage, GalleryImage, Price, Room, TravelMode } from "@/lib/types";
+import { bedfordSquareAddress, bedfordSquareTravelModes, oldOakAddress, oldOakTravelModes } from "@/content/directions";
+import type { GalleryImage, LocationDetails, Price, Room } from "@/lib/types";
 
 const img = "/images/working";
 
@@ -58,28 +58,6 @@ export const workingHowItWorks: ChecklistItem[] = [
   },
 ];
 
-/** A working space: its card on the Working page and its own page at /working/[slug]. */
-export type WorkingLocation = {
-  slug: string;
-  name: string;
-  /** Neighbourhood, shown before the postcode: "Bloomsbury, WC1B". */
-  area: string;
-  postcode: string;
-  /** Card price, e.g. "From £150 per month". */
-  fromPrice: string;
-  image: CircleImage;
-  /** Transport and key facilities: the card's tiles and the page header's rows. */
-  features: Room["features"];
-  /** Intro paragraphs on the location page. */
-  intro: string[];
-  gallery: GalleryImage[];
-  prices: Price[];
-  /** Full address: drives the map and the "open in Maps" links. */
-  address: string;
-  /** Intro under "Well connected". */
-  directionsIntro: string;
-  travelModes: TravelMode[];
-};
 
 // TODO: copy, photos and prices for each location. The design only has Bedford Square, so the
 // others reuse its intro, the Working page's gallery and its prices (incl. Private Office where
@@ -90,35 +68,14 @@ const denIntro = [
   "Our aim is to help every person that enters our space succeed, by providing the space, services, community and support needed to let them focus on the work they love.",
 ];
 
-// TODO: real directions for Bedford Square, Kings Cross and the Doughnut Factory (and check
-// those addresses: only Bedford Square's is from the site config).
-const placeholderTravelModes = (address: string, station: string): TravelMode[] => [
-  {
-    label: "Underground",
-    icon: "underground",
-    steps: [`Get off at ${station}`, "Follow the signs for the main exit", "We’re a short walk from the station"],
-    mapsUrl: directionsUrl(address, "transit"),
-  },
-  {
-    label: "Bus",
-    icon: "bus",
-    steps: ["Plenty of bus routes stop nearby", "Check the map for the closest stop", "We’re a short walk from the stop"],
-    mapsUrl: directionsUrl(address, "transit"),
-  },
-  {
-    label: "Car",
-    icon: "car",
-    steps: [`Head for ${address}`, "Parking nearby is limited", "Let us know before you arrive"],
-    mapsUrl: directionsUrl(address, "driving"),
-  },
-];
+// TODO: addresses for Kings Cross and the Doughnut Factory (their pages leave out the map until then)
 
 const deskPrices: Price[] = [
   { label: "Hot Desk", amount: "£150", period: "Per month +VAT" },
   { label: "Private Office", amount: "£650", period: "Per month +VAT" },
 ];
 
-export const workingLocationPages: WorkingLocation[] = [
+export const workingLocationPages: LocationDetails[] = [
   {
     slug: "bedford-square",
     name: "Bedford Square",
@@ -135,10 +92,10 @@ export const workingLocationPages: WorkingLocation[] = [
     intro: denIntro,
     gallery: workingSpaces,
     prices: deskPrices,
-    address: "The Collective, 14 Bedford Square, London WC1B 3JA",
+    address: bedfordSquareAddress,
     directionsIntro:
       "Tucked away on one of Bloomsbury’s finest Georgian squares, Bedford Square is minutes from Tottenham Court Road and Kings Cross.",
-    travelModes: placeholderTravelModes("The Collective, 14 Bedford Square, London WC1B 3JA", "Tottenham Court Road"),
+    travelModes: bedfordSquareTravelModes,
   },
   {
     slug: "old-oak",
@@ -177,10 +134,9 @@ export const workingLocationPages: WorkingLocation[] = [
     intro: denIntro,
     gallery: workingSpaces,
     prices: deskPrices,
-    address: "The Collective Kings Cross, London",
     directionsIntro:
       "Just 40m from Kings Cross station, with the Underground, national rail and Eurostar on the doorstep.",
-    travelModes: placeholderTravelModes("The Collective Kings Cross, London", "Kings Cross St Pancras"),
+    travelModes: [],
   },
   {
     slug: "doughnut-factory",
@@ -198,10 +154,9 @@ export const workingLocationPages: WorkingLocation[] = [
     intro: denIntro,
     gallery: workingSpaces,
     prices: deskPrices,
-    address: "The Doughnut Factory, London",
     directionsIntro:
       "On the Piccadilly line, the Doughnut Factory is easy to reach from across London.",
-    travelModes: placeholderTravelModes("The Doughnut Factory, London", "the nearest Piccadilly line station"),
+    travelModes: [],
   },
 ];
 

@@ -46,7 +46,7 @@ export default function Testimonials({ heading, intro, testimonials, tone = "cre
                 style={{ objectPosition: t.image.position ?? "center" }}
               />
               <Button variant="white" onClick={() => setPlaying(t)} className="absolute bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                <Play className="size-4 shrink-0" />
+                <Play className="shrink-0" />
                 Meet {t.name}
               </Button>
             </>

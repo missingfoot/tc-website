@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useModalDialog } from "@/hooks/useModalDialog";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import Checkbox from "@/components/ui/Checkbox";
 import StickyBar from "@/components/ui/StickyBar";
 import { Check } from "@/components/icons";
 import { formatMoney, nationalities, paymentPlans, periodMonths, roomCosts, type ApplicationRoom } from "@/lib/application";
@@ -75,7 +76,7 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
   // Once the confirmation replaces the steps, start it from the top of the page. Done after it has
   // rendered (and instantly): scrolling while the much longer form was still there left people at the bottom.
   useEffect(() => {
-    if (submitted) window.scrollTo(0, 0);
+    if (submitted) window.scrollTo({ top: 0, behavior: "instant" });
   }, [submitted]);
 
   if (submitted)
@@ -212,7 +213,7 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
                           ))}
                         </ul>
                         <span className="flex items-center justify-center gap-2 border-t border-ink/10 py-3 text-base font-bold text-ink group-has-checked:bg-ink group-has-checked:text-white">
-                          <Check className="hidden size-4 group-has-checked:block" />
+                          <Check className="hidden group-has-checked:block" />
                           <span className="group-has-checked:hidden">Select plan</span>
                           <span className="hidden group-has-checked:inline">Selected</span>
                         </span>
@@ -300,15 +301,12 @@ function PaymentForm({ total, onSubmit }: { total: number; onSubmit: (e: FormEve
       )}
 
       <div className="flex flex-col gap-4">
-        <label className="flex cursor-pointer items-start gap-3 text-base text-ink">
-          <input type="checkbox" name="terms" required className="mt-0.5 size-5 shrink-0 accent-ink" />
-          <span>
-            I have read and agree to the{" "}
-            <a href="/terms" className="font-medium underline underline-offset-4">
-              terms &amp; conditions
-            </a>
-          </span>
-        </label>
+        <Checkbox name="terms" required>
+          I have read and agree to the{" "}
+          <a href="/terms" className="font-medium underline underline-offset-4">
+            terms &amp; conditions
+          </a>
+        </Checkbox>
         <p className={text.body}>
           By completing your application you agree to our{" "}
           <a href="/privacy" className="font-medium text-ink underline underline-offset-4">
@@ -329,6 +327,17 @@ function PaymentForm({ total, onSubmit }: { total: number; onSubmit: (e: FormEve
  */
 function SummarySheet({ room, open, onClose }: { room: ApplicationRoom; open: boolean; onClose: () => void }) {
   const ref = useModalDialog(open);
+
+  // The sheet is mobile-only (lg:hidden). If the screen widens while it's open (e.g. an iPad
+  // rotated to landscape) it would stay open but invisible, blocking the form; so close it.
+  useEffect(() => {
+    if (!open) return;
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => desktop.matches && onClose();
+    closeOnDesktop();
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, [open, onClose]);
 
   return (
     <dialog

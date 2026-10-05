@@ -27,7 +27,7 @@ export default function BackButton({ fallback, label = "Back", icon = true, vari
   };
   return (
     <Button variant={variant} onClick={back} className={className}>
-      {icon && <ArrowLeft className="size-4" />}
+      {icon && <ArrowLeft />}
       {label}
     </Button>
   );

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${circular.variable} h-full antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${circular.variable} h-full antialiased`}>
       <head>
         {/* Photos start hidden and fade in once loaded (see Photo); without JavaScript, just show them */}
         <noscript>

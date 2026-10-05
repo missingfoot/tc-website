@@ -19,11 +19,12 @@ function dateProblem({ day, month, year }: Parts) {
   const d = Number(day);
   const m = Number(month);
   const y = Number(year);
+  // Year first: the Date checks below would read years like 0089 as 1989 and call the date invalid
+  if (y < new Date().getFullYear() - 120) return "Please check the year.";
   const date = new Date(y, m - 1, d);
   if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return "That date doesn’t exist.";
   const eighteenth = new Date(y + MIN_AGE, m - 1, d);
   if (eighteenth > new Date()) return `You need to be ${MIN_AGE} or over to apply.`;
-  if (y < new Date().getFullYear() - 120) return "Please check the year.";
   return "";
 }
 

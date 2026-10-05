@@ -3,10 +3,12 @@
 import Photo from "@/components/ui/Photo";
 import { useId, useState, useSyncExternalStore, type FormEvent } from "react";
 import Button from "@/components/ui/Button";
+import InfoBox from "@/components/ui/InfoBox";
 import Select from "@/components/ui/Select";
 import { Check } from "@/components/icons";
 import { PhoneField, TextField } from "@/components/application/fields";
 import BackButton from "./BackButton";
+import { venueOptions } from "@/content/events";
 import { text } from "@/lib/styles";
 import type { EnquiryKind } from "@/lib/types";
 
@@ -19,6 +21,14 @@ const copy = {
   working: {
     title: "Book a free trial day",
     image: { src: "/images/working/spaces/07-communal-tables.jpg", alt: "Members working at the communal tables" },
+  },
+  events: {
+    title: "Make an enquiry",
+    image: { src: "/images/event-spaces/the-exchange/01-lounge.jpg", alt: "The Exchange set up for an event" },
+  },
+  serviced: {
+    title: "Book a viewing",
+    image: { src: "/images/serviced-living/notting-hill/02-studio-kitchen.jpg", alt: "A Notting Hill studio with its kitchen" },
   },
 };
 
@@ -38,7 +48,7 @@ function nextDays() {
 }
 
 /** Where Back goes when the page was opened directly (no page of ours to go back to). */
-const fallbacks: Record<EnquiryKind, string> = { living: "/co-living", working: "/working" };
+const fallbacks: Record<EnquiryKind, string> = { living: "/co-living", working: "/working", serviced: "/serviced-living", events: "/event-spaces" };
 
 // True in the browser, false while rendering on the server (so the server and browser agree on "today")
 const subscribe = () => () => {};
@@ -50,7 +60,15 @@ const useIsClient = () => useSyncExternalStore(subscribe, () => true, () => fals
  * came from. Shows a thank-you once sent.
  * TODO: send the enquiry somewhere (CRM / email); for now nothing is sent.
  */
-export default function EnquiryForm({ kind }: { kind: EnquiryKind }) {
+type EnquiryFormProps = {
+  kind: EnquiryKind;
+  /** Pre-selected venue (event enquiries). */
+  venue?: string;
+  /** Referral code from a friend's link (co-living), sent with the enquiry. */
+  referral?: string;
+};
+
+export default function EnquiryForm({ kind, venue, referral }: EnquiryFormProps) {
   const uid = useId();
   const isClient = useIsClient();
   const [sent, setSent] = useState(false);
@@ -60,7 +78,7 @@ export default function EnquiryForm({ kind }: { kind: EnquiryKind }) {
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSent(true);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   return (
@@ -90,12 +108,20 @@ export default function EnquiryForm({ kind }: { kind: EnquiryKind }) {
               <h1 className={text.sectionHeading}>{title}</h1>
               <p className={`mt-4 ${text.body}`}>{intro}</p>
 
+              {referral && (
+                <InfoBox tone="success" className="mt-6">
+                  <span className="font-bold">A friend referred you.</span> Move in for 9 months or more and you’ll get up to £200 off your rent.
+                </InfoBox>
+              )}
+
               <form onSubmit={submit} className="mt-8 flex flex-col gap-6">
+                {referral && <input type="hidden" name="referral" value={referral} />}
                 {kind === "living" && (
                   <fieldset>
-                    <legend className="font-bold text-ink">I want to…</legend>
+                    {/* Hidden label: the options speak for themselves, but screen readers still need it */}
+                    <legend className="sr-only">I want to…</legend>
                     {/* Segmented control: two radios styled as one pill */}
-                    <div className="mt-3 inline-flex rounded-full border border-ink/15 p-1">
+                    <div className="inline-flex rounded-full border border-ink/15 p-1">
                       {(
                         [
                           ["tour", "Arrange a tour"],
@@ -133,16 +159,46 @@ export default function EnquiryForm({ kind }: { kind: EnquiryKind }) {
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <TextField id={`${uid}-name`} name="name" label="Full name" autoComplete="name" required />
-                  {kind === "working" ? (
-                    <TextField id={`${uid}-company`} name="company" label="Company name" autoComplete="organization" />
+                  {kind === "working" || kind === "events" ? (
+                    <TextField id={`${uid}-company`} name="company" label={kind === "events" ? "Company (optional)" : "Company name"} autoComplete="organization" />
                   ) : (
                     <TextField id={`${uid}-email`} name="email" label="Email address" type="email" autoComplete="email" required />
                   )}
                 </div>
 
-                {kind === "working" && <TextField id={`${uid}-email`} name="email" label="Email address" type="email" autoComplete="email" required />}
+                {(kind === "working" || kind === "events") && <TextField id={`${uid}-email`} name="email" label="Email address" type="email" autoComplete="email" required />}
                 {/* Full width: the country code and number need the room */}
                 <PhoneField id={`${uid}-phone`} />
+
+                {kind === "events" && (
+                  <>
+                    <div>
+                      <label htmlFor={`${uid}-venue`} className={`block ${text.label}`}>
+                        Venue
+                      </label>
+                      <Select
+                        id={`${uid}-venue`}
+                        name="venue"
+                        defaultValue={venue && venueOptions.some((o) => o.value === venue) ? venue : "not-sure"}
+                        options={[...venueOptions, { value: "not-sure", label: "Not sure yet" }]}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <TextField id={`${uid}-date`} name="date" label="Event date" type="date" required />
+                      <TextField id={`${uid}-guests`} name="guests" label="Number of guests" type="number" inputMode="numeric" min={1} required />
+                    </div>
+                  </>
+                )}
+
+                {kind === "serviced" && (
+                  <TextField
+                    id={`${uid}-offer`}
+                    name="offer"
+                    label="Do you have an offer code or are you being referred? (optional)"
+                    placeholder="Offer code or the name of who referred you"
+                  />
+                )}
 
                 {kind === "working" && (
                   <div>
@@ -154,7 +210,7 @@ export default function EnquiryForm({ kind }: { kind: EnquiryKind }) {
                 )}
 
                 <Button type="submit" variant="dark" className="mt-2 w-full justify-center lg:w-auto lg:min-w-40 lg:self-start">
-                  {kind === "working" ? "Book my trial day" : mode === "tour" ? "Book a tour" : "Apply now"}
+                  {kind === "working" ? "Book my trial day" : kind === "serviced" ? "Book my viewing" : kind === "events" ? "Send enquiry" : mode === "tour" ? "Book a tour" : "Apply now"}
                 </Button>
               </form>
             </>

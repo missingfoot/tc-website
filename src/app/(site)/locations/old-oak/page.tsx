@@ -98,6 +98,7 @@ export default function OldOak() {
         intro="Situated on the banks of the canal in Willesden Junction, Old Oak is perfectly positioned to access London, with both tube and rail connections close by."
         modes={oldOakTravelModes}
         mapEmbedUrl={oldOakMapEmbed}
+        place="Old Oak"
       />
 
       <SocialLinks

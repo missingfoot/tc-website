@@ -11,12 +11,11 @@ export type MobileNavGroup = {
   items: MobileNavItem[];
 };
 
-// TODO: most of these routes don't exist yet
+// TODO: Foundation, Labs and Blog don't exist yet
 export const mobileNav: MobileNavGroup[] = [
   {
     items: [
       { label: "Home", href: "/" },
-      { label: "Mission", href: "/mission" },
       {
         label: "Locations",
         href: "/locations",
@@ -31,27 +30,28 @@ export const mobileNav: MobileNavGroup[] = [
     ],
   },
   {
-    label: "The Collective",
+    label: "More Products",
     items: [
-      { label: "Our story", href: "/our-story" },
-      { label: "Press", href: "/press" },
-      { label: "Careers", href: "/careers" },
-      { label: "Blog", href: "/blog" },
+      { label: "Serviced living", href: "/serviced-living" },
+      { label: "Event spaces", href: "/event-spaces" },
     ],
   },
   {
-    label: "More Products",
+    label: "The Collective",
     items: [
-      { label: "Event Spaces", href: "/event-spaces" },
-      { label: "Serviced living", href: "/serviced-living" },
+      { label: "Mission", href: "/mission" },
+      { label: "FAQ", href: "/faq" },
+      { label: "Careers", href: "/careers" },
+      { label: "Press", href: "/press" },
     ],
   },
   {
     label: "Initiatives",
     items: [
-      { label: "Global accelerator", href: "/global-accelerator" },
+      { label: "Referrals", href: "/refer-a-friend" },
       { label: "Foundation", href: "/foundation" },
       { label: "Labs", href: "/labs" },
+      { label: "Blog", href: "/blog" },
     ],
   },
 ];
@@ -84,6 +84,22 @@ export const pageTitles: Record<string, string> = {
   "/co-living": "Co-Living",
   "/working": "Working",
   "/mission": "Mission",
+  "/faq": "FAQ",
+  "/careers": "Careers",
+  "/press": "Press",
+  "/refer-a-friend": "Refer a friend",
+  "/refer-a-friend/terms": "Referral terms",
+  "/event-spaces": "Event Spaces",
+  "/event-spaces/the-den": "The Den",
+  "/event-spaces/the-terrace": "The Terrace",
+  "/event-spaces/the-boardroom": "The Boardroom",
+  "/event-spaces/the-blackroom": "The Blackroom",
+  "/event-spaces/the-exchange": "The Exchange",
+  "/event-spaces/the-gallery": "The Gallery",
+  "/event-spaces/the-private-dining-room": "Private Dining Room",
+  "/serviced-living": "Serviced Living",
+  "/serviced-living/acton": "Acton",
+  "/serviced-living/notting-hill": "Notting Hill",
   "/working/bedford-square": "Bedford Square",
   "/working/old-oak": "Old Oak",
   "/working/kings-cross": "Kings Cross",

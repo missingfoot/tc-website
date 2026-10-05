@@ -21,7 +21,8 @@ export default function Pricing({ heading, intro, prices, action, tone = "cream"
       <Container>
         <SectionIntro heading={heading} intro={intro} />
         <div className="mx-auto mt-10 flex max-w-3xl flex-col items-center gap-8 lg:mt-16">
-          <ul className="grid w-full grid-cols-2 gap-5 lg:gap-8">
+          {/* Two prices side by side; a single price as one narrower card */}
+          <ul className={`grid w-full gap-5 lg:gap-8 ${prices.length === 1 ? "max-w-xs" : "grid-cols-2"}`}>
             {prices.map((price) => (
               <li key={price.label} className="flex flex-col items-center rounded-2xl bg-white px-2 py-6 text-center">
                 <span className="text-base text-stone">{price.label}</span>

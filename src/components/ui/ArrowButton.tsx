@@ -18,7 +18,7 @@ export default function ArrowButton({ direction, onClick, label, className = "" 
       aria-label={label}
       className={`flex size-10 shrink-0 items-center justify-center rounded-full bg-ink text-white hover:bg-ink/85 ${pressable} ${className}`}
     >
-      {direction === "left" ? <ArrowLeft className="size-4" /> : <ArrowRight className="size-4" />}
+      {direction === "left" ? <ArrowLeft /> : <ArrowRight />}
     </button>
   );
 }

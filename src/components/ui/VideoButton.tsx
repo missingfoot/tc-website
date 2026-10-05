@@ -19,7 +19,7 @@ export default function VideoButton({ label, video, variant = "light", className
   return (
     <>
       <Button variant={variant} onClick={() => setOpen(true)} className={className}>
-        <Play className="size-4 shrink-0" />
+        <Play className="shrink-0" />
         {label}
       </Button>
       <VideoModal video={open ? video : null} title={label} onClose={() => setOpen(false)} />

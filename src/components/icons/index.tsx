@@ -8,10 +8,12 @@ type IconProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
 /**
  * Shared wrapper for the icon set: 24×24 grid, 2px square-capped stroke, coloured by
  * `currentColor`. Defaults to 24px; resize with a size class, e.g. className="size-4".
- * `large` icons are drawn on a 32×32 grid and default to 32px.
+ * `large` icons are drawn on a 32×32 grid and default to 32px. The default size is left off when
+ * className sets one, since two size classes would clash (which wins depends on stylesheet order).
  */
 function Icon({ title, className = "", large, children, ...props }: IconProps & { large?: boolean; children: ReactNode }) {
   const grid = large ? 32 : 24;
+  const defaultSize = /(^|\s)size-/.test(className) ? "" : large ? "size-8" : "size-6";
   return (
     <svg
       viewBox={`0 0 ${grid} ${grid}`}
@@ -22,7 +24,7 @@ function Icon({ title, className = "", large, children, ...props }: IconProps & 
       strokeLinecap="square"
       role={title ? "img" : undefined}
       aria-hidden={title ? undefined : true}
-      className={`${large ? "size-8" : "size-6"} shrink-0 ${className}`}
+      className={`${defaultSize} shrink-0 ${className}`}
       {...props}
     >
       {title && <title>{title}</title>}
@@ -448,7 +450,13 @@ export function Cctv(props: IconProps) {
 export function Play(props: IconProps) {
   return (
     <Icon {...props}>
-      <path fillRule="evenodd" d="M5 21.7232L22.0156 12L5 2.27685L5 21.7232Z" fill="currentColor" stroke="none" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M6 17.4676C6 19.0222 7.69594 19.9824 9.02899 19.1826L18.1417 13.715C19.4364 12.9382 19.4364 11.0618 18.1417 10.285L9.02899 4.81739C7.69594 4.01756 6 4.97779 6 6.53238V17.4676Z"
+        fill="currentColor"
+        stroke="none"
+      />
     </Icon>
   );
 }
@@ -860,6 +868,37 @@ export function Crowd(props: IconProps) {
       <path d="M26 11C26.4872 11 27.3388 11.0637 28.3637 11.5249C28.9442 11.7862 29.3743 12.4206 29.4751 13.1888L30.1665 18.9375L28.4864 20L27.5 28H25" />
       <path d="M6 11C5.51277 11 4.66117 11.0637 3.63632 11.5249C3.05585 11.7862 2.62574 12.4206 2.52494 13.1888L1.83354 18.9375L3.51363 20L4.5 28H7" />
     </Icon>
+  );
+}
+
+/** Arrow into a tray (download). */
+export function Download(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3V15" />
+      <path d="M7 10L12 15L17 10" />
+      <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" />
+    </Icon>
+  );
+}
+
+/** Magnifying glass (search). */
+export function Search(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="10.5" cy="10.5" r="7.5" />
+      <path d="M21 21L16 16" />
+    </Icon>
+  );
+}
+
+/** Filled "i" in a circle (information notes). Drawn on an 18×18 grid and shown at 18px. */
+export function Info({ className = "", title }: Pick<IconProps, "title" | "className">) {
+  return (
+    <svg viewBox="0 0 18 18" fill="currentColor" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} className={`size-4.5 shrink-0 ${className}`}>
+      {title && <title>{title}</title>}
+      <path d="M9 1C4.5889 1 1 4.5889 1 9C1 13.4111 4.5889 17 9 17C13.4111 17 17 13.4111 17 9C17 4.5889 13.4111 1 9 1ZM9.75 12.75C9.75 13.1641 9.4141 13.5 9 13.5C8.5859 13.5 8.25 13.1641 8.25 12.75V9.5H7.75C7.3359 9.5 7 9.1641 7 8.75C7 8.3359 7.3359 8 7.75 8H8.5C9.1895 8 9.75 8.5605 9.75 9.25V12.75ZM9 6.75C8.448 6.75 8 6.301 8 5.75C8 5.199 8.448 4.75 9 4.75C9.552 4.75 10 5.199 10 5.75C10 6.301 9.552 6.75 9 6.75Z" />
+    </svg>
   );
 }
 

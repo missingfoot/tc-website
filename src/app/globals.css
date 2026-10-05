@@ -7,10 +7,20 @@
   --color-cream-dark: #e6e3d5;
   --color-ash: #aaaaaa;
   --color-sage: #6f8f62;
+  /* Search matches, like a browser's find-in-page */
+  --color-highlight: #ffe867;
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   /* Line height for large headings (titles, section headings) */
   --leading-heading: 1.1;
   --font-sans: var(--font-circular), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Jumps within a page (e.g. "See our open positions") scroll smoothly. Page changes stay instant:
+   the root layout's data-scroll-behavior="smooth" tells Next.js to turn this off while navigating. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {

@@ -31,7 +31,7 @@ export default function ApplicationStep({ number, total, title, state, children,
             state === "done" ? "bg-ink text-white" : "bg-cream text-ink"
           }`}
         >
-          {state === "done" ? <Check className="size-5" /> : number}
+          {state === "done" ? <Check /> : number}
         </span>
 
         <div className="min-w-0 flex-1">

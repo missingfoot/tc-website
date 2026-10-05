@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import AccountButton from "./AccountButton";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { mobileNav, type MobileNavGroup, type MobileNavItem } from "@/config/navigation";
@@ -71,7 +72,7 @@ export default function MobileMenu({ groups = mobileNav }: { groups?: MobileNavG
       {/* Floating card under the dock pill, lined up with its edges */}
       <div
         id="mobile-menu"
-        className={`fixed inset-x-3 top-22 bottom-3 -z-10 origin-top overflow-y-auto overscroll-contain rounded-4xl bg-ink/95 text-white shadow-2xl shadow-black/30 backdrop-blur-md duration-300 ease-smooth md:inset-x-6 lg:hidden ${
+        className={`fixed inset-x-3 top-22 bottom-3 -z-10 flex origin-top flex-col overflow-y-auto overscroll-contain rounded-4xl bg-ink/95 text-white shadow-2xl shadow-black/30 backdrop-blur-md duration-300 ease-smooth md:inset-x-6 lg:hidden ${
           // Visible immediately on open; hidden only after the fade-out
           open
             ? "visible translate-y-0 scale-100 opacity-100 transition-[opacity,translate,scale]"
@@ -92,6 +93,11 @@ export default function MobileMenu({ groups = mobileNav }: { groups?: MobileNavG
             </div>
           ))}
         </nav>
+
+        {/* Pinned to the bottom of the card while the links scroll behind it */}
+        <div className="sticky bottom-0 mt-auto bg-linear-to-t from-ink via-ink/95 to-transparent p-4 pt-8">
+          <AccountButton onClick={close} className="w-full justify-center" />
+        </div>
       </div>
     </>
   );

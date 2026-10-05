@@ -54,8 +54,8 @@ export type TravelMode = {
   mapsUrl: string;
 };
 
-/** Which enquiry form a button opens: co-living (a tour or a room) or a working space (a trial day). */
-export type EnquiryKind = "living" | "working";
+/** Which enquiry form a button opens: co-living (a tour or a room), a working space (a trial day), serviced living (a viewing) or an event space. */
+export type EnquiryKind = "living" | "working" | "serviced" | "events";
 
 /** A photo card with a heading and a button, e.g. "Like what you see? / Apply now". */
 export type PromoCard = {
@@ -125,4 +125,31 @@ export type Person = {
   name: string;
   role: string;
   image: CircleImage;
+};
+
+/**
+ * A location with its own page (a working space or a serviced living house): its card on the
+ * listing page and its page at /[section]/[slug].
+ */
+export type LocationDetails = {
+  slug: string;
+  name: string;
+  /** Neighbourhood, shown before the postcode: "Bloomsbury, WC1B". */
+  area: string;
+  postcode: string;
+  /** The card's pill, e.g. "From £150 per month" (or a venue's capacity). */
+  fromPrice: string;
+  image: CircleImage;
+  /** Transport and key facilities: the card's tiles and the page header's rows. */
+  features: Room["features"];
+  /** Intro paragraphs on the location page. */
+  intro: string[];
+  gallery: GalleryImage[];
+  /** Pricing cards. Leave empty to leave the Pricing section out (e.g. venues, priced on request). */
+  prices: Price[];
+  /** Street address: drives the map and the "open in Maps" links. Without one, the map is left out. */
+  address?: string;
+  /** Intro under "Well connected". */
+  directionsIntro: string;
+  travelModes: TravelMode[];
 };

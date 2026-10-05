@@ -18,10 +18,12 @@ type DirectionsProps = {
   modes: TravelMode[];
   /** Google Maps embed URL for the map panel. */
   mapEmbedUrl: string;
+  /** Names the map for screen readers, e.g. "Old Oak". */
+  place: string;
 };
 
 /** Accordion of travel modes with step-by-step directions, and a map (beside it on desktop, below on mobile). */
-export default function Directions({ heading, intro, modes, mapEmbedUrl, tone = "white" }: DirectionsProps) {
+export default function Directions({ heading, intro, modes, mapEmbedUrl, place, tone = "white" }: DirectionsProps) {
   const [open, setOpen] = useState(0);
 
   return (
@@ -40,7 +42,7 @@ export default function Directions({ heading, intro, modes, mapEmbedUrl, tone = 
           <div className="relative aspect-square overflow-hidden rounded-2xl bg-cream lg:aspect-auto lg:min-h-160">
             <iframe
               src={mapEmbedUrl}
-              title="Map of The Collective Old Oak"
+              title={`Map of ${place}`}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               className="absolute inset-0 size-full"

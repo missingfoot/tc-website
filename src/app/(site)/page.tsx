@@ -19,7 +19,7 @@ export default function Home() {
         video={{ label: "Watch video", url: "https://youtu.be/XkZbmXgOWOA" }}
       />
 
-      <Intro raised layout="stacked" heading="We're unlocking the world's greatest cities for the creative and ambitious" cta={{ label: "Read more", href: "/our-story" }}>
+      <Intro raised layout="stacked" heading="We're unlocking the world's greatest cities for the creative and ambitious" cta={{ label: "Read more", href: "/mission" }}>
         Starting with London, our focus is on creating ground-breaking spaces and the greatest possible experiences
         within them. By doing this, we’re redefining the way people can choose to live, work and play.
       </Intro>

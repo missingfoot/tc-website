@@ -43,7 +43,7 @@ export default function Footer() {
       <div className="bg-ink py-12 text-center text-white lg:py-16">
         <Container className="flex flex-col items-center">
           <h2 className="text-sm font-bold text-ash">Contact us</h2>
-          <a href={`tel:${site.phone.replace(/[^\d+]/g, "")}`} className="mt-6 text-lg font-medium transition-opacity hover:opacity-70">
+          <a href={site.phoneLink} className="mt-6 text-lg font-medium transition-opacity hover:opacity-70">
             {site.phone}
           </a>
           <a href={`mailto:${site.email}`} className={`mt-4 text-lg font-medium ${underlined}`}>

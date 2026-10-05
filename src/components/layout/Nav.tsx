@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { mainNav, type NavLink } from "@/config/navigation";
 import Container from "@/components/ui/Container";
+import AccountButton from "./AccountButton";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 import NavDropdown from "./NavDropdown";
@@ -12,16 +13,17 @@ type NavProps = {
   links?: NavLink[];
   /**
    * Replaces the links and menu, e.g. a checkout's title and "Secure payment", so people stay on
-   * the page. The logo is then shown without a link for the same reason.
+   * the page. The logo is then shown without a link for the same reason, unless `logoLinksHome`.
    */
   children?: ReactNode;
+  logoLinksHome?: boolean;
 };
 
 /**
  * Site header: transparent over the top of the page (so the first block should be a dark
  * Hero), then a floating dark pill once scrolled.
  */
-export default function Nav({ links = mainNav, children }: NavProps) {
+export default function Nav({ links = mainNav, children, logoLinksHome = false }: NavProps) {
   return (
     <StickyHeader>
       {/* relative + isolate so the dock pill can sit behind the content (-z-10). On mobile the
@@ -30,7 +32,7 @@ export default function Nav({ links = mainNav, children }: NavProps) {
         <HeaderDock />
         {children ? (
           <>
-            <Logo link={false} />
+            <Logo link={logoLinksHome} />
             {children}
           </>
         ) : (
@@ -47,6 +49,11 @@ export default function Nav({ links = mainNav, children }: NavProps) {
                     <NavItem key={link.label} link={link} />
                   ),
                 )}
+                {/* -mr-3: the dock pill runs 24px past the content, so this leaves the same 12px gap on the
+                    right as above and below the 40px button in the 64px pill */}
+                <li className="-mr-3">
+                  <AccountButton compact />
+                </li>
               </ul>
             </nav>
 
