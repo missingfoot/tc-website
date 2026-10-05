@@ -68,7 +68,7 @@ export default function EnquiryForm({ kind }: { kind: EnquiryKind }) {
       {/* Desktop: the photo in a rounded panel filling the left half, inset from the screen edge */}
       <div className="hidden p-6 lg:sticky lg:top-0 lg:block lg:h-dvh">
         <div className="relative h-full overflow-hidden rounded-4xl bg-ink/10">
-          <Photo src={image.src} alt={image.alt} fill priority sizes="(min-resolution: 2dppx) 50vw, 100vw" quality={90} className="object-cover" />
+          <Photo src={image.src} alt={image.alt} priority sizes="(min-resolution: 2dppx) 50vw, 100vw" quality={90} className="object-cover" />
         </div>
       </div>
 

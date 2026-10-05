@@ -44,7 +44,7 @@ export default function ParallaxImage({ alt, speed = 0.4, className = "", ...pro
 
   return (
     <div ref={ref} className="absolute inset-0 will-change-transform">
-      <Photo fill alt={alt} className={className} {...props} />
+      <Photo alt={alt} className={className} {...props} />
     </div>
   );
 }

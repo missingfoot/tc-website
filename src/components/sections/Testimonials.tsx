@@ -39,7 +39,6 @@ export default function Testimonials({ heading, intro, testimonials, tone = "cre
               <Photo
                 src={t.image.src}
                 alt={t.image.alt}
-                fill
                 draggable={false}
                 sizes={sizes2x([null, "300px"])}
                 quality={90}

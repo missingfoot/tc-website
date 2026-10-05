@@ -22,6 +22,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${circular.variable} h-full antialiased`}>
+      <head>
+        {/* Photos start hidden and fade in once loaded (see Photo); without JavaScript, just show them */}
+        <noscript>
+          <style>{"[data-photo] { opacity: 1 !important; }"}</style>
+        </noscript>
+      </head>
       <body className="min-h-full flex flex-col font-sans">
         {/* Header, <main> and footer come from the route group's layout: (site) or (checkout) */}
         <NavigationTracker />

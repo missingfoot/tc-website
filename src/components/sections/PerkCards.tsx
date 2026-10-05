@@ -31,7 +31,7 @@ export default function PerkCards({ heading, intro, perks, tone = "cream" }: Per
           renderItem={(p) => (
             <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-white">
               <div className="relative aspect-[5/3]">
-                <Photo src={p.image} alt="" fill draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
+                <Photo src={p.image} alt="" draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
                 {p.logo && (
                   <Image src={p.logo} alt="" width={64} height={64} draggable={false} className="absolute right-4 bottom-4 size-16 rounded-xl" />
                 )}

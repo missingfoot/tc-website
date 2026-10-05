@@ -107,7 +107,6 @@ export default function CircleCollage({ images, tone = "white" }: CircleCollageP
                 <Photo
                   src={images[key].src}
                   alt={images[key].alt}
-                  fill
                   // Laid out at the full 335px circle; cover-cropping needs ~1.5× its width
                   sizes={sizes2x(["(min-width: 1024px)", "504px"], [null, "105vw"])}
                   quality={90}

@@ -9,7 +9,7 @@ export default function ApplicationSummary({ room, fullScreen = false }: { room:
   return (
     <div className={fullScreen ? "bg-white" : "overflow-hidden rounded-2xl bg-white shadow-xl shadow-black/10"}>
       <div className="relative aspect-[19/11] bg-ink/10">
-        <Photo src={room.photo.src} alt={room.photo.alt} fill sizes={fullScreen ? "(min-resolution: 2dppx) 100vw, 200vw" : "(min-resolution: 2dppx) 24rem, 48rem"} quality={90} className="object-cover" />
+        <Photo src={room.photo.src} alt={room.photo.alt} sizes={fullScreen ? "(min-resolution: 2dppx) 100vw, 200vw" : "(min-resolution: 2dppx) 24rem, 48rem"} quality={90} className="object-cover" />
       </div>
 
       <div className="divide-y divide-ink/10 px-6 pb-6 lg:px-8">

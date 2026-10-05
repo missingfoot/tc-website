@@ -43,7 +43,6 @@ function RoomCard({ room, ctaLabel }: { room: Room; ctaLabel: string }) {
         <Photo
           src={room.image.src}
           alt={room.image.alt}
-          fill
           sizes={sizes2x(["(min-width: 1024px)", "354px"], ["(min-width: 768px)", "50vw"], [null, "100vw"])}
           quality={90}
           className="object-cover"
