@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useModalDialog } from "@/hooks/useModalDialog";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
@@ -60,7 +60,6 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
     setDone(nextDone);
     if (step === STEPS.length - 1) {
       setSubmitted(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     // Carry on with the first step that still needs doing
@@ -72,6 +71,12 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
 
   const stateOf = (step: number): StepState => (step === active ? "active" : done[step] ? "done" : "upcoming");
   const edit = (step: number) => () => setActive(step);
+
+  // Once the confirmation replaces the steps, start it from the top of the page. Done after it has
+  // rendered (and instantly): scrolling while the much longer form was still there left people at the bottom.
+  useEffect(() => {
+    if (submitted) window.scrollTo(0, 0);
+  }, [submitted]);
 
   if (submitted)
     return (

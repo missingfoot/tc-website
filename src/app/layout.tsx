@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import NavigationTracker from "@/components/layout/NavigationTracker";
 import "./globals.css";
 
 // Circular Std, self-hosted. Weights match the Figma: Book 450, Medium 500, Bold 700, Black 900.
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${circular.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         {/* Header, <main> and footer come from the route group's layout: (site) or (checkout) */}
+        <NavigationTracker />
         {children}
       </body>
     </html>

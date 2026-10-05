@@ -1,11 +1,10 @@
-"use client";
-
-import { useState, type ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import Button from "@/components/ui/Button";
-import EnquiryModal, { type EnquiryKind } from "./EnquiryModal";
+import type { EnquiryKind } from "@/lib/types";
 
-/** Every button for a form says the same thing. */
+/** Every button for a form says the same thing, and goes to the same page. */
 const labels: Record<EnquiryKind, string> = { living: "Apply now", working: "Get a free day trial" };
+export const enquiryPages: Record<EnquiryKind, string> = { living: "/apply", working: "/free-trial" };
 
 type EnquiryButtonProps = {
   kind: EnquiryKind;
@@ -14,25 +13,11 @@ type EnquiryButtonProps = {
   className?: string;
 };
 
-/** A button that opens an enquiry form: "Apply now" (co-living) or "Get a free day trial" (working). */
+/** A link to an enquiry page: "Apply now" (co-living) or "Get a free day trial" (working). */
 export default function EnquiryButton({ kind, variant = "dark", arrow = true, className = "" }: EnquiryButtonProps) {
-  const [open, setOpen] = useState(false);
-  // A new key each time it opens gives a fresh form (closing keeps the last state so the fade-out doesn't flash)
-  const [session, setSession] = useState(0);
   return (
-    <>
-      <Button
-        variant={variant}
-        arrow={arrow}
-        onClick={() => {
-          setSession((n) => n + 1);
-          setOpen(true);
-        }}
-        className={className}
-      >
-        {labels[kind]}
-      </Button>
-      <EnquiryModal key={session} kind={kind} open={open} onClose={() => setOpen(false)} />
-    </>
+    <Button href={enquiryPages[kind]} variant={variant} arrow={arrow} className={className}>
+      {labels[kind]}
+    </Button>
   );
 }

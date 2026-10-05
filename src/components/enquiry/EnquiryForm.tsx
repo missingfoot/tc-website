@@ -1,16 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState, useSyncExternalStore, type FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
-import { Check, Close } from "@/components/icons";
+import { Check } from "@/components/icons";
 import { PhoneField, TextField } from "@/components/application/fields";
-import { useModalDialog } from "@/hooks/useModalDialog";
+import BackButton from "./BackButton";
 import { text } from "@/lib/styles";
 import type { EnquiryKind } from "@/lib/types";
 
-export type { EnquiryKind };
 
 const copy = {
   living: {
@@ -38,20 +37,22 @@ function nextDays() {
   });
 }
 
-type EnquiryModalProps = {
-  kind: EnquiryKind;
-  open: boolean;
-  onClose: () => void;
-};
+/** Where Back goes when the page was opened directly (no page of ours to go back to). */
+const fallbacks: Record<EnquiryKind, string> = { living: "/co-living", working: "/working" };
+
+// True in the browser, false while rendering on the server (so the server and browser agree on "today")
+const subscribe = () => () => {};
+const useIsClient = () => useSyncExternalStore(subscribe, () => true, () => false);
 
 /**
- * Enquiry form taking over the whole screen: on desktop a rounded photo fills the left half and the
- * form sits in the right; on mobile it's just the form. Shows a
- * thank-you once sent. TODO: send the enquiry somewhere (CRM / email); for now nothing is sent.
+ * An enquiry page: on desktop a rounded photo fills the left half (fixed in place) and the form
+ * sits on the right; on mobile it's just the form. A Back button returns to the page the visitor
+ * came from. Shows a thank-you once sent.
+ * TODO: send the enquiry somewhere (CRM / email); for now nothing is sent.
  */
-export default function EnquiryModal({ kind, open, onClose }: EnquiryModalProps) {
-  const ref = useModalDialog(open);
+export default function EnquiryForm({ kind }: { kind: EnquiryKind }) {
   const uid = useId();
+  const isClient = useIsClient();
   const [sent, setSent] = useState(false);
   const [mode, setMode] = useState<"tour" | "room">("tour");
   const { title, image } = copy[kind];
@@ -59,45 +60,34 @@ export default function EnquiryModal({ kind, open, onClose }: EnquiryModalProps)
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSent(true);
+    window.scrollTo(0, 0);
   };
 
   return (
-    <dialog
-      ref={ref}
-      aria-label={title}
-      tabIndex={-1}
-      onClose={onClose}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      className="m-0 h-dvh max-h-none w-full max-w-none bg-white p-0 opacity-0 transition-[opacity,display,overlay] transition-discrete duration-300 ease-smooth focus:outline-none open:opacity-100 starting:open:opacity-0 motion-reduce:transition-none"
-    >
-      <div className="grid h-full transition-transform duration-500 ease-smooth starting:translate-y-6 motion-reduce:transition-none lg:grid-cols-2">
-        {/* Desktop: the photo in a rounded panel filling the left half, inset from the screen edge */}
-        <div className="hidden p-6 lg:block">
-          <div className="relative h-full overflow-hidden rounded-4xl bg-ink/10">
-            <Image src={image.src} alt={image.alt} fill sizes="(min-resolution: 2dppx) 50vw, 100vw" quality={90} className="object-cover" />
-          </div>
+    <div className="grid min-h-dvh lg:grid-cols-2">
+      {/* Desktop: the photo in a rounded panel filling the left half, inset from the screen edge */}
+      <div className="hidden p-6 lg:sticky lg:top-0 lg:block lg:h-dvh">
+        <div className="relative h-full overflow-hidden rounded-4xl bg-ink/10">
+          <Image src={image.src} alt={image.alt} fill priority sizes="(min-resolution: 2dppx) 50vw, 100vw" quality={90} className="object-cover" />
         </div>
+      </div>
 
-        {/* Top-aligned (not centred), so switching "tour" / "room" doesn't shift the form */}
-        <div className="relative overflow-y-auto px-6 pt-20 pb-10 lg:flex lg:flex-col lg:px-16 lg:pt-32 lg:pb-24 xl:px-24">
-          <button type="button" onClick={onClose} aria-label="Close" className="absolute top-5 right-5 flex size-10 items-center justify-center text-ink lg:top-8 lg:right-8">
-            <Close />
-          </button>
+      <div className="px-6 pt-6 pb-16 lg:px-16 lg:pt-10 lg:pb-24 xl:px-24">
+        <BackButton fallback={fallbacks[kind]} />
 
+        <div className="mt-10 lg:mt-20">
           {sent ? (
-            <div className="flex h-full flex-col items-start justify-center gap-6 lg:items-center lg:text-center">
+            <div className="flex flex-col items-start gap-6">
               <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-sage/20 text-sage">
                 <Check strokeWidth={3} />
               </span>
-              <h2 className={text.sectionHeading}>Thank you</h2>
+              <h1 className={text.sectionHeading}>Thank you</h1>
               <p className={text.body}>Someone from our team will be in touch shortly.</p>
-              <Button variant="dark" onClick={onClose} className="w-full justify-center lg:w-auto lg:min-w-40">
-                Done
-              </Button>
+              <BackButton fallback={fallbacks[kind]} label="Done" icon={false} variant="dark" className="w-full justify-center lg:w-auto lg:min-w-40" />
             </div>
           ) : (
             <>
-              <h2 className={text.sectionHeading}>{title}</h2>
+              <h1 className={text.sectionHeading}>{title}</h1>
               <p className={`mt-4 ${text.body}`}>{intro}</p>
 
               <form onSubmit={submit} className="mt-8 flex flex-col gap-6">
@@ -130,8 +120,7 @@ export default function EnquiryModal({ kind, open, onClose }: EnquiryModalProps)
                       <label htmlFor={`${uid}-day`} className={`block ${text.label}`}>
                         Choose a day
                       </label>
-                      {/* Days only once open, so the server and browser agree on "today" */}
-                      <Select id={`${uid}-day`} name="day" required placeholder="Pick a day" options={open ? nextDays() : []} className="mt-2" />
+                      <Select id={`${uid}-day`} name="day" required placeholder="Pick a day" options={isClient ? nextDays() : []} className="mt-2" />
                     </div>
                     <div>
                       <label htmlFor={`${uid}-time`} className={`block ${text.label}`}>
@@ -172,6 +161,6 @@ export default function EnquiryModal({ kind, open, onClose }: EnquiryModalProps)
           )}
         </div>
       </div>
-    </dialog>
+    </div>
   );
 }
