@@ -40,7 +40,7 @@ export default function CollageSplit({ heading, children, images, tone = "white"
           {/* Below lg, shift left 6.8%: at rest the circles' group sits right of the box centre (as
               in the desktop design), which crowds the right edge on phones */}
           <div className="mx-auto mt-10 mb-8 w-5/6 max-w-104 max-lg:-translate-x-[6.8%] lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:my-0 lg:w-full">
-            <CircleCollage {...images} />
+            <CircleCollage images={images} tone={tone} />
           </div>
 
           {rest.length > 0 && (

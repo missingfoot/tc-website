@@ -7,6 +7,7 @@ import FeatureGroups from "@/components/sections/FeatureGroups";
 import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
 import EnquiryButton from "@/components/enquiry/EnquiryButton";
+import FloatingButton from "@/components/ui/FloatingButton";
 import { workingHowItWorks, workingIncluded, workingLocations, workingSpaces } from "@/content/working";
 import { oldOakPromos, socialLinks } from "@/content/old-oak";
 
@@ -64,6 +65,10 @@ export default function Working() {
       />
 
       <PromoCards cards={oldOakPromos} />
+
+      <FloatingButton>
+        <EnquiryButton kind="working" />
+      </FloatingButton>
     </>
   );
 }

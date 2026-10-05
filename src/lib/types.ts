@@ -119,3 +119,10 @@ export type RoomDetails = {
     periods: string[];
   };
 };
+
+/** A team member: headshot, name and role. */
+export type Person = {
+  name: string;
+  role: string;
+  image: CircleImage;
+};

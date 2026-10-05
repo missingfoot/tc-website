@@ -30,7 +30,7 @@ export default function OldOak() {
         action={<EnquiryButton kind="living" variant="light" />}
       />
 
-      <Intro raised heading="Co-living at Old Oak" cta={{ label: "Read more", href: "#" }}>
+      <Intro raised heading="Co-living at Old Oak" action={<EnquiryButton kind="living" variant="light" />}>
         More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses
         shared spaces and facilities to create a more fulfilling lifestyle. Home to over 500 people
         from all walks of life, all our members share a curious mind and a desire to live their life

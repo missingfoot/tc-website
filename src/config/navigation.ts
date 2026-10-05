@@ -83,6 +83,7 @@ export const pageTitles: Record<string, string> = {
   "/locations/old-oak/rooms/one-bed-flat": "One Bed Flat",
   "/co-living": "Co-Living",
   "/working": "Working",
+  "/mission": "Mission",
   "/working/bedford-square": "Bedford Square",
   "/working/old-oak": "Old Oak",
   "/working/kings-cross": "Kings Cross",

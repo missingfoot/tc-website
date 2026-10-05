@@ -3,10 +3,15 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { CircleImage } from "@/lib/types";
+import type { SectionTone } from "@/components/ui/Section";
 import { sizes2x } from "@/lib/images";
 
 type Key = "main" | "top" | "bottom";
-type CircleCollageProps = Record<Key, CircleImage>;
+type CircleCollageProps = {
+  images: Record<Key, CircleImage>;
+  /** The background it sits on: rings are cream on white, white on cream, so they always show. */
+  tone?: SectionTone;
+};
 
 // Positions from the Figma "Frame 81" (409 × 554.58). Every circle is laid out at the large
 // (hovered) size, 335px = 81.92% of the frame, centred where its photo sits in the design,
@@ -23,8 +28,8 @@ const SCALE = { idle: 0.72, active: 0.9, shrunk: 0.6 };
 // Rings around the hovered photo, as multiples of its size (a little tighter than the design's
 // 452.9px / 575.37px rings). See-through so they stay subtle over the neighbouring photos.
 const RINGS = [
-  { className: "bg-cream/25", scale: 1.55, delay: "90ms" },
-  { className: "bg-cream/45", scale: 1.27, delay: "0ms" },
+  { className: { white: "bg-cream/25", cream: "bg-white/30" }, scale: 1.55, delay: "90ms" },
+  { className: { white: "bg-cream/45", cream: "bg-white/55" }, scale: 1.27, delay: "0ms" },
 ];
 const DURATION = 900; // ms
 // Damped spring: overshoots ~15% and wobbles to rest, for a bubbly, blobby feel.
@@ -33,12 +38,12 @@ const SPRING =
 
 /**
  * Three photos in bubbles. At rest they're the same size; hovering one (with a
- * mouse) grows it to full size with layered cream rings while the others shrink back. The
+ * mouse) grows it to full size with layered rings (cream, or white on a cream background) while the others shrink back. The
  * hovered photo rises to the front as it grows and stays there until it has shrunk again,
  * so the layering never jumps. Sizes change on a springy curve and the photos drift and
  * breathe like bubbles. Touch screens and reduced motion get the resting state.
  */
-export default function CircleCollage(images: CircleCollageProps) {
+export default function CircleCollage({ images, tone = "white" }: CircleCollageProps) {
   const [active, setActive] = useState<Key | null>(null);
   // The photo that was last active stays above the others while it shrinks back.
   const [leaving, setLeaving] = useState<Key | null>(null);
@@ -90,7 +95,7 @@ export default function CircleCollage(images: CircleCollageProps) {
                     transitionDelay: isActive ? ring.delay : "0ms",
                   }}
                 >
-                  <div className={`size-full rounded-full ${ring.className}`} />
+                  <div className={`size-full rounded-full ${ring.className[tone]}`} />
                 </div>
               ))}
               <div
