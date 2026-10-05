@@ -17,13 +17,11 @@ import { oldOakAbout, oldOakPromos, oldOakRoomDetails, oldOakRoomIncluded } from
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
-// Only the rooms in the content exist; anything else 404s
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return oldOakRoomDetails.map(({ slug }) => ({ slug }));
 }
 
+// Unknown slugs 404 via notFound(). (Not `dynamicParams = false`: on Netlify that 404s the prebuilt pages too.)
 function findRoom(slug: string) {
   const room = oldOakRoomDetails.find((r) => r.slug === slug);
   if (!room) notFound();

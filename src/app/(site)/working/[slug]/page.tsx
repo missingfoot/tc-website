@@ -16,13 +16,11 @@ import { mapEmbedUrl } from "@/content/directions";
 import { workingLocationIncluded, workingLocationPages } from "@/content/working";
 import { oldOakPromos, socialLinks } from "@/content/old-oak";
 
-// Only the locations in the content exist; anything else 404s
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return workingLocationPages.map(({ slug }) => ({ slug }));
 }
 
+// Unknown slugs 404 via notFound(). (Not `dynamicParams = false`: on Netlify that 404s the prebuilt pages too.)
 function findLocation(slug: string) {
   const location = workingLocationPages.find((l) => l.slug === slug);
   if (!location) notFound();

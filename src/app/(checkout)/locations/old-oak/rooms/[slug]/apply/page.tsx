@@ -6,12 +6,11 @@ import Section from "@/components/ui/Section";
 import { oldOakRoomDetails } from "@/content/old-oak";
 import { parsePrice } from "@/lib/application";
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return oldOakRoomDetails.map(({ slug }) => ({ slug }));
 }
 
+// Unknown slugs 404 via notFound(). (Not `dynamicParams = false`: on Netlify that 404s the prebuilt pages too.)
 function findRoom(slug: string) {
   const room = oldOakRoomDetails.find((r) => r.slug === slug);
   if (!room) notFound();
