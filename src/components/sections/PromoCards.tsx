@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import type { PromoCard } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import EnquiryButton from "@/components/enquiry/EnquiryButton";
@@ -36,7 +36,7 @@ export default function PromoCards({ cards, tone = "white", mobileShape = "short
 function PromoCardItem({ card, shape }: { card: PromoCard; shape: string }) {
   return (
     <article className={`relative isolate flex ${shape} flex-col justify-between overflow-hidden rounded-2xl bg-ink p-8 lg:aspect-[576/415] lg:p-10`}>
-      <Image
+      <Photo
         src={card.image.src}
         alt={card.image.alt}
         fill

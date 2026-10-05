@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import type { LinkCard } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
@@ -33,7 +33,7 @@ export default function LinkCards({ heading, intro, cards, cardStyle = "dark", t
             <li key={card.title}>
               <article className={`flex h-full flex-col overflow-hidden rounded-2xl ${t.card}`}>
                 <div className="relative aspect-[16/9]">
-                  <Image
+                  <Photo
                     src={card.image.src}
                     alt={card.image.alt}
                     fill

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import { useEffect, useRef, useState } from "react";
 import type { CircleImage } from "@/lib/types";
 import type { SectionTone } from "@/components/ui/Section";
@@ -104,7 +104,7 @@ export default function CircleCollage({ images, tone = "white" }: CircleCollageP
                 onPointerEnter={(e) => e.pointerType === "mouse" && activate(key)}
                 onPointerLeave={(e) => e.pointerType === "mouse" && activate(null)}
               >
-                <Image
+                <Photo
                   src={images[key].src}
                   alt={images[key].alt}
                   fill

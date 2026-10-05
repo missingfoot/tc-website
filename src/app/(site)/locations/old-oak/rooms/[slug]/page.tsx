@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import { notFound } from "next/navigation";
 import Hero from "@/components/sections/Hero";
 import Gallery from "@/components/sections/Gallery";
@@ -104,7 +105,7 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
             <Block heading={oldOakAbout.heading}>
               <Paragraphs items={oldOakAbout.text} />
               <div className="relative mt-8 aspect-[7/4] overflow-hidden rounded-2xl bg-ink/10">
-                <Image src={oldOakAbout.poster.src} alt={oldOakAbout.poster.alt} fill sizes={sizes2x(["(min-width: 1024px)", "45rem"], [null, "100vw"])} className="object-cover" />
+                <Photo src={oldOakAbout.poster.src} alt={oldOakAbout.poster.alt} fill sizes={sizes2x(["(min-width: 1024px)", "45rem"], [null, "100vw"])} className="object-cover" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <VideoButton label="Play video" video={oldOakAbout.video} variant="white" />
                 </div>

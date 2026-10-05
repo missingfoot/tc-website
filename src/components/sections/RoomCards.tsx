@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import type { Room } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
@@ -40,7 +40,7 @@ function RoomCard({ room, ctaLabel }: { room: Room; ctaLabel: string }) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-white text-center">
       <div className="relative aspect-[7/5]">
-        <Image
+        <Photo
           src={room.image.src}
           alt={room.image.alt}
           fill

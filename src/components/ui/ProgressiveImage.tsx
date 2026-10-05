@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { blurFor } from "@/components/ui/Photo";
 import { useState } from "react";
 
 type ProgressiveImageProps = {
@@ -15,16 +16,20 @@ type ProgressiveImageProps = {
 
 /**
  * Fill image that "blurs up": shows a blurred low-res placeholder straight away, then fades
- * the full-size image in once it has loaded. Place inside a positioned, overflow-hidden parent.
+ * the full-size image in once it has loaded. Until the thumbnail itself arrives, the photo's
+ * inline blur preview (see `Photo`) stands in. Place inside a positioned, overflow-hidden parent.
  */
 export default function ProgressiveImage({ src, placeholder, alt, sizes, className = "" }: ProgressiveImageProps) {
   const [loaded, setLoaded] = useState(false);
+  const blur = blurFor(src);
 
   return (
     <>
       {/* scale-110 hides the soft, see-through edges the blur creates */}
       <Image
         src={placeholder}
+        placeholder={blur ? "blur" : "empty"}
+        blurDataURL={blur}
         alt={src ? "" : alt}
         aria-hidden={src ? true : undefined}
         fill

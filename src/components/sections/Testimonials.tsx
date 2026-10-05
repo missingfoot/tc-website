@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import { useState } from "react";
 import type { Testimonial } from "@/lib/types";
 import Button from "@/components/ui/Button";
@@ -36,7 +36,7 @@ export default function Testimonials({ heading, intro, testimonials, tone = "cre
           slideClassName="relative aspect-square overflow-hidden rounded-2xl bg-ink/10"
           renderItem={(t) => (
             <>
-              <Image
+              <Photo
                 src={t.image.src}
                 alt={t.image.alt}
                 fill

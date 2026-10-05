@@ -1,6 +1,7 @@
 "use client";
 
-import Image, { type ImageProps } from "next/image";
+import type { ImageProps } from "next/image";
+import Photo from "@/components/ui/Photo";
 import { useEffect, useRef } from "react";
 
 type ParallaxImageProps = Omit<ImageProps, "fill"> & {
@@ -43,7 +44,7 @@ export default function ParallaxImage({ alt, speed = 0.4, className = "", ...pro
 
   return (
     <div ref={ref} className="absolute inset-0 will-change-transform">
-      <Image fill alt={alt} className={className} {...props} />
+      <Photo fill alt={alt} className={className} {...props} />
     </div>
   );
 }

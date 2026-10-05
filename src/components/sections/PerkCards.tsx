@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import type { Perk } from "@/lib/types";
 import Carousel from "@/components/ui/Carousel";
 import Container from "@/components/ui/Container";
@@ -30,7 +31,7 @@ export default function PerkCards({ heading, intro, perks, tone = "cream" }: Per
           renderItem={(p) => (
             <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-white">
               <div className="relative aspect-[5/3]">
-                <Image src={p.image} alt="" fill draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
+                <Photo src={p.image} alt="" fill draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
                 {p.logo && (
                   <Image src={p.logo} alt="" width={64} height={64} draggable={false} className="absolute right-4 bottom-4 size-16 rounded-xl" />
                 )}

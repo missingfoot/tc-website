@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Photo from "@/components/ui/Photo";
 import type { ReactNode } from "react";
 import type { CircleImage } from "@/lib/types";
 import Carousel from "@/components/ui/Carousel";
@@ -32,7 +32,7 @@ export default function ImageCarousel({ heading, intro, images, footer, tone = "
           label={heading}
           slideClassName="relative aspect-square overflow-hidden rounded-2xl bg-cream"
           renderItem={(img) => (
-            <Image src={img.src} alt={img.alt} fill draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
+            <Photo src={img.src} alt={img.alt} fill draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
           )}
         />
         {footer && <p className={`mt-8 text-left lg:text-center ${text.body}`}>{footer}</p>}
