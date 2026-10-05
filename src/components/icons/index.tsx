@@ -8,11 +8,13 @@ type IconProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
 /**
  * Shared wrapper for the icon set: 24×24 grid, 2px square-capped stroke, coloured by
  * `currentColor`. Defaults to 24px; resize with a size class, e.g. className="size-4".
+ * `large` icons are drawn on a 32×32 grid and default to 32px.
  */
-function Icon({ title, className = "", children, ...props }: IconProps & { children: ReactNode }) {
+function Icon({ title, className = "", large, children, ...props }: IconProps & { large?: boolean; children: ReactNode }) {
+  const grid = large ? 32 : 24;
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox={`0 0 ${grid} ${grid}`}
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -20,7 +22,7 @@ function Icon({ title, className = "", children, ...props }: IconProps & { child
       strokeLinecap="square"
       role={title ? "img" : undefined}
       aria-hidden={title ? undefined : true}
-      className={`size-6 shrink-0 ${className}`}
+      className={`${large ? "size-8" : "size-6"} shrink-0 ${className}`}
       {...props}
     >
       {title && <title>{title}</title>}
@@ -569,11 +571,293 @@ export function QuoteMark({ className = "", title }: Pick<IconProps, "title" | "
   );
 }
 
+/** Cup under a cloud of steam (bar & kitchen). */
+export function BarKitchen(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M18 12H22V15C22 16.6569 20.6569 18 19 18H18" strokeLinecap="butt" />
+      <path d="M18 10.5V20C18 21.1046 17.1046 22 16 22H6C4.89543 22 4 21.1046 4 20L4 10.5" strokeLinecap="butt" />
+      <path d="M11 1C13.9 1 16.2 3.2 16.5 6C18 6 19.1 7.3 19 8.8C18.9 10.1 17.7 11 16.4 11H12V15C12 16.1046 11.1046 17 9.99999 17C8.89542 17 7.99999 16.1046 7.99999 15V11H5.59999C4.29999 11 3.09999 10.1 2.99999 8.8C2.89999 7.3 3.99999 6 5.49999 6C5.79999 3.2 8.09999 1 11 1Z" />
+    </Icon>
+  );
+}
+
+/** Door with a key card (private offices). */
+export function PrivateOffice(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.5 15.5V17" />
+      <path d="M14 7L14 5C14 3.89543 13.1046 3 12 3L7 3C5.89543 3 5 3.89543 5 5L5 19C5 20.1046 5.89543 21 7 21L12 21C13.1046 21 14 20.1046 14 19L14 11" />
+      <path d="M11 11L20 11C21.1046 11 22 10.1046 22 9C22 7.89543 21.1046 7 20 7L11 7C9.89543 7 9 7.89543 9 9C9 10.1046 9.89543 11 11 11Z" />
+      <path d="M8 15C8 14.1716 8.67157 13.5 9.5 13.5C10.3284 13.5 11 14.1716 11 15C11 15.8284 10.3284 16.5 9.5 16.5C8.67157 16.5 8 15.8284 8 15Z" fill="currentColor" stroke="none" fillRule="evenodd" />
+    </Icon>
+  );
+}
+
+/** Desk (hot desking). */
+export function Desk(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 20L3 12" />
+      <path d="M21 12L21 20" />
+      <path d="M17 12L17 17" />
+      <path d="M7 12L7 17" />
+      <path d="M19 4L5 4L2 8L2 12L22 12L22 8L19 4Z" />
+      <path d="M2 8H22" strokeLinecap="butt" />
+    </Icon>
+  );
+}
+
+/** Fork and knife (kitchen / restaurant). */
+export function Restaurant(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M20 22V2H19C16.7909 2 15 3.79086 15 6V15H19.5" />
+      <path d="M7 2V22" />
+      <path d="M3 2V7.5C3 8.88071 4.11929 10 5.5 10H8.5C9.88071 10 11 8.88071 11 7.5V2" />
+    </Icon>
+  );
+}
+
+/** Shopfront with a map pin (restaurants nearby). */
+export function RestaurantsNearby(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 14V19C4 20.1046 4.89543 21 6 21H12" />
+      <path d="M9.5 21V15H11" />
+      <path d="M21.874 7L19 3H5.00001L2.12601 7C2.57001 8.725 4.13601 10 6.00001 10C7.20201 10 8.26701 9.459 9.00001 8.62C9.73301 9.459 10.798 10 12 10C13.202 10 14.267 9.459 15 8.62C15.733 9.459 16.798 10 18 10C19.864 10 21.43 8.725 21.874 7Z" />
+      <path d="M19 22.75C21.328 21.094 23 19.209 23 17C23 14.791 21.209 13 19 13C16.791 13 15 14.791 15 17C15 19.209 16.672 21.094 19 22.75Z" />
+      <path d="M19 18C19.5523 18 20 17.5523 20 17C20 16.4477 19.5523 16 19 16C18.4477 16 18 16.4477 18 17C18 17.5523 18.4477 18 19 18Z" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}
+
+/** Bowl of fruit (fruits & snacks). */
+export function FruitBowl(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M18.5 7H20.2693H19.9698" />
+      <path d="M14 17L10 17" />
+      <path d="M22 12H2V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V12Z" />
+      <path d="M10.5 0V0.833333C10.5 1.27536 10.2366 1.69928 9.76777 2.01184C9.29893 2.32441 8.66304 2.5 8 2.5V1.66667C8 1.22464 8.26339 0.800716 8.73223 0.488155C9.20107 0.175595 9.83696 0 10.5 0Z" fill="currentColor" stroke="none" />
+      <path d="M20.2311 8H20.1555C20.5185 4.75056 20.1436 2.09136 18.9683 1.77646C17.6138 1.4135 15.6227 4.27925 14.2556 8H13.4192C13.596 6.94247 13.4382 5.97043 12.9857 5.31846C12.4085 4.48647 11.4974 4 10.6411 4C9.76925 4 9.22118 4.44723 8.50001 4.44723C7.77885 4.44723 7.21079 4.00078 6.33892 4.00078C5.48264 4.00078 4.57159 4.48726 3.99434 5.31924C3.54191 5.97105 3.38413 6.94277 3.56072 8H3.50466" />
+    </Icon>
+  );
+}
+
+/** Padlock (lockers). */
+export function Padlock(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M16 5C16 2.791 14.209 1 12 1C9.791 1 8 2.791 8 5V10" />
+      <rect x="3" y="10" width="18" height="12" rx="2" />
+      <line x1="12" y1="15" x2="12" y2="18" />
+      <circle cx="12" cy="15" r="1" fill="currentColor" />
+    </Icon>
+  );
+}
+
+/** Sun behind a cloud (roof terrace). */
+export function SunCloud(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M17 3V1" />
+      <path d="M21 7L23 7" />
+      <path d="M19.8284 4.1716L21.2426 2.75739" />
+      <path d="M12.7574 2.75739L14.1716 4.1716L14.6199 3.78485C15.285 3.29171 16.1084 3.00003 17 3.00003C19.2091 3.00003 21 4.79089 21 7.00003C21 7.85088 20.7343 8.63969 20.2814 9.28803L19.8284 9.82845L21.2426 11.2427" />
+      <path d="M21 17C21 19.0533 19.5 21 17 21H5C2.5 21 1 19.2091 1 17C1 15.2267 2.18182 13.7333 3.72727 13.36C3.90909 9.72 6.83732 7 10.4737 7C14.1101 7 17.0909 9.62667 17.3636 13.2667C19.3636 13.2667 21 14.9467 21 17Z" />
+    </Icon>
+  );
+}
+
+/** Table with seats either side, from above (meeting rooms). */
+export function MeetingTable(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M17 3L7 3L7 21L17 21L17 3Z" />
+      <circle cx="21.5" cy="5.5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="2.5" cy="5.5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="21.5" cy="18.5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="2.5" cy="18.5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="21.5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="2.5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}
+
+/** Microwave (work kitchen). */
+export function Microwave(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M20 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V6C22 4.89543 21.1046 4 20 4Z" />
+      <path d="M16 8H6V16H16V8Z" />
+      <path d="M22 10H20" />
+      <path d="M22 14H20" />
+    </Icon>
+  );
+}
+
 /** Tick. */
 export function Check(props: IconProps) {
   return (
     <Icon {...props}>
       <path d="M4 12.5L9.5 18L20 6.5" />
     </Icon>
+  );
+}
+
+/** Padlock, closed and filled (secure payment). Drawn on an 18×18 grid. */
+export function Lock({ className = "", title }: Pick<IconProps, "title" | "className">) {
+  return (
+    <svg viewBox="0 0 18 18" fill="currentColor" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} className={`size-5 shrink-0 ${className}`}>
+      {title && <title>{title}</title>}
+      <path d="M12.25 9C11.836 9 11.5 8.664 11.5 8.25V5C11.5 3.622 10.378 2.5 9 2.5S6.5 3.622 6.5 5V8.25C6.5 8.664 6.164 9 5.75 9S5 8.664 5 8.25V5C5 2.794 6.794 1 9 1S13 2.794 13 5V8.25C13 8.664 12.664 9 12.25 9Z" />
+      <path d="M12.75 7.5H5.25C3.733 7.5 2.5 8.733 2.5 10.25V14.25C2.5 15.767 3.733 17 5.25 17H12.75C14.267 17 15.5 15.767 15.5 14.25V10.25C15.5 8.733 14.267 7.5 12.75 7.5ZM9.75 12.75C9.75 13.164 9.414 13.5 9 13.5S8.25 13.164 8.25 12.75V11.75C8.25 11.336 8.586 11 9 11S9.75 11.336 9.75 11.75V12.75Z" />
+    </svg>
+  );
+}
+
+/** Question mark in a filled circle (help tooltips). */
+export function Help({ className = "", title }: Pick<IconProps, "title" | "className">) {
+  return (
+    <svg viewBox="0 0 16 16" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} className={`size-4 shrink-0 ${className}`}>
+      {title && <title>{title}</title>}
+      <circle cx="8" cy="8" r="8" fill="currentColor" />
+      <path d="M6 6.2C6 5 6.9 4.2 8 4.2C9.1 4.2 10 5 10 6C10 7.4 8 7.4 8 9" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="8" cy="11.6" r="0.9" fill="white" />
+    </svg>
+  );
+}
+
+/* Large (32×32) icons, for feature lists such as the Working page's "How it works". */
+
+/** Membership card (flexible memberships). */
+export function Membership(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <path d="M22 4L27 4C28.6569 4 30 5.34314 30 7L30 25C30 26.6569 28.6569 28 27 28L5 28C3.34314 28 2 26.6569 2 25L2 7C2 5.34314 3.34315 3.99999 5 4L10 4" />
+      <path d="M12 15C13.3807 15 14.5 13.8807 14.5 12.5C14.5 11.1193 13.3807 10 12 10C10.6193 10 9.5 11.1193 9.5 12.5C9.5 13.8807 10.6193 15 12 15Z" strokeLinecap="butt" />
+      <path d="M12 18C9.23858 18 7 20.2386 7 23H17C17 20.2386 14.7614 18 12 18Z" strokeLinecap="butt" />
+      <path d="M20 15H25" />
+      <path d="M22 20H25" />
+      <path d="M18 6V3C18 1.89543 17.1046 1 16 1C14.8954 1 14 1.89543 14 3V6H18Z" />
+    </Icon>
+  );
+}
+
+/** Presenter at a lectern (workshops and learning). */
+export function Workshop(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <path d="M7 16.6538L8.00003 9.98941H8.50003H9.00003L10 16.6538L8.50003 18L7 16.6538Z" fill="currentColor" stroke="none" />
+      <path d="M11.5 30H5.49998L4.40021 20L1.99997 18.75L2.98767 12.575C3.13169 11.6713 3.74615 10.925 4.57543 10.6175C6.03958 10.075 7.8024 10 8.49847 10H18.5749C19.362 10 20 10.638 20 11.4251C20 12.0613 19.5782 12.6205 18.9664 12.7953L13 14.5L11.5 30Z" />
+      <path d="M28 17L28 7C28 5.34315 26.6569 4 25 4L17 4" />
+      <path d="M17 21H30L29 25H17" />
+      <path d="M24 29.5L21 25L21.3333 25.5" />
+      <path d="M8.5 7C9.88071 7 11 5.88071 11 4.5C11 3.11929 9.88071 2 8.5 2C7.11929 2 6 3.11929 6 4.5C6 5.88071 7.11929 7 8.5 7Z" />
+    </Icon>
+  );
+}
+
+/** Handshake (business support). */
+export function Handshake(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <path d="M5 7V21" strokeLinecap="butt" />
+      <path d="M10 7.00003L1 7.00003L1 21.0545H5L13.1926 28.3832C14.1846 29.2706 15.712 29.1693 16.5782 28.1588V28.1588C17.3818 27.2212 17.3326 25.8241 16.4649 24.9455L15 23.462L18.1807 26.3488C19.177 27.2531 20.7233 27.1562 21.5989 26.1346V26.1346C22.3951 25.2058 22.3606 23.8254 21.5189 22.9375L19.5 20.8076L22.7354 23.844C23.7189 24.767 25.2575 24.7426 26.2112 23.7888V23.7888C27.1955 22.8046 27.1854 21.2057 26.1888 20.2339L18.5 12.7366L18.7702 13" />
+      <path d="M20 11.5001L13.6415 16.2689C12.6996 16.9753 11.3816 16.8817 10.5491 16.0492V16.0492C9.67499 15.175 9.62124 13.7753 10.4258 12.8367L15.8493 6.50913C17.1536 4.98755 19.2403 4.39169 21.1513 4.99517L27.5 7.00003H31V21" />
+      <path d="M27 7V15" />
+    </Icon>
+  );
+}
+
+/** Three connected people (connected community). */
+export function Community(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <path d="M16 7C17.6569 7 19 5.65685 19 4C19 2.34315 17.6569 1 16 1C14.3431 1 13 2.34315 13 4C13 5.65685 14.3431 7 16 7Z" strokeLinecap="butt" />
+      <path d="M20.9402 12.594C19.8577 11.0268 18.0488 10 16 10C13.9512 10 12.1423 11.0268 11.0598 12.594" />
+      <path d="M8 22C9.65685 22 11 20.6569 11 19C11 17.3431 9.65685 16 8 16C6.34315 16 5 17.3431 5 19C5 20.6569 6.34315 22 8 22Z" strokeLinecap="butt" />
+      <path d="M23.9171 22C25.5739 22 26.9171 20.6569 26.9171 19C26.9171 17.3431 25.5739 16 23.9171 16C22.2602 16 20.9171 17.3431 20.9171 19C20.9171 20.6569 22.2602 22 23.9171 22Z" strokeLinecap="butt" />
+      <path d="M29.917 30C29.441 27.1623 26.973 25 24 25C21.027 25 18.559 27.1623 18.0829 30L19.5768 30.3787C22.4797 31.1146 25.5203 31.1146 28.4232 30.3787L29.917 30Z" strokeLinecap="butt" />
+      <path d="M13.8341 30C13.358 27.1623 10.89 25 7.91704 25C4.94405 25 2.47608 27.1623 2 30L3.49387 30.3787C6.39674 31.1146 9.43734 31.1146 12.3402 30.3787L13.8341 30Z" strokeLinecap="butt" />
+    </Icon>
+  );
+}
+
+/** Calendar (events and activities). */
+export function Calendar(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <path d="M2 12V7C2 5.343 3.343 4 5 4H27C28.657 4 30 5.343 30 7V12" strokeLinecap="butt" />
+      <path d="M2 12H30V24.913C30 26.617 28.617 28 26.913 28H5.087C3.383 28 2 26.617 2 24.913V12Z" />
+      <path d="M9 1V7" />
+      <path d="M23 1V7" />
+    </Icon>
+  );
+}
+
+/** Lamp and sofa (inspiring spaces). */
+export function Lounge(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <path d="M17 19L17 14.5C17 13.6716 17.6716 13 18.5 13L27.5 13C28.3284 13 29 13.6716 29 14.5L29 19" />
+      <path d="M6.99992 14L6.99988 27" />
+      <path d="M12.5613 12.6838L10 5L7 5L4 5L1.43874 12.6838C1.2229 13.3313 1.70487 14 2.38742 14L11.6126 14C12.2951 14 12.7771 13.3313 12.5613 12.6838Z" />
+      <path d="M4 27H10" />
+      <path d="M16.5 27L29.5 27C30.3284 27 31 26.3284 31 25.5L31 21C31 19.8954 30.1046 19 29 19C27.8954 19 27 19.8954 27 21L27 23L19 23L19 21C19 19.8954 18.1046 19 17 19C15.8954 19 15 19.8954 15 21L15 25.5C15 26.3284 15.6716 27 16.5 27Z" />
+    </Icon>
+  );
+}
+
+/*
+ * Card brand logos, in the brands' own colours. The source art is a 28×18 card on a 32×32
+ * grid; the viewBox is cropped to the card. Size them by height, e.g. className="h-6".
+ */
+function CardLogo({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
+  return (
+    <svg viewBox="2 7 28 18" role="img" className={`aspect-[28/18] shrink-0 ${className}`}>
+      <title>{title}</title>
+      {children}
+      {/* Shared edge and top highlight */}
+      <path d="m27,7H5c-1.657,0-3,1.343-3,3v12c0,1.657,1.343,3,3,3h22c1.657,0,3-1.343,3-3v-12c0-1.657-1.343-3-3-3Zm2,15c0,1.103-.897,2-2,2H5c-1.103,0-2-.897-2-2v-12c0-1.103.897-2,2-2h22c1.103,0,2,.897,2,2v12Z" opacity=".15" />
+      <path d="m27,8H5c-1.105,0-2,.895-2,2v1c0-1.105.895-2,2-2h22c1.105,0,2,.895,2,2v-1c0-1.105-.895-2-2-2Z" fill="#fff" opacity=".2" />
+    </svg>
+  );
+}
+
+export function VisaLogo({ className }: { className?: string }) {
+  return (
+    <CardLogo title="Visa" className={className}>
+      <rect x="2" y="7" width="28" height="18" rx="3" fill="#1434cb" />
+      <path d="m13.392,12.624l-2.838,6.77h-1.851l-1.397-5.403c-.085-.332-.158-.454-.416-.595-.421-.229-1.117-.443-1.728-.576l.041-.196h2.98c.38,0,.721.253.808.69l.738,3.918,1.822-4.608h1.84Z" fill="#fff" />
+      <path d="m20.646,17.183c.008-1.787-2.47-1.886-2.453-2.684.005-.243.237-.501.743-.567.251-.032.943-.058,1.727.303l.307-1.436c-.421-.152-.964-.299-1.638-.299-1.732,0-2.95.92-2.959,2.238-.011.975.87,1.518,1.533,1.843.683.332.912.545.909.841-.005.454-.545.655-1.047.663-.881.014-1.392-.238-1.799-.428l-.318,1.484c.41.188,1.165.351,1.947.359,1.841,0,3.044-.909,3.05-2.317" fill="#fff" />
+      <path d="m25.423,12.624h-1.494c-.337,0-.62.195-.746.496l-2.628,6.274h1.839l.365-1.011h2.247l.212,1.011h1.62l-1.415-6.77Zm-2.16,4.372l.922-2.542.53,2.542h-1.452Z" fill="#fff" />
+      <path d="M15.894 12.624L14.446 19.394 12.695 19.394 14.143 12.624 15.894 12.624z" fill="#fff" />
+    </CardLogo>
+  );
+}
+
+export function MastercardLogo({ className }: { className?: string }) {
+  return (
+    <CardLogo title="Mastercard" className={className}>
+      <rect x="2" y="7" width="28" height="18" rx="3" fill="#141413" />
+      <path d="M13.597 11.677H18.407V20.32H13.597z" fill="#ff5f00" />
+      <path d="m13.902,15.999c0-1.68.779-3.283,2.092-4.322-2.382-1.878-5.849-1.466-7.727.932-1.863,2.382-1.451,5.833.947,7.712,2,1.573,4.795,1.573,6.795,0-1.329-1.038-2.107-2.642-2.107-4.322Z" fill="#eb001b" />
+      <path d="m24.897,15.999c0,3.039-2.459,5.497-5.497,5.497-1.237,0-2.428-.412-3.39-1.176,2.382-1.878,2.795-5.329.916-7.727-.275-.336-.58-.657-.916-.916,2.382-1.878,5.849-1.466,7.712.932.764.962,1.176,2.153,1.176,3.39Z" fill="#f79e1b" />
+    </CardLogo>
+  );
+}
+
+export function AmexLogo({ className }: { className?: string }) {
+  return (
+    <CardLogo title="American Express" className={className}>
+      <rect x="2" y="7" width="28" height="18" rx="3" fill="#0f70ce" />
+      <path d="m27.026,9l-.719,1.965-.708-1.965h-3.885v2.582l-1.136-2.582h-3.119l-3.259,7.409h2.637v6.591h8.097l1.316-1.458,1.322,1.458h2.244c.112-.314.184-.647.184-1v-1.041l-1.58-1.698,1.58-1.655v-7.606c0-.353-.072-.686-.184-1h-2.79Z" fill="#fff" />
+      <path d="m17.679,14.433h2.61l.502,1.148h1.78l-2.531-5.754h-2.039l-2.531,5.754h1.734l.477-1.148Zm1.307-3.135l.775,1.844h-1.535l.761-1.844Z" fill="#0f70ce" />
+      <path d="M22.542 9.827L25.018 9.827 26.302 13.39 27.604 9.827 30 9.827 30 15.581 28.45 15.581 28.45 11.603 26.977 15.581 25.608 15.581 24.124 11.631 24.124 15.581 22.542 15.581 22.542 9.827z" fill="#0f70ce" />
+      <path d="M19.24 20.82L19.24 19.944 22.484 19.944 22.484 18.624 19.24 18.624 19.24 17.748 22.565 17.748 22.565 16.409 17.664 16.409 17.664 22.173 22.565 22.173 22.565 20.82 19.24 20.82z" fill="#0f70ce" />
+      <path d="M24.638 16.409L26.271 18.234 27.968 16.409 30 16.409 27.283 19.254 30 22.173 27.939 22.173 26.249 20.309 24.567 22.173 22.537 22.173 25.272 19.275 22.537 16.409 24.638 16.409z" fill="#0f70ce" />
+    </CardLogo>
   );
 }

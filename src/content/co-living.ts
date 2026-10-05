@@ -189,3 +189,10 @@ export const coLivingCommunity: GalleryImage[] = [
   ["08-games-night", "Games night"],
   ["09-record-club", "Record club"],
 ].map(([file, caption]) => ({ src: `${community}/${file}.jpg`, thumb: `${community}/thumbs/${file}.jpg`, alt: caption }));
+
+/** "About Co-living", at the end of each room page. */
+export const coLivingAbout = [
+  "The Collective has developed a new way of living in cities that focuses on community and convenience. Our members have their own private rooms whilst also sharing beautiful spaces and having access to thought-provoking events, all designed to bring people together.",
+  "Everything you need to make the most of city life is included in one convenient payment: rent, concierge, superfast internet, all utilities and taxes, room cleaning, daily events and gym membership.",
+  "Don’t just take our word for it, though, come and see it for yourself.",
+];

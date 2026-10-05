@@ -1,12 +1,12 @@
-import type { ComponentType } from "react";
 import Container from "@/components/ui/Container";
 import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
+import FeatureList, { type FeatureItem } from "@/components/ui/FeatureList";
 
 export type FeatureGroup = {
   /** Small grey label above the group. Optional: unlabelled groups just split a list into columns. */
   label?: string;
-  items: { icon: ComponentType<{ className?: string }>; label: string }[];
+  items: FeatureItem[];
 };
 
 type FeatureGroupsProps = {
@@ -29,14 +29,7 @@ export default function FeatureGroups({ heading, intro, groups, tone = "white" }
           {groups.map((group, i) => (
             <div key={group.label ?? i}>
               {group.label && <h3 className="mb-4 text-sm font-bold text-stone">{group.label}</h3>}
-              <ul className={`grid gap-2.5 ${single ? "lg:grid-cols-2 lg:gap-x-8" : ""}`}>
-                {group.items.map(({ icon: ItemIcon, label }) => (
-                  <li key={label} className="flex items-center gap-4 rounded-xl bg-cream/40 p-4">
-                    <ItemIcon className="shrink-0 text-ink" />
-                    <span className="text-base font-medium text-ink">{label}</span>
-                  </li>
-                ))}
-              </ul>
+              <FeatureList items={group.items} twoColumn={single} />
             </div>
           ))}
         </div>

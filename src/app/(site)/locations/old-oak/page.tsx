@@ -11,6 +11,7 @@ import PromoCards from "@/components/sections/PromoCards";
 import { oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
 import { oldOakIncluded } from "@/content/included";
 import Button from "@/components/ui/Button";
+import FloatingButton from "@/components/ui/FloatingButton";
 import { Icon360 } from "@/components/icons";
 import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakRooms, oldOakPromos, oldOakTestimonials, socialLinks } from "@/content/old-oak";
 
@@ -106,6 +107,9 @@ export default function OldOak() {
       />
 
       <PromoCards cards={oldOakPromos} />
+
+      {/* TODO: enquiry link */}
+      <FloatingButton cta={{ label: "Enquire now", href: "#" }} />
     </>
   );
 }

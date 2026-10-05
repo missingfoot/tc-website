@@ -85,3 +85,33 @@ export type Perk = {
   image: string;
   logo?: string;
 };
+
+/** A headline price, e.g. "Hot Desk / £150 / Per month +VAT". */
+export type Price = {
+  label: string;
+  amount: string;
+  /** Small line under the amount. */
+  period: string;
+};
+
+/** A co-living room's own page: photos, key facts, booking details and copy. */
+export type RoomDetails = {
+  slug: string;
+  name: string;
+  /** Where it is, under the name, e.g. "Old Oak, Willesden Junction". */
+  location: string;
+  /** Weekly price, e.g. "£245". */
+  price: string;
+  /** Gallery photos; the first is also the page's hero. */
+  photos: GalleryImage[];
+  features: { icon: ComponentType<{ className?: string }>; label: string }[];
+  about: string[];
+  /** Floor plan drawing. The section is left out until there is one. */
+  floorPlan?: CircleImage;
+  booking: {
+    moveIn: string;
+    floor: string;
+    /** Options in the membership period picker. */
+    periods: string[];
+  };
+};

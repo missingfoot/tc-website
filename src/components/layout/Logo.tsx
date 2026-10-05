@@ -41,21 +41,33 @@ export function LogoMark({ variant = "full", className = "" }: LogoProps) {
 type LogoLinkProps = {
   /** "responsive" shows the icon on mobile and the full logo from md (768px) up. */
   variant?: "responsive" | "full" | "icon";
+  /** Link to the homepage (default). Off where people shouldn't wander away, e.g. checkout. */
+  link?: boolean;
   className?: string;
 };
 
-/** Logo linking to the homepage, as used in the header. */
-export default function Logo({ variant = "responsive", className = "" }: LogoLinkProps) {
+/** The header logo, linking to the homepage. */
+export default function Logo({ variant = "responsive", link = true, className = "" }: LogoLinkProps) {
+  const mark =
+    variant === "responsive" ? (
+      <>
+        <LogoMark variant="icon" className="md:hidden" />
+        <LogoMark variant="full" className="hidden md:block" />
+      </>
+    ) : (
+      <LogoMark variant={variant} />
+    );
+  const classes = `flex shrink-0 items-center ${className}`;
+  if (!link) {
+    return (
+      <span role="img" aria-label="The Collective" className={classes}>
+        {mark}
+      </span>
+    );
+  }
   return (
-    <Link href="/" aria-label="The Collective home" className={`flex shrink-0 items-center ${className}`}>
-      {variant === "responsive" ? (
-        <>
-          <LogoMark variant="icon" className="md:hidden" />
-          <LogoMark variant="full" className="hidden md:block" />
-        </>
-      ) : (
-        <LogoMark variant={variant} />
-      )}
+    <Link href="/" aria-label="The Collective home" className={classes}>
+      {mark}
     </Link>
   );
 }

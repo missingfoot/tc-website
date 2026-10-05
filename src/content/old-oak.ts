@@ -1,5 +1,7 @@
-import { Basin, Bed, Hob, TapeMeasure } from "@/components/icons";
-import type { CircleImage, GalleryImage, PromoCard, Room, Testimonial } from "@/lib/types";
+import {
+  Basin, Bed, Bill, CalendarCheck, Desk, Dumbbell, Guard, Hob, Router, Sofa, SprayBottle, TapeMeasure, WashingMachine,
+} from "@/components/icons";
+import type { CircleImage, GalleryImage, PromoCard, Room, RoomDetails, Testimonial } from "@/lib/types";
 
 const gallery = "/images/old-oak/gallery";
 const thumbs = `${gallery}/thumbs`;
@@ -55,7 +57,7 @@ export const oldOakRooms: Room[] = [
       { icon: TapeMeasure, label: "11.6 Square Metres" },
       { icon: Bed, label: "Single Room" },
     ],
-    href: "#",
+    href: `/locations/old-oak/rooms/ensuite`,
   },
   {
     name: "Studio",
@@ -67,7 +69,7 @@ export const oldOakRooms: Room[] = [
       { icon: TapeMeasure, label: "12 Square Metres" },
       { icon: Bed, label: "Double Room" },
     ],
-    href: "#",
+    href: `/locations/old-oak/rooms/studio`,
   },
   {
     name: "One Bed Flat",
@@ -79,9 +81,63 @@ export const oldOakRooms: Room[] = [
       { icon: TapeMeasure, label: "28 Square Metres" },
       { icon: Bed, label: "Double Room" },
     ],
-    href: "#",
+    href: `/locations/old-oak/rooms/one-bed-flat`,
   },
 ];
+
+const buildingPhotos = [3, 2, 4, 8].map((i) => oldOakGallery[i - 1]);
+
+// TODO: each room's own photos (for now its card photo, then shared building photos), about
+// copy for the Studio and One Bed Flat (they reuse the Ensuite's), and real move-in dates,
+// floors and membership periods.
+const ensuiteAbout = [
+  "Our ensuite rooms are fully equipped with a comfy queen-size bed, bedding and bed linen, desk and desk chair, 24 inch television, ample storage and of course, free wi-fi. Cosy, thoughtfully-designed and all yours.",
+  "For the days you want to kick back and relax, the shared kitchenette offers the perfect place to rustle up a quick meal before curling up with a book or catching up on some netflix.",
+];
+
+const booking: RoomDetails["booking"] = {
+  moveIn: "Available now",
+  floor: "17–19",
+  periods: ["12 months", "6 months", "3 months"],
+};
+
+export const oldOakRoomDetails: RoomDetails[] = oldOakRooms.map((room) => ({
+  slug: room.href.split("/").pop()!,
+  name: room.name,
+  location: "Old Oak, Willesden Junction",
+  price: room.price.replace(" per week", ""),
+  // No separate thumbnail for the room photo yet: the full image doubles as one
+  photos: [{ src: room.image.src, thumb: room.image.src, alt: room.image.alt }, ...buildingPhotos],
+  features: room.features,
+  about: [...ensuiteAbout, `Rooms start from ${room.price}.`],
+  // TODO: each room's own plan; the labelled Ensuite plan stands in for all of them for now
+  floorPlan: { src: "/images/old-oak/floor-plans/ensuite-labelled-2200.png", alt: "Floor plan showing your room, the shared bathroom and your neighbour’s room" },
+  booking,
+}));
+
+/** "What's included" on each Old Oak room page. */
+export const oldOakRoomIncluded: RoomDetails["features"] = [
+  { icon: Bill, label: "All inclusive bills" },
+  { icon: SprayBottle, label: "Bi-weekly cleaning" },
+  { icon: WashingMachine, label: "Laundry facilities" },
+  { icon: Dumbbell, label: "Onsite gym" },
+  { icon: CalendarCheck, label: "Flexible membership" },
+  { icon: Router, label: "Superfast broadband" },
+  { icon: Guard, label: "24/7 concierge" },
+  { icon: Sofa, label: "Communal spaces" },
+  { icon: Desk, label: "Work spaces" },
+];
+
+// TODO: the room video (this is the residents' video)
+export const oldOakAbout = {
+  heading: "About The Old Oak Collective",
+  video: "https://youtu.be/XkZbmXgOWOA",
+  poster: { src: `${gallery}/03-kitchen.jpg`, alt: "A shared kitchen at Old Oak" } as CircleImage,
+  text: [
+    "At The Collective we believe that beautifully designed spaces bring people together. Whether you’re looking to mingle with new people, get creative in the kitchen or open yourself up to new experiences, The Old Oak Collective can give you all this and more.",
+    "From the bar, communal kitchens and spa to the library and gym, your passion points will be catered for. Not to mention the occasional roof party!",
+  ],
+};
 
 const residents = "/images/old-oak/residents";
 

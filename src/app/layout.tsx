@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Footer from "@/components/layout/Footer";
-import Nav from "@/components/layout/Nav";
 import "./globals.css";
 
 // Circular Std, self-hosted. Weights match the Figma: Book 450, Medium 500, Bold 700, Black 900.
@@ -24,9 +22,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${circular.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
-        <Nav />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        {/* Header, <main> and footer come from the route group's layout: (site) or (checkout) */}
+        {children}
       </body>
     </html>
   );

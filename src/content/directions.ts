@@ -1,10 +1,16 @@
 import type { TravelMode } from "@/lib/types";
 
-const destination = encodeURIComponent("The Collective Old Oak, Old Oak Lane, London NW10 6FF");
-const directions = (mode: "transit" | "driving") =>
-  `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=${mode}`;
+/** Google Maps embed for the Directions map panel. */
+export const mapEmbedUrl = (address: string) => `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 
-export const oldOakMapEmbed = `https://www.google.com/maps?q=${destination}&output=embed`;
+/** Google Maps directions to an address, for a travel mode's "open in Maps" link. */
+export const directionsUrl = (address: string, mode: "transit" | "driving") =>
+  `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}&travelmode=${mode}`;
+
+export const oldOakAddress = "The Collective Old Oak, Old Oak Lane, London NW10 6FF";
+const directions = (mode: "transit" | "driving") => directionsUrl(oldOakAddress, mode);
+
+export const oldOakMapEmbed = mapEmbedUrl(oldOakAddress);
 
 export const oldOakTravelModes: TravelMode[] = [
   {

@@ -1,0 +1,41 @@
+import type { Cta, Price } from "@/lib/types";
+import Button from "@/components/ui/Button";
+import Container from "@/components/ui/Container";
+import Section, { type SectionTone } from "@/components/ui/Section";
+import SectionIntro from "@/components/ui/SectionIntro";
+
+type PricingProps = {
+  heading: string;
+  intro?: string;
+  prices: Price[];
+  cta?: Cta;
+  /** Section background (default cream; the cards are white). */
+  tone?: SectionTone;
+};
+
+/** Heading and intro, then side-by-side price cards and an optional button (full width below lg). */
+export default function Pricing({ heading, intro, prices, cta, tone = "cream" }: PricingProps) {
+  return (
+    <Section tone={tone}>
+      <Container>
+        <SectionIntro heading={heading} intro={intro} />
+        <div className="mx-auto mt-10 flex max-w-3xl flex-col items-center gap-8 lg:mt-16">
+          <ul className="grid w-full grid-cols-2 gap-5 lg:gap-8">
+            {prices.map((price) => (
+              <li key={price.label} className="flex flex-col items-center rounded-2xl bg-white px-2 py-6 text-center">
+                <span className="text-base text-stone">{price.label}</span>
+                <span className="mt-2 text-2xl font-bold text-ink">{price.amount}</span>
+                <span className="mt-1 text-sm text-stone">{price.period}</span>
+              </li>
+            ))}
+          </ul>
+          {cta && (
+            <Button href={cta.href} variant="dark" arrow className="w-full justify-center lg:w-auto">
+              {cta.label}
+            </Button>
+          )}
+        </div>
+      </Container>
+    </Section>
+  );
+}

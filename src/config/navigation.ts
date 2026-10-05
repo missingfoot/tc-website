@@ -78,6 +78,13 @@ export const mainNav: NavLink[] = [
 export const pageTitles: Record<string, string> = {
   "/": "The Collective",
   "/locations/old-oak": "Old Oak",
+  "/locations/old-oak/rooms/ensuite": "Ensuite",
+  "/locations/old-oak/rooms/studio": "Studio",
+  "/locations/old-oak/rooms/one-bed-flat": "One Bed Flat",
   "/co-living": "Co-Living",
   "/working": "Working",
+  "/working/bedford-square": "Bedford Square",
+  "/working/old-oak": "Old Oak",
+  "/working/kings-cross": "Kings Cross",
+  "/working/doughnut-factory": "The Doughnut Factory",
 };

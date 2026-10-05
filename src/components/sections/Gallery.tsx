@@ -12,7 +12,8 @@ import ArrowButton from "@/components/ui/ArrowButton";
 import { useSnapCarousel } from "@/hooks/useSnapCarousel";
 
 type GalleryProps = {
-  heading: string;
+  /** Optional: a location page's gallery goes straight into the photos. */
+  heading?: string;
   intro?: string;
   images: GalleryImage[];
   /** Shown under the thumbnails, e.g. a button. */
@@ -34,13 +35,13 @@ export default function Gallery({ heading, intro, images, footer, tone = "cream"
     <Section tone={tone}>
       {/* Left-aligned below lg (site-wide rule for content blocks), centred on desktop */}
       <Container className="flex flex-col items-start text-left lg:items-center lg:text-center">
-        <SectionIntro heading={heading} intro={intro} />
+        {heading && <SectionIntro heading={heading} intro={intro} />}
 
         {/* Mobile carousel: full-bleed scroller, slides snap to the text's left edge and the next one peeks in */}
         <ul
           ref={carouselRef}
           aria-label="Photos"
-          className="relative -mx-6 mt-10 flex w-[calc(100%+3rem)] snap-x snap-mandatory scroll-px-6 gap-5 cursor-grab overflow-x-auto overscroll-x-contain px-6 select-none active:cursor-grabbing [scrollbar-width:none] md:-mx-12 md:w-[calc(100%+6rem)] md:scroll-px-12 md:px-12 lg:hidden [&::-webkit-scrollbar]:hidden"
+          className={`relative -mx-6 flex w-[calc(100%+3rem)] snap-x snap-mandatory scroll-px-6 gap-5 cursor-grab overflow-x-auto overscroll-x-contain px-6 select-none active:cursor-grabbing [scrollbar-width:none] md:-mx-12 md:w-[calc(100%+6rem)] md:scroll-px-12 md:px-12 lg:hidden [&::-webkit-scrollbar]:hidden ${heading ? "mt-10" : ""}`}
         >
           {images.map((image, i) => (
             <li key={image.thumb} aria-hidden={i !== index} className="w-[calc(100%-24px)] shrink-0 snap-start md:w-[calc(50%-10px)]">
@@ -51,7 +52,7 @@ export default function Gallery({ heading, intro, images, footer, tone = "cream"
           ))}
         </ul>
 
-        <div className="mt-14 hidden w-full max-w-240 items-center justify-center gap-10 lg:flex">
+        <div className={`hidden w-full max-w-240 items-center justify-center gap-10 lg:flex ${heading ? "mt-14" : ""}`}>
           <ArrowButton direction="left" label="Previous image" onClick={() => go(-1)} />
 
           <div className="relative aspect-[800/520] w-full max-w-200 overflow-hidden rounded-2xl bg-ink/10">
