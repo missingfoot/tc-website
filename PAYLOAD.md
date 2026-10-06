@@ -8,7 +8,9 @@ example; every other page is still written in code.
 
 ```bash
 npm install
-npx payload run src/payload/seed.ts   # creates the database and the Foundation page (safe to rerun)
+# .env needs PAYLOAD_SECRET and DATABASE_URI: the Neon "dev" branch's direct address (no -pooler)
+npx payload migrate                    # brings the database up to date
+npx payload run src/payload/seed.ts   # the Foundation page (safe to rerun)
 npm run dev                            # then open http://localhost:3000/admin
 ```
 
@@ -23,6 +25,7 @@ npm run dev                            # then open http://localhost:3000/admin
 | What | Where |
 | --- | --- |
 | Payload config (collections, database) | `src/payload.config.ts` |
+| Database migrations | `src/migrations/` |
 | Page sections editors can add | `src/payload/blocks.ts`, one per section component |
 | Pages and Media collections | `src/payload/collections/` |
 | Blocks → section components | `src/components/payload/RenderBlocks.tsx` |
@@ -32,6 +35,8 @@ npm run dev                            # then open http://localhost:3000/admin
 
 - **Adding a section type**: add a block in `blocks.ts` with the fields its component takes, a case
   in `RenderBlocks.tsx`, then `npx payload generate:types`.
+- **Changing fields or collections** changes the database: run `npx payload migrate:create <name>`,
+  then `npx payload migrate`, and commit the migration. The database never updates itself.
 - **Edits show straight away**: saving a page refreshes its pre-built HTML (the Pages collection's
   `afterChange` hook).
 - **Uploads** get a blurred preview made automatically, and are resized per screen by `next/image`,
@@ -40,11 +45,10 @@ npm run dev                            # then open http://localhost:3000/admin
 
 ## Deploying (e.g. Netlify)
 
-This proof of concept keeps everything local. For a live site:
-
-- **Database**: switch `sqliteAdapter` to `postgresAdapter` (`@payloadcms/db-postgres`) with a hosted
-  Postgres (Neon, Supabase…), and set `DATABASE_URI` and `PAYLOAD_SECRET` in Netlify's environment
-  variables. Use Payload migrations (`npx payload migrate:create`) rather than auto-sync.
+- **Database**: Postgres on Neon (project `tcweb`): the `production` branch for the live site, `dev`
+  for local work. Set `DATABASE_URI` (production's pooled address, with `-pooler`) and
+  `PAYLOAD_SECRET` in Netlify's environment variables, and run `npx payload migrate` against
+  production (its direct address) before deploying a change that adds migrations.
 - **Uploads**: serverless hosts have no lasting disk, so add a storage adapter, e.g.
   `@payloadcms/storage-s3` pointed at Cloudflare R2, and build image URLs from it in
   `src/lib/payload.ts` (`mediaImage`) instead of `/media/…`.
