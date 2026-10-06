@@ -11,7 +11,6 @@ export type MobileNavGroup = {
   items: MobileNavItem[];
 };
 
-// TODO: Blog doesn’t exist yet
 export const mobileNav: MobileNavGroup[] = [
   {
     items: [

@@ -31,17 +31,16 @@ export const oldOakBenefitsImages: { main: CircleImage; top: CircleImage; bottom
 
 const community = "/images/old-oak/community";
 
-// TODO: link targets
 export const oldOakCommunityCards: PromoCard[] = [
   {
     heading: "Unforgettable events",
     image: { src: `${community}/events-party.jpg`, alt: "Residents dancing at an Old Oak party" },
-    cta: { label: "Join events", href: "#" },
+    cta: { label: "Join events", href: "/blog/category/community" },
   },
   {
     heading: "Meet your community hosts",
     image: { src: `${community}/community-hosts.jpg`, alt: "Four community hosts sitting together on a sofa", position: "bottom" },
-    cta: { label: "Meet the team", href: "#" },
+    cta: { label: "Meet the team", href: "/blog/meet-ed-head-of-community-experience-at-the-collective" },
   },
 ];
 
@@ -165,17 +164,16 @@ export const socialLinks: import("@/components/sections/SocialLinks").SocialLink
 
 const promos = "/images/old-oak/promos";
 
-// TODO: link targets
 export const oldOakPromos: PromoCard[] = [
   {
     heading: "Is Co-Living for me?",
     image: { src: `${promos}/friends-chatting.jpg`, alt: "Two residents laughing together in the lounge" },
-    cta: { label: "Find out now", href: "#" },
+    cta: { label: "Find out now", href: "/co-living" },
   },
   {
     heading: "Like what you see?",
     image: { src: `${promos}/bar-night.jpg`, alt: "Residents chatting at the bar" },
-    cta: { label: "Apply now", href: "#", enquiry: "living" },
+    cta: { label: "Apply now", href: "/apply", enquiry: "living" },
   },
 ];
 

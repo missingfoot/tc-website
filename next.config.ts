@@ -10,6 +10,23 @@ const nextConfig: NextConfig = {
     // 75 is Next's default; 90 is used for large photos (hero, gallery) so they stay crisp.
     qualities: [75, 90],
   },
+  // The old site's addresses that moved, so links and search results still land on the right page
+  async redirects() {
+    const categories = "news|community|innovation|city-living|watch-and-listen";
+    return [
+      { source: "/co-living/old-oak", destination: "/locations/old-oak", permanent: true },
+      { source: "/privacy-notice", destination: "/privacy", permanent: true },
+      { source: "/privacy-policy.html", destination: "/privacy", permanent: true },
+      { source: "/terms-and-conditions", destination: "/terms", permanent: true },
+      { source: "/refer-a-friend/terms-and-conditions", destination: "/refer-a-friend/terms", permanent: true },
+      // Old WordPress blog: posts lived under their category or their date; listings had tag, author and page views
+      { source: `/blog/:category(${categories})/:slug`, destination: "/blog/:slug", permanent: true },
+      { source: "/blog/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug", destination: "/blog/:slug", permanent: true },
+      { source: `/blog/:category(${categories})`, destination: "/blog/category/:category", permanent: true },
+      { source: "/blog/category/:category/page/:page", destination: "/blog/category/:category", permanent: true },
+      { source: "/blog/:listing(tag|author|page)/:rest*", destination: "/blog", permanent: true },
+    ];
+  },
 };
 
 // Blog posts are MDX files in src/content/blog, imported by the blog pages (see mdx-components.tsx)

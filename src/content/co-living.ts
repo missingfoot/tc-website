@@ -68,10 +68,9 @@ export const coLivingFaq: FaqItem[] = [
   },
   {
     question: "What is the length of stay?",
-    // TODO: copy is from the old site (mentions Canary Wharf opening in 2019) — needs updating
     answer: [
       "We offer membership lengths of nine and twelve months, with a limited number of four and six month memberships over the summer. If you want to stay with us for any longer than twelve months, all you have to do is renew your membership. Please note that the price of the room may vary dependant on membership length. For more information on the latest room rates, please visit our booking form.",
-      "The Collective Canary Wharf (opening in 2019) will offer the option to stop in or stay a while, with stays from just one night. No matter how long you’re around for, we’ve got you covered.",
+      "The Collective Canary Wharf, opening soon, will offer the option to stop in or stay a while, with stays from just one night. Join the waitlist to hear as soon as rooms are available.",
     ],
   },
   {

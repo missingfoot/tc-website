@@ -88,7 +88,7 @@ export default function CoLiving() {
           heading="Want to know more?"
           items={coLivingFaq}
           outro="Co-living is designed to be the perfect platform for life in the city, focusing on creating beautiful spaces and the greatest possible experiences within them."
-          cta={{ label: "Apply now", href: "#" }}
+          cta={{ label: "Apply now", href: "/apply" }}
         />
       </div>
 
