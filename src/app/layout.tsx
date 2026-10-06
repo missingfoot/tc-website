@@ -17,6 +17,8 @@ const circular = localFont({
 export const metadata: Metadata = {
   title: { default: "The Collective", template: "%s | The Collective" },
   description: "A new way to live, work and play",
+  // A portfolio remake of The Collective's site: keep it out of search results (see robots.ts)
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

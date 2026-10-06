@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
     // 75 is Next's default; 90 is used for large photos (hero, gallery) so they stay crisp.
     qualities: [75, 90],
   },
+  // Keep every response (pages, images, videos) out of search results: this is a portfolio remake
+  async headers() {
+    return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+  },
   // The old site's addresses that moved, so links and search results still land on the right page
   async redirects() {
     const categories = "news|community|innovation|city-living|watch-and-listen";

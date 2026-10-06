@@ -1,8 +1,6 @@
 /** Company contact details and legal links, used by the footer. */
 export const site = {
   name: "The Collective",
-  /** The live site's address, for absolute links (sitemap, robots). */
-  url: "https://www.thecollective.com",
   phone: "+44 (0) 207 183 5478",
   /** For tel: links: international format, without the "(0)" (which would dial a wrong number). */
   phoneLink: "tel:+442071835478",
