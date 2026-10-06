@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
     // WebP only (Next's default): AVIF is smaller but far too slow to encode from large photos.
     // 75 is Next's default; 90 is used for large photos (hero, gallery) so they stay crisp.
     qualities: [75, 90],
+    // Payload uploads, served from their R2 bucket's public address
+    remotePatterns: process.env.R2_PUBLIC_URL ? [new URL(`${process.env.R2_PUBLIC_URL}/**`)] : [],
   },
   // Keep every response (pages, images, videos) out of search results: this is a portfolio remake
   async headers() {

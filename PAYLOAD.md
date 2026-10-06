@@ -8,7 +8,8 @@ example; every other page is still written in code.
 
 ```bash
 npm install
-# .env needs PAYLOAD_SECRET and DATABASE_URI: the Neon "dev" branch's direct address (no -pooler)
+# .env needs PAYLOAD_SECRET, DATABASE_URI (the Neon "dev" branch's direct address, no -pooler)
+# and the R2_* values for the tc-web-dev bucket (see Deploying)
 npx payload migrate                    # brings the database up to date
 npx payload run src/payload/seed.ts   # the Foundation page (safe to rerun)
 npm run dev                            # then open http://localhost:3000/admin
@@ -39,8 +40,9 @@ npm run dev                            # then open http://localhost:3000/admin
   then `npx payload migrate`, and commit the migration. The database never updates itself.
 - **Edits show straight away**: saving a page refreshes its pre-built HTML (the Pages collection's
   `afterChange` hook).
-- **Uploads** get a blurred preview made automatically, and are resized per screen by `next/image`,
-  like the site's own photos.
+- **Uploads** go from the browser straight to Cloudflare R2, get a blurred preview made
+  automatically, and are resized per screen by `next/image`, like the site's own photos.
+- **A photo a page uses can't be deleted**: the admin says which pages use it, to replace it there first.
 - Pages written in code (e.g. `/co-living`) win over a Payload page with the same slug.
 
 ## Deploying (e.g. Netlify)
@@ -49,8 +51,11 @@ npm run dev                            # then open http://localhost:3000/admin
   for local work. Set `DATABASE_URI` (production's pooled address, with `-pooler`) and
   `PAYLOAD_SECRET` in Netlify's environment variables, and run `npx payload migrate` against
   production (its direct address) before deploying a change that adds migrations.
-- **Uploads**: serverless hosts have no lasting disk, so add a storage adapter, e.g.
-  `@payloadcms/storage-s3` pointed at Cloudflare R2, and build image URLs from it in
-  `src/lib/payload.ts` (`mediaImage`) instead of `/media/…`.
+- **Uploads**: Cloudflare R2 through `@payloadcms/storage-s3`: bucket `tc-web` for the live site,
+  `tc-web-dev` for local work. Set `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
+  (an R2 API token with Object Read & Write on both buckets), `R2_BUCKET` and `R2_PUBLIC_URL` (the
+  bucket's public address, no trailing slash). The bucket's CORS policy must allow `GET` and `PUT`
+  from the site's address, as the admin uploads straight to it. Before launch, swap the r2.dev
+  address (rate-limited) for a custom domain: only `R2_PUBLIC_URL` changes.
 - **Email** (password resets): add an email adapter (e.g. Resend).
 - The admin and API run as Netlify Functions; the site's pages stay pre-built.

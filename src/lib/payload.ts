@@ -22,10 +22,10 @@ export async function getPageSlugs(): Promise<string[]> {
   return docs.map((doc) => doc.slug);
 }
 
-/** An uploaded image as the site's image shape. Uploads are in public/media for this proof of concept. */
+/** An uploaded image as the site's image shape. Its url is the file's public address in R2. */
 export function mediaImage(media: number | Media | null | undefined, position?: string | null): CircleImage {
   if (!media || typeof media === "number") return { src: "", alt: "" };
-  return { src: `/media/${media.filename}`, alt: media.alt, blur: media.blur ?? undefined, position: (position ?? undefined) as CircleImage["position"] };
+  return { src: media.url ?? "", alt: media.alt, blur: media.blur ?? undefined, position: (position ?? undefined) as CircleImage["position"] };
 }
 
 /** Body text as paragraphs: editors separate them with a blank line. */
