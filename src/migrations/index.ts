@@ -13,6 +13,7 @@ import * as migration_20261006_224517_contact_details from './20261006_224517_co
 import * as migration_20261006_225143_shared_globals from './20261006_225143_shared_globals';
 import * as migration_20261006_230016_working_standard_list from './20261006_230016_working_standard_list';
 import * as migration_20261006_231629_pricing_settings from './20261006_231629_pricing_settings';
+import * as migration_20261006_232454_templates from './20261006_232454_templates';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20261006_231629_pricing_settings.up,
     down: migration_20261006_231629_pricing_settings.down,
-    name: '20261006_231629_pricing_settings'
+    name: '20261006_231629_pricing_settings',
+  },
+  {
+    up: migration_20261006_232454_templates.up,
+    down: migration_20261006_232454_templates.down,
+    name: '20261006_232454_templates'
   },
 ];

@@ -30,9 +30,28 @@ import FloatingButton from "@/components/ui/FloatingButton";
 import { jobs } from "@/content/careers";
 import { pressLogos, pressPhotos } from "@/content/press";
 import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes } from "@/lib/payload";
-import type { Page } from "@/payload-types";
+import type { Page, Template } from "@/payload-types";
+import LocationIntro from "@/components/sections/LocationIntro";
+import Pricing from "@/components/sections/Pricing";
+import { mapEmbedUrl } from "@/content/directions";
+import type { FeatureGroup } from "@/components/sections/FeatureGroups";
+import type { EnquiryKind, GalleryImage, LocationDetails } from "@/lib/types";
 
-type Block = Page["layout"][number];
+type Block = Page["layout"][number] | Template["layout"][number];
+
+/**
+ * The place a template's "Location" sections fill themselves from: a location's details (its
+ * header, intro, prices, directions), or a room's gallery.
+ */
+export type TemplatePlace = {
+  details?: LocationDetails;
+  gallery: GalleryImage[];
+  /** Its own "What's included" groups (empty: the template's standard list shows). */
+  included?: FeatureGroup[];
+  enquiry?: EnquiryKind;
+  /** Pre-selects the venue on event enquiries. */
+  venue?: string;
+};
 
 const asParagraphs = (text: string): ReactNode => paragraphs(text).map((p) => <p key={p}>{p}</p>);
 const button = (cta?: { label?: string | null; href?: string | null } | null) => (cta?.label && cta.href ? { label: cta.label, href: cta.href } : undefined);
@@ -58,11 +77,93 @@ function MoreLink({ label, href }: { label: string; href: string }) {
  * A Payload page's sections, each block rendered by the section component it was modelled on. The
  * first section after a Hero overlaps it on mobile (where it can), as on the hand-built pages.
  */
-export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
+export default function RenderBlocks({ blocks, place }: { blocks: Block[]; place?: TemplatePlace }) {
   return blocks.map((block, i) => {
     const key = block.id ?? i;
-    const raised = blocks[i - 1]?.blockType === "hero";
+    const raised = blocks[i - 1]?.blockType === "hero" || blocks[i - 1]?.blockType === "locationHeader";
     switch (block.blockType) {
+      case "locationHeader":
+        return place?.details ? (
+          <Hero key={key} image={place.details.image.src} imageAlt={place.details.image.alt} imagePreview={place.details.image.blur} />
+        ) : null;
+      case "locationIntro": {
+        const details = place?.details;
+        if (!details) return null;
+        return (
+          <LocationIntro
+            key={key}
+            raised={raised}
+            name={details.name}
+            subtitle={`${details.area}, ${details.postcode}`}
+            features={details.features}
+            action={place.enquiry && <EnquiryButton kind={place.enquiry} venue={place.venue} variant="light" />}
+          >
+            {details.intro.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </LocationIntro>
+        );
+      }
+      case "locationGallery":
+        return place ? (
+          <Gallery
+            key={key}
+            heading={block.heading ?? undefined}
+            images={place.gallery}
+            footer={
+              block.tour?.label && block.tour.href ? (
+                <Button href={block.tour.href} variant="dark">
+                  <Icon360 />
+                  {block.tour.label}
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : null;
+      case "locationIncluded": {
+        // The place's own list, or the template's standard one
+        const groups = place?.included?.length ? place.included : [{ items: iconItems(block.standard) }];
+        return <FeatureGroups key={key} heading={block.heading} intro={block.intro ?? undefined} groups={groups} />;
+      }
+      case "locationPricing": {
+        const details = place?.details;
+        if (!details?.prices.length) return null;
+        const button = block.button;
+        return (
+          <Pricing
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            note={block.note ?? undefined}
+            prices={details.prices}
+            action={
+              button?.opens === "link" ? (
+                button.href ? (
+                  <Button href={button.href} variant="dark" arrow>
+                    {button.label || "Find out more"}
+                  </Button>
+                ) : undefined
+              ) : button?.opens === "none" || !place?.enquiry ? undefined : (
+                <EnquiryButton kind={place.enquiry} venue={place.venue} label={button?.label ?? undefined} />
+              )
+            }
+          />
+        );
+      }
+      case "locationDirections": {
+        const details = place?.details;
+        if (!details?.address) return null;
+        return (
+          <Directions
+            key={key}
+            heading={block.heading}
+            intro={details.directionsIntro}
+            modes={details.travelModes}
+            mapEmbedUrl={mapEmbedUrl(details.address)}
+            place={details.name}
+          />
+        );
+      }
       case "hero": {
         const image = mediaImage(block.image);
         return (
@@ -372,5 +473,22 @@ function heroButton(button?: Extract<Block, { blockType: "hero" }>["button"]) {
     <Button href={button.href} arrow={arrow}>
       {button.label}
     </Button>
+  );
+}
+
+/**
+ * A place's page from its type's template (/admin → Templates): the template's sections, the
+ * Location ones filled from the place, then the floating enquiry button if the template has it.
+ */
+export function RenderTemplate({ template, place }: { template: Template; place: TemplatePlace }) {
+  return (
+    <>
+      <RenderBlocks blocks={template.layout} place={place} />
+      {template.floatingEnquiry && place.enquiry && (
+        <FloatingButton>
+          <EnquiryButton kind={place.enquiry} venue={place.venue} />
+        </FloatingButton>
+      )}
+    </>
   );
 }

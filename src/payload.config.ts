@@ -9,6 +9,7 @@ import { Locations } from "./payload/collections/Locations";
 import { Media } from "./payload/collections/Media";
 import { Pages } from "./payload/collections/Pages";
 import { Rooms } from "./payload/collections/Rooms";
+import { Templates } from "./payload/collections/Templates";
 import { Users } from "./payload/collections/Users";
 import { siteLinks } from "./payload/endpoints/siteLinks";
 import { ContactDetails } from "./payload/globals/ContactDetails";
@@ -33,7 +34,7 @@ export default buildConfig({
     // The brand's logo; its font is in app/(payload)/custom.scss
     components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
   },
-  collections: [Pages, Locations, Rooms, Media, Users],
+  collections: [Pages, Templates, Locations, Rooms, Media, Users],
   globals: [Navigation, ContactDetails, SocialLinksGlobal, LocationPages],
   endpoints: [siteLinks],
   editor: lexicalEditor(),

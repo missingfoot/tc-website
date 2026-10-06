@@ -618,7 +618,7 @@ export const DownloadCardBlock: Block = {
 };
 
 /** A section's header shows its type and heading (see fields/RowLabels.tsx), not "Untitled". */
-const withHeading = (block: Block): Block => ({
+export const withHeading = (block: Block): Block => ({
   ...block,
   admin: { ...block.admin, components: { ...block.admin?.components, Label: { path: "/payload/fields/RowLabels#SectionLabel", clientProps: { label: block.labels?.singular } } } },
 });

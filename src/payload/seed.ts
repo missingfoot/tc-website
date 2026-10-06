@@ -736,4 +736,81 @@ else {
   console.log("location pages: created");
 }
 
+// Templates (how location and room pages are laid out), in the layout they had in code, with
+// Location pages' values (or content/location-pages.ts'), unless they've been made already
+{
+  type Row = Record<string, unknown>;
+  // A copy without the array rows' ids, so the values can go into a new document
+  const strip = <T,>(value: T): T => JSON.parse(JSON.stringify(value, (key, v) => (key === "id" ? undefined : v)));
+  const g = await payload.findGlobal({ slug: "locationPages", depth: 0 });
+  const d = locationPagesDefaults;
+  const fromGlobal = Boolean(g.working?.includedIntro);
+  const promosFor = async (type: "working" | "serviced" | "venues" | "rooms") =>
+    fromGlobal ? strip((g[type] as { promos?: Row[] }).promos ?? []) : await promoCards(d[type].promos);
+  const pricingFor = (type: "working" | "serviced" | "venues") => {
+    const p = fromGlobal ? (g[type] as { pricing?: Row }).pricing : d[type].pricing;
+    return strip(p ?? {});
+  };
+  const icon = (item: { label: string; icon: unknown }) => ({ label: item.label, icon: typeof item.icon === "string" ? item.icon : iconName(item.icon) });
+  const social = { blockType: "socialLinks", heading: "Connect with us", intro: "Keep up with what we are up to on social media, and get the chance to get promotions!" };
+
+  const locationLayout = async (type: "working" | "serviced" | "venues", included: { heading: string; intro: string; standard: object[] }, tour?: object) => [
+    { blockType: "locationHeader" },
+    { blockType: "locationIntro" },
+    { blockType: "locationGallery", ...(tour && { tour }) },
+    { blockType: "locationIncluded", ...included },
+    { blockType: "locationPricing", ...pricingFor(type) },
+    { blockType: "locationDirections", heading: "Well connected" },
+    social,
+    { blockType: "promoCards", cards: await promosFor(type) },
+  ];
+
+  const templates = {
+    working: async () =>
+      locationLayout(
+        "working",
+        {
+          heading: "What’s included",
+          intro: fromGlobal ? g.working.includedIntro : d.working.includedIntro,
+          standard: fromGlobal ? strip(g.working.standard ?? []) : d.working.included.flatMap((group) => group.items).map(icon),
+        },
+        fromGlobal ? strip(g.working.tour) : d.working.tour,
+      ),
+    serviced: async () =>
+      locationLayout("serviced", { heading: "What’s included", intro: fromGlobal ? g.serviced.includedIntro : d.serviced.includedIntro, standard: [] }),
+    venue: async () =>
+      locationLayout("venues", {
+        heading: fromGlobal ? g.venues.includedHeading : d.venues.includedHeading,
+        intro: fromGlobal ? g.venues.includedIntro : d.venues.includedIntro,
+        standard: [],
+      }),
+    room: async () => [{ blockType: "locationGallery", heading: "Explore the room" }, { blockType: "promoCards", cards: await promosFor("rooms") }],
+  };
+  const names = { working: "Working space page", serviced: "Serviced living house page", venue: "Venue page", room: "Old Oak room page" };
+
+  for (const type of ["working", "serviced", "venue", "room"] as const) {
+    const existing = await payload.find({ collection: "templates", where: { type: { equals: type } }, limit: 1 });
+    if (existing.docs[0]) {
+      console.log(`template ${type}: already exists, left as it is`);
+      continue;
+    }
+    const about = d.rooms.about;
+    const roomColumn =
+      type !== "room"
+        ? undefined
+        : fromGlobal
+          ? strip({ included: g.rooms.included, about: g.rooms.about, coLivingAbout: g.rooms.coLivingAbout })
+          : {
+              included: d.rooms.included.map(icon),
+              about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },
+              coLivingAbout: d.rooms.coLivingAbout.join("\n\n"),
+            };
+    await payload.create({
+      collection: "templates",
+      data: { name: names[type], type, floatingEnquiry: type !== "room", layout: await templates[type](), ...(roomColumn && { roomColumn }) } as never,
+    });
+    console.log(`template ${type}: created${fromGlobal ? " (from Location pages)" : ""}`);
+  }
+}
+
 process.exit(0);

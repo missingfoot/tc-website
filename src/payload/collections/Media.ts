@@ -3,6 +3,7 @@ import sharp from "sharp";
 import { pageBlocks } from "../blocks";
 import { Locations } from "./Locations";
 import { Rooms } from "./Rooms";
+import { Templates } from "./Templates";
 
 /** Whether this data, shaped by these fields, has the photo in one of its image fields. */
 function hasPhoto(fields: Field[], data: Record<string, unknown> | undefined, id: number | string): boolean {
@@ -15,6 +16,8 @@ function hasPhoto(fields: Field[], data: Record<string, unknown> | undefined, id
     if (field.type === "upload") return value === id;
     if (field.type === "group") return hasPhoto(field.fields, value as Record<string, unknown>, id);
     if (field.type === "array") return Array.isArray(value) && value.some((item) => hasPhoto(field.fields, item, id));
+    if (field.type === "blocks")
+      return Array.isArray(value) && value.some((item) => hasPhoto(field.blocks.find((b) => b.slug === item?.blockType)?.fields ?? [], item, id));
     return false;
   });
 }
@@ -42,10 +45,11 @@ export const Media: CollectionConfig = {
     // use, with an error that means nothing to an editor. Say where it's used instead.
     beforeDelete: [
       async ({ id, req }) => {
-        const [pages, locations, rooms] = await Promise.all([
+        const [pages, locations, rooms, templates] = await Promise.all([
           req.payload.find({ collection: "pages", depth: 0, pagination: false, req }),
           req.payload.find({ collection: "locations", depth: 0, pagination: false, req }),
           req.payload.find({ collection: "rooms", depth: 0, pagination: false, req }),
+          req.payload.find({ collection: "templates", depth: 0, pagination: false, req }),
         ]);
         const usedOn = [
           ...pages.docs
@@ -53,6 +57,7 @@ export const Media: CollectionConfig = {
             .map((page) => `“${page.title}”`),
           ...locations.docs.filter((location) => hasPhoto(Locations.fields, location as unknown as Record<string, unknown>, id)).map((location) => `“${location.name}”`),
           ...rooms.docs.filter((room) => hasPhoto(Rooms.fields, room as unknown as Record<string, unknown>, id)).map((room) => `the “${room.name}” room`),
+          ...templates.docs.filter((t) => hasPhoto(Templates.fields, t as unknown as Record<string, unknown>, id)).map((t) => `the “${t.name}” template`),
         ];
         if (usedOn.length) {
           const list = new Intl.ListFormat("en-GB").format(usedOn);

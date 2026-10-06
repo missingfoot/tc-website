@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import LocationDetail from "@/components/sections/LocationDetail";
 import Button from "@/components/ui/Button";
 import { Icon360 } from "@/components/icons";
-import { getLocation, getLocationPages, getLocations, locationDetails, locationIncluded } from "@/lib/payload";
+import { RenderTemplate } from "@/components/payload/RenderBlocks";
+import { getLocation, getLocationPages, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
 
 // Working spaces are in the CMS (/admin → Locations); what every working space's page shares is too (/admin → Location pages).
 
@@ -26,11 +27,15 @@ export async function generateMetadata({ params }: PageProps<"/working/[slug]">)
 export default async function WorkingLocation({ params }: PageProps<"/working/[slug]">) {
   const { slug } = await params;
   const location = await findLocation(slug);
-  const { working: shared } = await getLocationPages();
+  const details = locationDetails(location);
   const own = locationIncluded(location);
+  // Laid out by its template (/admin → Templates); the fixed layout below until that's made
+  const template = await getTemplate("working");
+  if (template) return <RenderTemplate template={template} place={{ details, gallery: details.gallery, included: own, enquiry: "working" }} />;
+  const { working: shared } = await getLocationPages();
   return (
     <LocationDetail
-      location={locationDetails(location)}
+      location={details}
       enquiry="working"
       included={{
         intro: shared.includedIntro,

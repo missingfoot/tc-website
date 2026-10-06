@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import LocationDetail from "@/components/sections/LocationDetail";
-import { getLocation, getLocationPages, getLocations, locationDetails, locationIncluded } from "@/lib/payload";
+import { RenderTemplate } from "@/components/payload/RenderBlocks";
+import { getLocation, getLocationPages, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
 
 // Serviced living houses are in the CMS (/admin → Locations); what every house's page shares is too (/admin → Location pages).
 
@@ -24,10 +25,15 @@ export async function generateMetadata({ params }: PageProps<"/serviced-living/[
 export default async function ServicedLivingLocation({ params }: PageProps<"/serviced-living/[slug]">) {
   const { slug } = await params;
   const location = await findLocation(slug);
+  const details = locationDetails(location);
+  // Laid out by its template (/admin → Templates); the fixed layout below until that's made
+  const template = await getTemplate("serviced");
+  if (template)
+    return <RenderTemplate template={template} place={{ details, gallery: details.gallery, included: locationIncluded(location), enquiry: "serviced" }} />;
   const { serviced: shared } = await getLocationPages();
   return (
     <LocationDetail
-      location={locationDetails(location)}
+      location={details}
       enquiry="serviced"
       included={{ intro: shared.includedIntro, groups: locationIncluded(location) }}
       pricing={shared.pricing}

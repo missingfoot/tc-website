@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     pages: Page;
+    templates: Template;
     locations: Location;
     rooms: Room;
     media: Media;
@@ -80,6 +81,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
+    templates: TemplatesSelect<false> | TemplatesSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
     rooms: RoomsSelect<false> | RoomsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -1299,6 +1301,995 @@ export interface Room {
   createdAt: string;
 }
 /**
+ * The layout of every working space's, house's, venue's and room's page. Each place's own content (photos, prices, address…) is in Locations and Rooms.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "templates".
+ */
+export interface Template {
+  id: number;
+  name: string;
+  /**
+   * The pages that use this template: one template each.
+   */
+  type: 'working' | 'serviced' | 'venue' | 'room';
+  /**
+   * An enquiry button that stays on screen on mobile (rooms have their own Apply bar).
+   */
+  floatingEnquiry?: boolean | null;
+  /**
+   * The column beside the booking card, under each room's facts and description. The sections below come after it.
+   */
+  roomColumn?: {
+    included?:
+      | {
+          label: string;
+          icon:
+            | 'Api'
+            | 'Automate'
+            | 'BarKitchen'
+            | 'Basin'
+            | 'Bed'
+            | 'Bike'
+            | 'Bill'
+            | 'Bus'
+            | 'Calendar'
+            | 'CalendarCheck'
+            | 'Car'
+            | 'Cctv'
+            | 'Check'
+            | 'Chef'
+            | 'Cocktail'
+            | 'Community'
+            | 'Crowd'
+            | 'Database'
+            | 'DealFlow'
+            | 'Desk'
+            | 'Dining'
+            | 'DoorEntry'
+            | 'Dumbbell'
+            | 'FeasibilityModel'
+            | 'FruitBowl'
+            | 'Groceries'
+            | 'Guard'
+            | 'Hack'
+            | 'HandsHeart'
+            | 'Handshake'
+            | 'Help'
+            | 'Hob'
+            | 'Icon360'
+            | 'Info'
+            | 'IntegrateData'
+            | 'Integrations'
+            | 'Lion'
+            | 'LocationPin'
+            | 'Lock'
+            | 'Lounge'
+            | 'Mail'
+            | 'ManageMembership'
+            | 'MeetingTable'
+            | 'MemberSupport'
+            | 'Membership'
+            | 'Microwave'
+            | 'Outdoor'
+            | 'Oven'
+            | 'Padlock'
+            | 'People'
+            | 'Plane'
+            | 'Play'
+            | 'PrivateOffice'
+            | 'QuoteMark'
+            | 'Relationships'
+            | 'Reporting'
+            | 'Restaurant'
+            | 'RestaurantsNearby'
+            | 'RoomAllocation'
+            | 'RoomPricing'
+            | 'Roundel'
+            | 'Router'
+            | 'Scales'
+            | 'Shelves'
+            | 'SmartHome'
+            | 'SocialNetwork'
+            | 'Sofa'
+            | 'SprayBottle'
+            | 'Sprout'
+            | 'Star'
+            | 'SunCloud'
+            | 'TapeMeasure'
+            | 'TeamChat'
+            | 'TrackMarket'
+            | 'Train'
+            | 'WashingMachine'
+            | 'Workshop'
+            | 'Wrench';
+          id?: string | null;
+        }[]
+      | null;
+    about?: {
+      heading?: string | null;
+      /**
+       * Leave a blank line between paragraphs.
+       */
+      text?: string | null;
+      poster?: (number | null) | Media;
+      /**
+       * YouTube, Vimeo or an .mp4, played over the poster.
+       */
+      video?: string | null;
+    };
+    /**
+     * Leave a blank line between paragraphs.
+     */
+    coLivingAbout?: string | null;
+  };
+  layout: (
+    | {
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationHeader';
+      }
+    | {
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationIntro';
+      }
+    | {
+        /**
+         * Optional, e.g. “Explore the room”.
+         */
+        heading?: string | null;
+        /**
+         * Optional: a “View 3D Tour” button under the photos. Leave the link empty for none.
+         */
+        tour?: {
+          label?: string | null;
+          href?: string | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationGallery';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        /**
+         * Shown for a location without a list of its own (Locations → its Page tab).
+         */
+        standard?:
+          | {
+              label: string;
+              icon:
+                | 'Api'
+                | 'Automate'
+                | 'BarKitchen'
+                | 'Basin'
+                | 'Bed'
+                | 'Bike'
+                | 'Bill'
+                | 'Bus'
+                | 'Calendar'
+                | 'CalendarCheck'
+                | 'Car'
+                | 'Cctv'
+                | 'Check'
+                | 'Chef'
+                | 'Cocktail'
+                | 'Community'
+                | 'Crowd'
+                | 'Database'
+                | 'DealFlow'
+                | 'Desk'
+                | 'Dining'
+                | 'DoorEntry'
+                | 'Dumbbell'
+                | 'FeasibilityModel'
+                | 'FruitBowl'
+                | 'Groceries'
+                | 'Guard'
+                | 'Hack'
+                | 'HandsHeart'
+                | 'Handshake'
+                | 'Help'
+                | 'Hob'
+                | 'Icon360'
+                | 'Info'
+                | 'IntegrateData'
+                | 'Integrations'
+                | 'Lion'
+                | 'LocationPin'
+                | 'Lock'
+                | 'Lounge'
+                | 'Mail'
+                | 'ManageMembership'
+                | 'MeetingTable'
+                | 'MemberSupport'
+                | 'Membership'
+                | 'Microwave'
+                | 'Outdoor'
+                | 'Oven'
+                | 'Padlock'
+                | 'People'
+                | 'Plane'
+                | 'Play'
+                | 'PrivateOffice'
+                | 'QuoteMark'
+                | 'Relationships'
+                | 'Reporting'
+                | 'Restaurant'
+                | 'RestaurantsNearby'
+                | 'RoomAllocation'
+                | 'RoomPricing'
+                | 'Roundel'
+                | 'Router'
+                | 'Scales'
+                | 'Shelves'
+                | 'SmartHome'
+                | 'SocialNetwork'
+                | 'Sofa'
+                | 'SprayBottle'
+                | 'Sprout'
+                | 'Star'
+                | 'SunCloud'
+                | 'TapeMeasure'
+                | 'TeamChat'
+                | 'TrackMarket'
+                | 'Train'
+                | 'WashingMachine'
+                | 'Workshop'
+                | 'Wrench';
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationIncluded';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        /**
+         * Optional: a small line under the cards, e.g. “Prices exclude VAT.”
+         */
+        note?: string | null;
+        button?: {
+          opens?: ('enquiry' | 'link' | 'none') | null;
+          href?: string | null;
+          /**
+           * For the enquiry form, leave empty for its usual label (e.g. “Get a free day trial”).
+           */
+          label?: string | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationPricing';
+      }
+    | {
+        heading: string;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationDirections';
+      }
+    | {
+        /**
+         * Optional: a short line above the title.
+         */
+        eyebrow?: string | null;
+        title: string;
+        subtitle?: string | null;
+        image: number | Media;
+        /**
+         * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+         */
+        imagePosition?: ('top' | 'bottom' | 'left' | 'right') | null;
+        button?: {
+          /**
+           * A video button has a play icon and opens the video over the page.
+           */
+          type?: ('none' | 'button' | 'video') | null;
+          opens?: ('link' | 'enquiry') | null;
+          /**
+           * A page, another site, mailto:… or #section
+           */
+          href?: string | null;
+          enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+          /**
+           * YouTube, Vimeo or an .mp4
+           */
+          videoUrl?: string | null;
+          /**
+           * For an enquiry form, leave empty to use the form's usual label (e.g. “Book a viewing”).
+           */
+          label?: string | null;
+          arrow?: boolean | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'hero';
+      }
+    | {
+        heading: string;
+        /**
+         * Leave a blank line between paragraphs.
+         */
+        body: string;
+        layout?: ('split' | 'stacked') | null;
+        buttons?: ('light' | 'dark' | 'contact' | 'enquiry') | null;
+        /**
+         * Optional: leave both empty for no button.
+         */
+        cta?: {
+          label?: string | null;
+          /**
+           * A page, another site, mailto:… or #section
+           */
+          href?: string | null;
+        };
+        enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'intro';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        items?:
+          | {
+              /**
+               * Optional: shown beside the item.
+               */
+              icon?:
+                | (
+                    | 'Api'
+                    | 'Automate'
+                    | 'BarKitchen'
+                    | 'Basin'
+                    | 'Bed'
+                    | 'Bike'
+                    | 'Bill'
+                    | 'Bus'
+                    | 'Calendar'
+                    | 'CalendarCheck'
+                    | 'Car'
+                    | 'Cctv'
+                    | 'Check'
+                    | 'Chef'
+                    | 'Cocktail'
+                    | 'Community'
+                    | 'Crowd'
+                    | 'Database'
+                    | 'DealFlow'
+                    | 'Desk'
+                    | 'Dining'
+                    | 'DoorEntry'
+                    | 'Dumbbell'
+                    | 'FeasibilityModel'
+                    | 'FruitBowl'
+                    | 'Groceries'
+                    | 'Guard'
+                    | 'Hack'
+                    | 'HandsHeart'
+                    | 'Handshake'
+                    | 'Help'
+                    | 'Hob'
+                    | 'Icon360'
+                    | 'Info'
+                    | 'IntegrateData'
+                    | 'Integrations'
+                    | 'Lion'
+                    | 'LocationPin'
+                    | 'Lock'
+                    | 'Lounge'
+                    | 'Mail'
+                    | 'ManageMembership'
+                    | 'MeetingTable'
+                    | 'MemberSupport'
+                    | 'Membership'
+                    | 'Microwave'
+                    | 'Outdoor'
+                    | 'Oven'
+                    | 'Padlock'
+                    | 'People'
+                    | 'Plane'
+                    | 'Play'
+                    | 'PrivateOffice'
+                    | 'QuoteMark'
+                    | 'Relationships'
+                    | 'Reporting'
+                    | 'Restaurant'
+                    | 'RestaurantsNearby'
+                    | 'RoomAllocation'
+                    | 'RoomPricing'
+                    | 'Roundel'
+                    | 'Router'
+                    | 'Scales'
+                    | 'Shelves'
+                    | 'SmartHome'
+                    | 'SocialNetwork'
+                    | 'Sofa'
+                    | 'SprayBottle'
+                    | 'Sprout'
+                    | 'Star'
+                    | 'SunCloud'
+                    | 'TapeMeasure'
+                    | 'TeamChat'
+                    | 'TrackMarket'
+                    | 'Train'
+                    | 'WashingMachine'
+                    | 'Workshop'
+                    | 'Wrench'
+                  )
+                | null;
+              title: string;
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'checklist';
+      }
+    | {
+        heading?: string | null;
+        intro?: string | null;
+        photos?:
+          | {
+              image: number | Media;
+              /**
+               * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
+               */
+              name?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional: a “View 3D Tour” button under the photos.
+         */
+        tour?: {
+          label?: string | null;
+          href?: string | null;
+        };
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'gallery';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        groups?:
+          | {
+              /**
+               * Optional: a small label above the group.
+               */
+              label?: string | null;
+              items?:
+                | {
+                    label: string;
+                    icon:
+                      | 'Api'
+                      | 'Automate'
+                      | 'BarKitchen'
+                      | 'Basin'
+                      | 'Bed'
+                      | 'Bike'
+                      | 'Bill'
+                      | 'Bus'
+                      | 'Calendar'
+                      | 'CalendarCheck'
+                      | 'Car'
+                      | 'Cctv'
+                      | 'Check'
+                      | 'Chef'
+                      | 'Cocktail'
+                      | 'Community'
+                      | 'Crowd'
+                      | 'Database'
+                      | 'DealFlow'
+                      | 'Desk'
+                      | 'Dining'
+                      | 'DoorEntry'
+                      | 'Dumbbell'
+                      | 'FeasibilityModel'
+                      | 'FruitBowl'
+                      | 'Groceries'
+                      | 'Guard'
+                      | 'Hack'
+                      | 'HandsHeart'
+                      | 'Handshake'
+                      | 'Help'
+                      | 'Hob'
+                      | 'Icon360'
+                      | 'Info'
+                      | 'IntegrateData'
+                      | 'Integrations'
+                      | 'Lion'
+                      | 'LocationPin'
+                      | 'Lock'
+                      | 'Lounge'
+                      | 'Mail'
+                      | 'ManageMembership'
+                      | 'MeetingTable'
+                      | 'MemberSupport'
+                      | 'Membership'
+                      | 'Microwave'
+                      | 'Outdoor'
+                      | 'Oven'
+                      | 'Padlock'
+                      | 'People'
+                      | 'Plane'
+                      | 'Play'
+                      | 'PrivateOffice'
+                      | 'QuoteMark'
+                      | 'Relationships'
+                      | 'Reporting'
+                      | 'Restaurant'
+                      | 'RestaurantsNearby'
+                      | 'RoomAllocation'
+                      | 'RoomPricing'
+                      | 'Roundel'
+                      | 'Router'
+                      | 'Scales'
+                      | 'Shelves'
+                      | 'SmartHome'
+                      | 'SocialNetwork'
+                      | 'Sofa'
+                      | 'SprayBottle'
+                      | 'Sprout'
+                      | 'Star'
+                      | 'SunCloud'
+                      | 'TapeMeasure'
+                      | 'TeamChat'
+                      | 'TrackMarket'
+                      | 'Train'
+                      | 'WashingMachine'
+                      | 'Workshop'
+                      | 'Wrench';
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'featureGroups';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        /**
+         * Cards for these locations (/admin → Locations), in this order. Each links to its own page.
+         */
+        locations: (number | Location)[];
+        ctaLabel?: string | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationCards';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        /**
+         * Cards for these rooms (/admin → Rooms), in this order. Each links to its own page.
+         */
+        rooms: (number | Room)[];
+        ctaLabel?: string | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'roomCards';
+      }
+    | {
+        heading?: string | null;
+        intro?: string | null;
+        cards?:
+          | {
+              title: string;
+              text: string;
+              image: number | Media;
+              /**
+               * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+               */
+              position?: ('top' | 'bottom' | 'left' | 'right') | null;
+              ctaLabel: string;
+              ctaHref: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional, e.g. “Read more press articles”.
+         */
+        moreLink?: {
+          label?: string | null;
+          href?: string | null;
+        };
+        cardStyle?: ('dark' | 'light') | null;
+        imageShape?: ('wide' | 'tall') | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'linkCards';
+      }
+    | {
+        heading: string;
+        /**
+         * Leave a blank line between paragraphs.
+         */
+        body: string;
+        images: {
+          main: number | Media;
+          top: number | Media;
+          bottom: number | Media;
+        };
+        side?: ('left' | 'right') | null;
+        /**
+         * Optional: leave both empty for no button.
+         */
+        cta?: {
+          label?: string | null;
+          /**
+           * A page, another site, mailto:… or #section
+           */
+          href?: string | null;
+        };
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'collageSplit';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        people?:
+          | {
+              name: string;
+              photo: number | Media;
+              /**
+               * Optional: their video, as a YouTube or Vimeo link or an .mp4.
+               */
+              video?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'testimonials';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        quotes?:
+          | {
+              quote: string;
+              publication: string;
+              /**
+               * Optional: the publication's logo, ideally an SVG. Without one, its name is shown.
+               */
+              logo?: (number | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'pressQuotes';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        people?:
+          | {
+              name: string;
+              role: string;
+              photo: number | Media;
+              /**
+               * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+               */
+              position?: ('top' | 'bottom' | 'left' | 'right') | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'teamGrid';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        reviews?:
+          | {
+              name: string;
+              /**
+               * Stars, out of 5
+               */
+              rating: number;
+              /**
+               * Optional: their profile photo. Without one, their initials show.
+               */
+              photo?: (number | null) | Media;
+              /**
+               * Word for word. Leave a blank line between paragraphs.
+               */
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'reviews';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        travelModes?:
+          | {
+              label: string;
+              icon: 'underground' | 'overground' | 'bus' | 'car';
+              /**
+               * One step per line.
+               */
+              steps: string;
+              mapsUrl: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Names the map for screen readers, e.g. “Old Oak”.
+         */
+        place: string;
+        /**
+         * Google Maps → Share → Embed a map → the src link.
+         */
+        mapEmbedUrl: string;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'directions';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        items?:
+          | {
+              question: string;
+              /**
+               * Leave a blank line between paragraphs.
+               */
+              answer: string;
+              numbered?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional: a closing line under the questions.
+         */
+        outro?: string | null;
+        /**
+         * Optional: a button under the questions.
+         */
+        cta?: {
+          label?: string | null;
+          /**
+           * A page, another site, mailto:… or #section
+           */
+          href?: string | null;
+        };
+        /**
+         * Optional: link straight here with #anchor, e.g. “faq” for a “Read more” button linking to #faq.
+         */
+        anchor?: string | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'faq';
+      }
+    | {
+        topics?:
+          | {
+              topic: string;
+              items?:
+                | {
+                    question: string;
+                    /**
+                     * Leave a blank line between paragraphs.
+                     */
+                    answer: string;
+                    numbered?: boolean | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'faqDirectory';
+      }
+    | {
+        /**
+         * Lists the job pages (written in code, in content/careers.ts). Link here with #open-positions.
+         */
+        heading: string;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'openPositions';
+      }
+    | {
+        /**
+         * The logos and photos to download are in code (content/press.ts).
+         */
+        heading: string;
+        intro?: string | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'mediaKit';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        photos?:
+          | {
+              image: number | Media;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional: text ending in a link, e.g. “…following us on Instagram @thecollective_living”.
+         */
+        footer?: {
+          text?: string | null;
+          linkLabel?: string | null;
+          linkHref?: string | null;
+        };
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageCarousel';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        perks?:
+          | {
+              name: string;
+              text: string;
+              image: number | Media;
+              /**
+               * Optional: the partner's logo, shown on the photo.
+               */
+              logo?: (number | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'perkCards';
+      }
+    | {
+        heading: string;
+        intro: string;
+        fileLabel: string;
+        /**
+         * Its address, e.g. /downloads/brochure.pdf
+         */
+        fileHref: string;
+        image: number | Media;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'downloadCard';
+      }
+    | {
+        cards?:
+          | {
+              heading: string;
+              image: number | Media;
+              /**
+               * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+               */
+              position?: ('top' | 'bottom' | 'left' | 'right') | null;
+              ctaLabel: string;
+              ctaHref: string;
+              /**
+               * Optional: an enquiry form instead of the link (which then isn't used).
+               */
+              enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+              id?: string | null;
+            }[]
+          | null;
+        mobileShape?: ('short' | 'tall') | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'promoCards';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'socialLinks';
+      }
+  )[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -1351,6 +2342,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'templates';
+        value: number | Template;
       } | null)
     | ({
         relationTo: 'locations';
@@ -1421,6 +2416,510 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        hero?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              subtitle?: T;
+              image?: T;
+              imagePosition?: T;
+              button?:
+                | T
+                | {
+                    type?: T;
+                    opens?: T;
+                    href?: T;
+                    enquiry?: T;
+                    videoUrl?: T;
+                    label?: T;
+                    arrow?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        intro?:
+          | T
+          | {
+              heading?: T;
+              body?: T;
+              layout?: T;
+              buttons?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              enquiry?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        checklist?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              items?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              photos?:
+                | T
+                | {
+                    image?: T;
+                    name?: T;
+                    id?: T;
+                  };
+              tour?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureGroups?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              groups?:
+                | T
+                | {
+                    label?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        locationCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              locations?: T;
+              ctaLabel?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        roomCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              rooms?: T;
+              ctaLabel?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        linkCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    image?: T;
+                    position?: T;
+                    ctaLabel?: T;
+                    ctaHref?: T;
+                    id?: T;
+                  };
+              moreLink?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              cardStyle?: T;
+              imageShape?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        collageSplit?:
+          | T
+          | {
+              heading?: T;
+              body?: T;
+              images?:
+                | T
+                | {
+                    main?: T;
+                    top?: T;
+                    bottom?: T;
+                  };
+              side?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              people?:
+                | T
+                | {
+                    name?: T;
+                    photo?: T;
+                    video?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        pressQuotes?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              quotes?:
+                | T
+                | {
+                    quote?: T;
+                    publication?: T;
+                    logo?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        teamGrid?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              people?:
+                | T
+                | {
+                    name?: T;
+                    role?: T;
+                    photo?: T;
+                    position?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        reviews?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              reviews?:
+                | T
+                | {
+                    name?: T;
+                    rating?: T;
+                    photo?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        directions?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              travelModes?:
+                | T
+                | {
+                    label?: T;
+                    icon?: T;
+                    steps?: T;
+                    mapsUrl?: T;
+                    id?: T;
+                  };
+              place?: T;
+              mapEmbedUrl?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    numbered?: T;
+                    id?: T;
+                  };
+              outro?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              anchor?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faqDirectory?:
+          | T
+          | {
+              topics?:
+                | T
+                | {
+                    topic?: T;
+                    items?:
+                      | T
+                      | {
+                          question?: T;
+                          answer?: T;
+                          numbered?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        openPositions?:
+          | T
+          | {
+              heading?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        mediaKit?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageCarousel?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              photos?:
+                | T
+                | {
+                    image?: T;
+                    id?: T;
+                  };
+              footer?:
+                | T
+                | {
+                    text?: T;
+                    linkLabel?: T;
+                    linkHref?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        perkCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              perks?:
+                | T
+                | {
+                    name?: T;
+                    text?: T;
+                    image?: T;
+                    logo?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        downloadCard?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              fileLabel?: T;
+              fileHref?: T;
+              image?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        promoCards?:
+          | T
+          | {
+              cards?:
+                | T
+                | {
+                    heading?: T;
+                    image?: T;
+                    position?: T;
+                    ctaLabel?: T;
+                    ctaHref?: T;
+                    enquiry?: T;
+                    id?: T;
+                  };
+              mobileShape?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        socialLinks?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "templates_select".
+ */
+export interface TemplatesSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  floatingEnquiry?: T;
+  roomColumn?:
+    | T
+    | {
+        included?:
+          | T
+          | {
+              label?: T;
+              icon?: T;
+              id?: T;
+            };
+        about?:
+          | T
+          | {
+              heading?: T;
+              text?: T;
+              poster?: T;
+              video?: T;
+            };
+        coLivingAbout?: T;
+      };
+  layout?:
+    | T
+    | {
+        locationHeader?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+        locationIntro?:
+          | T
+          | {
+              id?: T;
+              blockName?: T;
+            };
+        locationGallery?:
+          | T
+          | {
+              heading?: T;
+              tour?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        locationIncluded?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              standard?:
+                | T
+                | {
+                    label?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        locationPricing?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              note?: T;
+              button?:
+                | T
+                | {
+                    opens?: T;
+                    href?: T;
+                    label?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        locationDirections?:
+          | T
+          | {
+              heading?: T;
+              id?: T;
+              blockName?: T;
+            };
         hero?:
           | T
           | {

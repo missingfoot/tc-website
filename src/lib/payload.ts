@@ -8,7 +8,7 @@ import { site } from "@/config/site";
 import type { SocialLink } from "@/components/sections/SocialLinks";
 import { socialLinks } from "@/content/old-oak";
 import { locationPagesDefaults, type PricingSettings } from "@/content/location-pages";
-import type { Location, Media, Page, Room as RoomDoc } from "@/payload-types";
+import type { Location, Media, Page, Room as RoomDoc, Template } from "@/payload-types";
 import type { CircleImage, Cta, GalleryImage, LocationDetails, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
 import { roomsPath } from "@/payload/collections/Rooms";
@@ -265,3 +265,20 @@ export const getLocationPages = cache(async () => {
       : d.rooms,
   };
 });
+
+/** The template for a kind of place (/admin → Templates), if it's been made. */
+export const getTemplate = cache(async (type: Template["type"]): Promise<Template | null> => {
+  const { docs } = await (await payload()).find({ collection: "templates", where: { type: { equals: type } }, limit: 1, depth: 2 });
+  return docs[0] ?? null;
+});
+
+/** A room template's main-column content (what's included, about the building, about co-living), if it has it. */
+export function roomColumn(template: Template | null) {
+  const column = template?.roomColumn;
+  if (!column?.about?.heading) return null;
+  return {
+    included: iconItems(column.included),
+    about: { heading: column.about.heading, text: paragraphs(column.about.text ?? ""), poster: mediaImage(column.about.poster), video: column.about.video ?? "" },
+    coLivingAbout: paragraphs(column.coLivingAbout ?? ""),
+  };
+}

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import LocationDetail from "@/components/sections/LocationDetail";
-import { getLocation, getLocationPages, getLocations, locationDetails, locationIncluded } from "@/lib/payload";
+import { RenderTemplate } from "@/components/payload/RenderBlocks";
+import { getLocation, getLocationPages, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
 
 // Venues are in the CMS (/admin → Locations); what every venue's page shares is too (/admin → Location pages).
 
@@ -24,10 +25,20 @@ export async function generateMetadata({ params }: PageProps<"/event-spaces/[slu
 export default async function EventVenue({ params }: PageProps<"/event-spaces/[slug]">) {
   const { slug } = await params;
   const venue = await findVenue(slug);
+  const details = locationDetails(venue);
+  // Laid out by its template (/admin → Templates); the fixed layout below until that's made
+  const template = await getTemplate("venue");
+  if (template)
+    return (
+      <RenderTemplate
+        template={template}
+        place={{ details, gallery: details.gallery, included: locationIncluded(venue), enquiry: "events", venue: venue.slug }}
+      />
+    );
   const { venues: shared } = await getLocationPages();
   return (
     <LocationDetail
-      location={locationDetails(venue)}
+      location={details}
       enquiry="events"
       included={{ heading: shared.includedHeading, intro: shared.includedIntro, groups: locationIncluded(venue) }}
       pricing={shared.pricing}

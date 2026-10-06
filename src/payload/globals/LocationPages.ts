@@ -52,7 +52,9 @@ export const LocationPages: GlobalConfig = {
   slug: "locationPages",
   label: "Location pages",
   access: { read: () => true },
+  // Replaced by Templates: hidden, and kept only until production's templates are made from it
   admin: {
+    hidden: true,
     description:
       "What every page of a type shares: each working space's, house's, venue's or room's own content is in Locations and Rooms; the parts they all have in common are here.",
   },

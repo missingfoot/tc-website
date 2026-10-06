@@ -51,8 +51,7 @@ npm run dev                            # then open http://localhost:3000/admin
 - Pages written in code (e.g. `/co-living`) win over a Payload page with the same slug.
 - **Locations** (working spaces, serviced living houses, event venues) are a collection: each one's
   card and its own page come from the same record, so a price or photo changes in one place. Drag
-  to reorder them in the list. What every page of a type shares (e.g. the standard "What's
-  included" for working spaces, the promos) is the Location pages global.
+  to reorder them in the list. How their pages are laid out, and what they share, is in Templates.
 - **Navigation** (/admin → Navigation) holds the menu (mobile, and the desktop bar's More dropdown),
   the desktop bar and the footer, each in its own order with a Show switch per link. While it's
   empty the site falls back to `config/navigation.ts`, which is also what the seed fills it from.
@@ -61,9 +60,13 @@ npm run dev                            # then open http://localhost:3000/admin
   page. The tel: link is worked out from the number as shown. Falls back to `config/site.ts`.
 - **Social links** (/admin → Social links): the icons and button in every "Connect with us"
   section; the email icon uses Contact details. Falls back to `content/old-oak.ts`.
-- **Location pages** (/admin → Location pages): what every working space's, house's, venue's and
-  room's page shares (standard "What's included", intros, the 3D tour button, About the building,
-  promo cards). Falls back to `content/location-pages.ts`.
+- **Templates** (/admin → Templates): how every working space's, house's, venue's and room's page
+  is laid out, one per kind. Built from sections like a page: "Location" sections fill themselves
+  from the place shown (header, intro, gallery, what's included, pricing, directions) and hold the
+  words those pages share; any other section shows the same on all of them. A room's main column
+  (booking card, facts) is fixed, with its shared content in the room template. Until a type's
+  template exists its pages use the old fixed layout, with the (now hidden) Location pages global's
+  values; that global goes once production has its templates.
 - **Link fields** pick from the site's pages (by page, location, room or other page) or take a
   typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
 - **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.

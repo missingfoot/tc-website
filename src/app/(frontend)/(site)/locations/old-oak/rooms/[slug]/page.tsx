@@ -13,7 +13,8 @@ import FeatureList from "@/components/ui/FeatureList";
 import RoomBooking from "@/components/ui/RoomBooking";
 import Section from "@/components/ui/Section";
 import VideoButton from "@/components/ui/VideoButton";
-import { getLocationPages, getRoom, getRooms, roomDetails } from "@/lib/payload";
+import RenderBlocks from "@/components/payload/RenderBlocks";
+import { getLocationPages, getRoom, getRooms, getTemplate, roomColumn, roomDetails } from "@/lib/payload";
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
@@ -65,7 +66,11 @@ function Paragraphs({ items }: { items: string[] }) {
 export default async function OldOakRoom({ params }: PageProps<"/locations/old-oak/rooms/[slug]">) {
   const { slug } = await params;
   const room = await findRoom(slug);
-  const { rooms: shared } = await getLocationPages();
+  // The room template (/admin → Templates) has the main column's shared content and the sections
+  // after it; until it's made, the fixed ones below
+  const template = await getTemplate("room");
+  const fallback = (await getLocationPages()).rooms;
+  const shared = roomColumn(template) ?? fallback;
   const apply = { label: "Apply now", href: `/locations/old-oak/rooms/${room.slug}/apply` };
 
   return (
@@ -120,9 +125,14 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
         </Container>
       </Section>
 
-      <Gallery heading="Explore the room" images={room.photos} />
-
-      <PromoCards cards={shared.promos} />
+      {template ? (
+        <RenderBlocks blocks={template.layout} place={{ gallery: room.photos }} />
+      ) : (
+        <>
+          <Gallery heading="Explore the room" images={room.photos} />
+          <PromoCards cards={fallback.promos} />
+        </>
+      )}
 
       <StickyBar title={room.name} subtitle={`From ${room.price} pw`} hideWhenVisible="#booking">
         <Button href={apply.href} variant="dark">
