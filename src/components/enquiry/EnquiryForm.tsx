@@ -39,11 +39,8 @@ const copy = {
 
 const intro = "We can’t wait to show you around. Fill in the form and we’ll get back to you as soon as we can.";
 
-/** Buildings that aren't open yet, which people can join the waitlist for. */
-export const waitlistLocations = [
-  { value: "canary-wharf", label: "Canary Wharf" },
-  { value: "stratford", label: "Stratford" },
-];
+/** Buildings that aren't open yet, which people can join the waitlist for (a choice appears when there's more than one). */
+export const waitlistLocations = [{ value: "canary-wharf", label: "Canary Wharf" }];
 const waitlistIntro = "We’re not open here yet. Join the waitlist and we’ll let you know as soon as rooms are available.";
 
 /** Tour slots, every half hour. TODO: real opening hours and availability. */
@@ -207,19 +204,24 @@ export default function EnquiryForm({ kind, venue, referral, location }: Enquiry
                 )}
 
                 {kind === "waitlist" && (
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div>
-                      <label htmlFor={`${uid}-location`} className={`block ${text.label}`}>
-                        Location
-                      </label>
-                      <Select
-                        id={`${uid}-location`}
-                        name="location"
-                        defaultValue={location && waitlistLocations.some((o) => o.value === location) ? location : waitlistLocations[0].value}
-                        options={waitlistLocations}
-                        className="mt-2"
-                      />
-                    </div>
+                  // Side by side when there's a location to choose; otherwise the move-in date gets the row
+                  <div className={`grid gap-6 ${waitlistLocations.length > 1 ? "md:grid-cols-2" : ""}`}>
+                    {waitlistLocations.length > 1 ? (
+                      <div>
+                        <label htmlFor={`${uid}-location`} className={`block ${text.label}`}>
+                          Location
+                        </label>
+                        <Select
+                          id={`${uid}-location`}
+                          name="location"
+                          defaultValue={location && waitlistLocations.some((o) => o.value === location) ? location : waitlistLocations[0].value}
+                          options={waitlistLocations}
+                          className="mt-2"
+                        />
+                      </div>
+                    ) : (
+                      <input type="hidden" name="location" value={waitlistLocations[0].value} />
+                    )}
                     <div>
                       <label htmlFor={`${uid}-move-in`} className={`block ${text.label}`}>
                         Move-in date

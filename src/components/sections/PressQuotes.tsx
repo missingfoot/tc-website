@@ -29,7 +29,7 @@ export default function PressQuotes({ heading, intro, quotes, tone = "white" }: 
           renderItem={(q) => (
             <figure className="flex h-full min-h-80 flex-col justify-between gap-8 rounded-2xl bg-cream p-8 text-ink">
               <div>
-                <QuoteMark className="h-8 w-11" />
+                <QuoteMark className="h-8 w-11 text-ink/15" />
                 <blockquote className="mt-6 text-lg leading-relaxed">{q.quote}</blockquote>
               </div>
               <figcaption className="flex justify-end">

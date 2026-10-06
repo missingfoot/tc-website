@@ -37,7 +37,7 @@ export const homeWhatsNew: LinkCard[] = [
     title: "Innovation",
     text: "Catch up with the latest tech innovations we have been working on to make living at The Collective an amazing experience",
     image: { src: `${home}/innovation.jpg`, alt: "Members building a prototype together" },
-    cta: { label: "The Collective Labs", href: "/labs" },
+    cta: { label: "Explore innovation", href: "/blog/category/innovation" },
   },
   {
     title: "City Life",

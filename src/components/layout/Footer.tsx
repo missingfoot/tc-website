@@ -17,7 +17,7 @@ export default function Footer() {
         <Container>
           <div className="mx-auto grid max-w-224 gap-12 lg:grid-cols-4 lg:gap-8">
             <Link href="/" aria-label={`${site.name} home`} className="mx-auto text-ink lg:mx-0 lg:self-start">
-              <LogoMark variant="icon" />
+              <LogoMark variant="icon" className="h-14" />
             </Link>
             {footerNav.map((group) => (
               <nav key={group.label} aria-label={group.label}>
