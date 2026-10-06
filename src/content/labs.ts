@@ -89,11 +89,11 @@ export const research: {
       heading: "People mapping",
       paragraphs: [
         "We study how people actually use our buildings, so that every space we design works for the community living and working in it.",
-        "In the lobby and our larger rooms, we mapped how people move through the space with an agent-based simulation: virtual people, each choosing between seating, the bar and the views. Their paths showed where people cross and gather, and how a layout really gets used.",
+        "Using our cameras and smart sensors, we tracked how people actually move through every communal space in the building, from the shared kitchens and lounges to the library, gym, cinema and roof terrace. Mapped floor by floor, that data showed where people meet and which spaces bring them together, so we can place and plan shared spaces where they’ll be used most.",
       ],
       figure: {
         src: `${img}/people-encounters-simulation.jpg`,
-        alt: "See-through 3D model of The Collective's building, with people shown as yellow spheres clustering where they meet, and a count of 15 encounters (simulation by ZHCODE)",
+        alt: "See-through 3D model of The Collective's building, with people shown as yellow spheres clustering where they meet, and a count of 15 encounters (visualisation by ZHCODE)",
         shape: "wide",
       },
     },

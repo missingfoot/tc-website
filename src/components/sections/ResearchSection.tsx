@@ -15,7 +15,7 @@ export type ResearchFigure = {
 
 type ResearchSectionProps = {
   heading: string;
-  /** Headed text-and-photo pairs: the photo on the right on desktop, below the text on mobile. */
+  /** Headed text-and-photo pairs: on desktop the photo alternates sides (right, then left…); below the text on mobile. */
   rows: { heading: string; paragraphs: string[]; figure: ResearchFigure }[];
   cta?: { label: string; href: string };
   /** Section background (default white). */
@@ -46,7 +46,7 @@ export default function ResearchSection({ heading, rows, cta, tone = "white" }: 
       <Container>
         <h2 className={text.sectionHeading}>{heading}</h2>
         <div className="mt-6 flex flex-col gap-10 lg:mt-10 lg:gap-16">
-          {rows.map((row) => (
+          {rows.map((row, i) => (
             <div key={row.heading} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
               <div className="max-w-lg">
                 <h3 className={text.subheading}>{row.heading}</h3>
@@ -56,7 +56,10 @@ export default function ResearchSection({ heading, rows, cta, tone = "white" }: 
                   ))}
                 </div>
               </div>
-              <Figure figure={row.figure} />
+              {/* Every second row puts its photo on the left on desktop, so the rows zigzag */}
+              <div className={i % 2 ? "lg:order-first" : ""}>
+                <Figure figure={row.figure} />
+              </div>
             </div>
           ))}
         </div>
