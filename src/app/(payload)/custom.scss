@@ -1,0 +1,42 @@
+// The admin in The Collective's brand: Circular Std and the logo (payload/graphics.tsx). Colours
+// stay Payload's own.
+
+@font-face {
+  font-family: "Circular Std";
+  src: url("../(frontend)/fonts/CircularStd-Book.woff2") format("woff2");
+  font-weight: 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Circular Std";
+  src: url("../(frontend)/fonts/CircularStd-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Circular Std";
+  src: url("../(frontend)/fonts/CircularStd-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Circular Std";
+  src: url("../(frontend)/fonts/CircularStd-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-display: swap;
+}
+
+:root {
+  --font-body: "Circular Std", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+// The logo on the login page, and the mark in the nav
+.admin-logo {
+  height: 2.5rem;
+  width: auto;
+}
+
+.admin-icon {
+  height: 1.75rem;
+  width: auto;
+}

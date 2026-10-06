@@ -19,7 +19,13 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
  * and served from the bucket's public address.
  */
 export default buildConfig({
-  admin: { user: Users.slug, importMap: { baseDir: path.resolve(dirname) }, meta: { titleSuffix: " | The Collective admin" } },
+  admin: {
+    user: Users.slug,
+    importMap: { baseDir: path.resolve(dirname) },
+    meta: { titleSuffix: " | The Collective admin", icons: [{ rel: "icon", url: "/favicon.ico" }] },
+    // The brand's logo; its font is in app/(payload)/custom.scss
+    components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
+  },
   collections: [Pages, Media, Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",
