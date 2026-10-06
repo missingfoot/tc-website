@@ -27,8 +27,13 @@ const image = (name: string, label?: string): Field => ({ name, label, type: "up
 const position: Field = {
   name: "position",
   type: "select",
-  options: ["top", "bottom", "left", "right"],
-  admin: { description: "Which edge of the photo stays in view when it's cropped (centred if empty)." },
+  options: [
+    { label: "Top", value: "top" },
+    { label: "Bottom", value: "bottom" },
+    { label: "Left", value: "left" },
+    { label: "Right", value: "right" },
+  ],
+  admin: { isClearable: true, placeholder: "Centred", description: "Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again." },
 };
 
 const cta: Field = {
@@ -60,15 +65,50 @@ export const HeroBlock: Block = {
     { name: "subtitle", type: "textarea" },
     image("image"),
     { ...position, name: "imagePosition", label: "Image position" },
-    { ...cta, label: "Button (with an arrow)", admin: { description: "Optional: links to a page. Leave both empty for no button." } },
-    { name: "enquiry", label: "Or a button that opens", type: "select", options: enquiryKinds, admin: { description: "Optional: an enquiry form's button, in place of the button above." } },
     {
-      name: "video",
-      label: "Video button (with a play icon)",
+      name: "button",
       type: "group",
-      admin: { description: "Optional: opens this video over the page. Used instead of the button above." },
       fields: [
-        { type: "row", fields: [{ name: "label", type: "text" }, { name: "url", label: "Video link", type: "text", admin: { description: "YouTube, Vimeo or an .mp4" } }] },
+        {
+          name: "type",
+          label: "Button",
+          type: "radio",
+          defaultValue: "none",
+          options: [
+            { label: "None", value: "none" },
+            { label: "Button", value: "button" },
+            { label: "Video button", value: "video" },
+          ],
+          admin: { layout: "horizontal", description: "A video button has a play icon and opens the video over the page." },
+        },
+        {
+          name: "label",
+          type: "text",
+          admin: {
+            condition: (_, button) => button?.type === "button" || button?.type === "video",
+            description: "For an enquiry form, leave empty to use the form's usual label (e.g. “Book a viewing”).",
+          },
+        },
+        {
+          name: "opens",
+          label: "Goes to",
+          type: "radio",
+          defaultValue: "link",
+          options: [
+            { label: "A link", value: "link" },
+            { label: "An enquiry form", value: "enquiry" },
+          ],
+          admin: { layout: "horizontal", condition: (_, button) => button?.type === "button" },
+        },
+        {
+          name: "href",
+          label: "Link",
+          type: "text",
+          admin: { condition: (_, button) => button?.type === "button" && button?.opens !== "enquiry", description: "A page (/co-living), a full URL or mailto:…" },
+        },
+        { name: "enquiry", label: "Enquiry form", type: "select", options: enquiryKinds, admin: { condition: (_, button) => button?.type === "button" && button?.opens === "enquiry" } },
+        { name: "arrow", label: "Arrow", type: "checkbox", defaultValue: true, admin: { condition: (_, button) => button?.type === "button" } },
+        { name: "videoUrl", label: "Video link", type: "text", admin: { condition: (_, button) => button?.type === "video", description: "YouTube, Vimeo or an .mp4" } },
       ],
     },
   ],
@@ -101,7 +141,7 @@ export const IntroBlock: Block = {
       ],
     },
     { ...cta, admin: { ...cta.admin, condition: (_, block) => block?.buttons !== "contact" && block?.buttons !== "enquiry" } },
-    { name: "enquiry", label: "The button opens", type: "select", options: enquiryKinds, admin: { condition: (_, block) => block?.buttons === "enquiry" } },
+    { name: "enquiry", label: "The button opens", type: "select", options: enquiryKinds, admin: { isClearable: true, condition: (_, block) => block?.buttons === "enquiry" } },
     tone,
   ],
 };
@@ -149,7 +189,7 @@ export const PromoCardsBlock: Block = {
         image("image"),
         position,
         { type: "row", fields: [{ name: "ctaLabel", label: "Button label", type: "text", required: true }, { name: "ctaHref", label: "Button link", type: "text", required: true }] },
-        { name: "enquiry", label: "Button opens", type: "select", options: enquiryKinds, admin: { description: "Optional: an enquiry form instead of the link (which then isn't used)." } },
+        { name: "enquiry", label: "Button opens", type: "select", options: enquiryKinds, admin: { isClearable: true, description: "Optional: an enquiry form instead of the link (which then isn't used)." } },
       ],
     },
     {

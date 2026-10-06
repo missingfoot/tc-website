@@ -43,7 +43,7 @@ export const Pages: CollectionConfig = {
         { label: "Serviced living", value: "serviced" },
         { label: "Events", value: "events" },
       ],
-      admin: { position: "sidebar", description: "Optional: an enquiry button that stays on screen on mobile, opening this form." },
+      admin: { position: "sidebar", isClearable: true, description: "Optional: an enquiry button that stays on screen on mobile, opening this form." },
     },
     { name: "layout", label: "Sections", type: "blocks", blocks: pageBlocks, required: true, admin: { initCollapsed: true } },
   ],

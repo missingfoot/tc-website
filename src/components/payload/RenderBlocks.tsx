@@ -72,9 +72,8 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             eyebrow={block.eyebrow ?? undefined}
             title={block.title}
             subtitle={block.subtitle ?? undefined}
-            cta={button(block.cta)}
-            action={block.enquiry ? <EnquiryButton kind={block.enquiry} variant="light" /> : undefined}
-            video={block.video?.label && block.video.url ? { label: block.video.label, url: block.video.url } : undefined}
+            action={heroButton(block.button)}
+            video={block.button?.type === "video" && block.button.label && block.button.videoUrl ? { label: block.button.label, url: block.button.videoUrl } : undefined}
             image={image.src}
             imageAlt={image.alt}
             imagePreview={image.blur}
@@ -357,5 +356,22 @@ export function RenderPage({ page }: { page: Page }) {
         </FloatingButton>
       )}
     </>
+  );
+}
+
+/**
+ * A hero's button (a video button is the Hero's own): a link, or an enquiry form's, with or without
+ * an arrow. Nothing at all without one, as the Hero leaves room for any button it's given.
+ */
+function heroButton(button?: Extract<Block, { blockType: "hero" }>["button"]) {
+  if (button?.type !== "button") return undefined;
+  const arrow = button.arrow ?? true;
+  if (button.opens === "enquiry")
+    return button.enquiry ? <EnquiryButton kind={button.enquiry} variant="light" arrow={arrow} label={button.label ?? undefined} /> : undefined;
+  if (!button.label || !button.href) return undefined;
+  return (
+    <Button href={button.href} arrow={arrow}>
+      {button.label}
+    </Button>
   );
 }

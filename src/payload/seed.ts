@@ -219,7 +219,7 @@ const home = async () => [
     eyebrow: "The Collective",
     title: "A new way to live work and play",
     image: await media("/images/old-oak/benefits/shared-dinner.jpg", "Residents sharing dinner around a long table"),
-    video: { label: "Watch video", url: "https://youtu.be/XkZbmXgOWOA" },
+    button: { type: "video", label: "Watch video", videoUrl: "https://youtu.be/XkZbmXgOWOA" },
   },
   {
     blockType: "intro",
@@ -246,7 +246,7 @@ const careers = async () => [
     blockType: "hero",
     title: "Help us build a better world, together",
     image: await media("/images/careers/team-laptop.jpg", "Team members working through ideas around a table"),
-    cta: { label: "See our open positions", href: "#open-positions" },
+    button: { type: "button", label: "See our open positions", href: "#open-positions" },
   },
   {
     blockType: "intro",
@@ -345,7 +345,7 @@ const working = async () => [
     title: "The future of work.",
     subtitle: "Changing the way we view work. Get collaborative and communal with our beautiful and productive working spaces.",
     image: await media("/images/working/hero.jpg", "Members working at long tables in The Den"),
-    enquiry: "working",
+    button: { type: "button", opens: "enquiry", enquiry: "working" },
   },
   {
     blockType: "intro",
@@ -388,7 +388,7 @@ const servicedLiving = async () => [
     title: "Live life without the hassle",
     subtitle: "Beautiful serviced apartments, right in the heart of London’s most iconic locations.",
     image: await media("/images/serviced-living/notting-hill/01-studio.jpg", "A bright Notting Hill studio with a dining table by the window"),
-    enquiry: "serviced",
+    button: { type: "button", opens: "enquiry", enquiry: "serviced" },
   },
   {
     blockType: "intro",
@@ -425,7 +425,7 @@ const eventSpaces = async () => [
     title: "Bring people together",
     subtitle: "Inspiring venues in central and west London, for events your guests won’t forget.",
     image: await media("/images/event-spaces/the-exchange/01-lounge.jpg", "The Exchange at Old Oak, set up for an event"),
-    enquiry: "events",
+    button: { type: "button", opens: "enquiry", enquiry: "events" },
   },
   {
     blockType: "intro",
@@ -470,7 +470,7 @@ const coLiving = async () => [
     title: "A new way to rent",
     subtitle: "Combining private ensuites with beautiful shared spaces and a host of inspiring events, all included in one monthly bill.",
     image: await media("/images/old-oak/promos/friends-chatting.jpg", "Two residents laughing together in the lounge"),
-    video: { label: "Watch video", url: coLivingVideo },
+    button: { type: "video", label: "Watch video", videoUrl: coLivingVideo },
   },
   {
     blockType: "intro",
@@ -570,7 +570,7 @@ const oldOak = async () => [
     title: "Old Oak",
     subtitle: "Live somewhere that's home, and so much more.",
     image: await media("/images/hero-cover-old-oak.jpg", "The Collective Old Oak lounge"),
-    enquiry: "living",
+    button: { type: "button", opens: "enquiry", enquiry: "living" },
   },
   {
     blockType: "intro",

@@ -1,6 +1,7 @@
 "use client";
 
-import { Pill, useRowLabel } from "@payloadcms/ui";
+import { Pill, useConfig, useRowLabel } from "@payloadcms/ui";
+import { useEffect, useState } from "react";
 
 type Row = Record<string, unknown>;
 
@@ -44,8 +45,60 @@ export function SectionLabel({ label }: { label: string }) {
   );
 }
 
-/** Header of an item in a list (a card, a value, a quote, a person): its name, or "Card 03" until it has one. */
+type MediaInfo = { url?: string; alt?: string };
+
+// Each photo looked up once, however many rows show it
+const mediaCache = new Map<number, Promise<MediaInfo>>();
+
+/**
+ * A row's photo (its image or photo field) for its header. In the form a photo field holds the
+ * upload's id, so it's looked up through the API.
+ */
+function useRowPhoto(row: Row | undefined, api: string): MediaInfo | undefined {
+  const value = row?.image ?? row?.photo;
+  const id = typeof value === "number" ? value : typeof value === "object" && value ? (value as { id?: number }).id : undefined;
+  const [media, setMedia] = useState<MediaInfo>();
+  useEffect(() => {
+    if (id == null) return;
+    if (!mediaCache.has(id))
+      mediaCache.set(
+        id,
+        fetch(`${api}/media/${id}?depth=0`, { credentials: "include" })
+          .then((res) => (res.ok ? res.json() : {}))
+          .catch(() => ({})),
+      );
+    let current = true;
+    mediaCache.get(id)!.then((info) => current && setMedia(info));
+    return () => {
+      current = false;
+    };
+  }, [id, api]);
+  return id == null ? undefined : media;
+}
+
+/**
+ * Header of an item in a list (a card, a value, a quote, a person): a thumbnail of its photo, if it
+ * has one, then its name (or its photo's alt text), or "Card 03" until it has one. The thumbnail
+ * comes small from the site's image resizer, not the full-size upload.
+ */
 export function ItemLabel({ fallback }: { fallback: string }) {
   const { data, rowNumber = 0 } = useRowLabel<Row>();
-  return <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nameOf(data) ?? `${fallback} ${String(rowNumber + 1).padStart(2, "0")}`}</span>;
+  const { config } = useConfig();
+  const photo = useRowPhoto(data, `${config.serverURL}${config.routes.api}`);
+  const name = nameOf(data) ?? text(photo?.alt) ?? `${fallback} ${String(rowNumber + 1).padStart(2, "0")}`;
+  return (
+    <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+      {photo?.url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={`/_next/image?url=${encodeURIComponent(photo.url)}&w=128&q=75`}
+          alt=""
+          width={64}
+          height={48}
+          style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 4, flexShrink: 0 }}
+        />
+      )}
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+    </span>
+  );
 }

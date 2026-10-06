@@ -7,6 +7,7 @@ import * as migration_20261006_215011_gallery_names from './20261006_215011_gall
 import * as migration_20261006_215228_listing_sections from './20261006_215228_listing_sections';
 import * as migration_20261006_215559_co_living_sections from './20261006_215559_co_living_sections';
 import * as migration_20261006_220612_rooms_and_old_oak from './20261006_220612_rooms_and_old_oak';
+import * as migration_20261006_222059_hero_button from './20261006_222059_hero_button';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20261006_220612_rooms_and_old_oak.up,
     down: migration_20261006_220612_rooms_and_old_oak.down,
-    name: '20261006_220612_rooms_and_old_oak'
+    name: '20261006_220612_rooms_and_old_oak',
+  },
+  {
+    up: migration_20261006_222059_hero_button.up,
+    down: migration_20261006_222059_hero_button.down,
+    name: '20261006_222059_hero_button'
   },
 ];

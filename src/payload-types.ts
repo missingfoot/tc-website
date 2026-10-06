@@ -151,32 +151,29 @@ export interface Page {
         subtitle?: string | null;
         image: number | Media;
         /**
-         * Which edge of the photo stays in view when it's cropped (centred if empty).
+         * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
          */
         imagePosition?: ('top' | 'bottom' | 'left' | 'right') | null;
-        /**
-         * Optional: links to a page. Leave both empty for no button.
-         */
-        cta?: {
+        button?: {
+          /**
+           * A video button has a play icon and opens the video over the page.
+           */
+          type?: ('none' | 'button' | 'video') | null;
+          /**
+           * For an enquiry form, leave empty to use the form's usual label (e.g. “Book a viewing”).
+           */
           label?: string | null;
+          opens?: ('link' | 'enquiry') | null;
           /**
            * A page (/co-living), a full URL or mailto:…
            */
           href?: string | null;
-        };
-        /**
-         * Optional: an enquiry form's button, in place of the button above.
-         */
-        enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
-        /**
-         * Optional: opens this video over the page. Used instead of the button above.
-         */
-        video?: {
-          label?: string | null;
+          enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+          arrow?: boolean | null;
           /**
            * YouTube, Vimeo or an .mp4
            */
-          url?: string | null;
+          videoUrl?: string | null;
         };
         id?: string | null;
         blockName?: string | null;
@@ -486,7 +483,7 @@ export interface Page {
               text: string;
               image: number | Media;
               /**
-               * Which edge of the photo stays in view when it's cropped (centred if empty).
+               * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
                */
               position?: ('top' | 'bottom' | 'left' | 'right') | null;
               ctaLabel: string;
@@ -594,7 +591,7 @@ export interface Page {
               role: string;
               photo: number | Media;
               /**
-               * Which edge of the photo stays in view when it's cropped (centred if empty).
+               * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
                */
               position?: ('top' | 'bottom' | 'left' | 'right') | null;
               id?: string | null;
@@ -832,7 +829,7 @@ export interface Page {
               heading: string;
               image: number | Media;
               /**
-               * Which edge of the photo stays in view when it's cropped (centred if empty).
+               * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
                */
               position?: ('top' | 'bottom' | 'left' | 'right') | null;
               ctaLabel: string;
@@ -1422,18 +1419,16 @@ export interface PagesSelect<T extends boolean = true> {
               subtitle?: T;
               image?: T;
               imagePosition?: T;
-              cta?:
+              button?:
                 | T
                 | {
+                    type?: T;
                     label?: T;
+                    opens?: T;
                     href?: T;
-                  };
-              enquiry?: T;
-              video?:
-                | T
-                | {
-                    label?: T;
-                    url?: T;
+                    enquiry?: T;
+                    arrow?: T;
+                    videoUrl?: T;
                   };
               id?: T;
               blockName?: T;
