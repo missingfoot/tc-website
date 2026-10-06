@@ -6,6 +6,22 @@ export type Cta = {
   href: string;
 };
 
+/**
+ * Where a cover-cropped photo is pinned: it scales to fill its box, and this edge (or corner)
+ * stays in view while the rest is cropped. Left out, it's centred. Any CSS object-position also
+ * works for fine-tuning, e.g. "50% 30%".
+ */
+export type ImagePosition =
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "top left"
+  | "top right"
+  | "bottom left"
+  | "bottom right"
+  | (string & {});
+
 /** One photo in a Gallery. */
 export type GalleryImage = {
   /** Full-size image. Until it's added, the blurred thumbnail stands in. */
@@ -14,13 +30,15 @@ export type GalleryImage = {
   thumb: string;
   /** Alt text, also shown as the photo's name between the mobile carousel arrows. */
   alt: string;
+  /** Edge the crop is pinned to (default centre). */
+  position?: ImagePosition;
 };
 
-/** A photo shown in a circle. `position` is a CSS object-position, to frame the subject. */
+/** A photo shown in a circle, or a cover-cropped card photo. `position` frames the subject. */
 export type CircleImage = {
   src: string;
   alt: string;
-  position?: string;
+  position?: ImagePosition;
 };
 
 

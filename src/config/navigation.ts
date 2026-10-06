@@ -11,7 +11,7 @@ export type MobileNavGroup = {
   items: MobileNavItem[];
 };
 
-// TODO: Foundation, Labs and Blog don't exist yet
+// TODO: Labs and Blog don’t exist yet
 export const mobileNav: MobileNavGroup[] = [
   {
     items: [
@@ -84,6 +84,7 @@ export const pageTitles: Record<string, string> = {
   "/co-living": "Co-Living",
   "/working": "Working",
   "/mission": "Mission",
+  "/foundation": "Foundation",
   "/faq": "FAQ",
   "/careers": "Careers",
   "/press": "Press",

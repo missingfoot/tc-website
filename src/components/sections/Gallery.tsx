@@ -46,7 +46,7 @@ export default function Gallery({ heading, intro, images, footer, tone = "cream"
           {images.map((image, i) => (
             <li key={image.thumb} aria-hidden={i !== index} className="w-[calc(100%-24px)] shrink-0 snap-start md:w-[calc(50%-10px)]">
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink/10">
-                <ProgressiveImage src={image.src} placeholder={image.thumb} alt={image.alt} sizes={sizes2x(["(min-width: 768px)", "50vw"], [null, "90vw"])} />
+                <ProgressiveImage src={image.src} placeholder={image.thumb} alt={image.alt} position={image.position} sizes={sizes2x(["(min-width: 768px)", "50vw"], [null, "90vw"])} />
               </div>
             </li>
           ))}
@@ -63,7 +63,7 @@ export default function Gallery({ heading, intro, images, footer, tone = "cream"
             >
               {images.map((image, i) => (
                 <li key={image.thumb} aria-hidden={i !== index} className="relative h-full w-full shrink-0">
-                  <ProgressiveImage src={image.src} placeholder={image.thumb} alt={image.alt} sizes={sizes2x([null, "800px"])} />
+                  <ProgressiveImage src={image.src} placeholder={image.thumb} alt={image.alt} position={image.position} sizes={sizes2x([null, "800px"])} />
                 </li>
               ))}
             </ul>
@@ -99,7 +99,7 @@ export default function Gallery({ heading, intro, images, footer, tone = "cream"
                   i === index ? "ring-2 ring-ink ring-offset-2 ring-offset-transparent" : "opacity-80 hover:opacity-100"
                 }`}
               >
-                <Image src={image.thumb} alt="" fill sizes="56px" className="object-cover" />
+                <Image src={image.thumb} alt="" fill sizes="56px" className="object-cover" style={{ objectPosition: image.position }} />
               </button>
             </li>
           ))}

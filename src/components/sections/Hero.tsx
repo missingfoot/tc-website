@@ -1,6 +1,6 @@
 import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
-import type { Cta } from "@/lib/types";
+import type { Cta, ImagePosition } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import ParallaxImage from "@/components/ui/ParallaxImage";
@@ -10,6 +10,8 @@ import { sizes2x } from "@/lib/images";
 type HeroProps = {
   image: string | StaticImageData;
   imageAlt?: string;
+  /** Edge the photo's crop is pinned to (default centre). */
+  imagePosition?: ImagePosition;
   eyebrow?: string;
   /** Optional: without it the hero is a shorter photo-only banner (e.g. a location page, whose name follows in the block below). */
   title?: string;
@@ -36,7 +38,7 @@ type HeroProps = {
 // stays visible.
 const curvedMask = "[--mask-r:max(429cqw-1178px,120cqw)] lg:[clip-path:circle(var(--mask-r)_at_50%_calc(100%-var(--mask-r)))]";
 
-export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, cta, action, video, curved = true, wash = true, parallax = 0.4 }: HeroProps) {
+export default function Hero({ image, imageAlt = "", imagePosition, eyebrow, title, subtitle, cta, action, video, curved = true, wash = true, parallax = 0.4 }: HeroProps) {
   // Photo only (no title): a shorter banner
   const photoOnly = !title;
   return (
@@ -51,6 +53,7 @@ export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, c
           quality={90}
           speed={parallax}
           className="object-cover"
+          style={{ objectPosition: imagePosition }}
         />
         {wash ? (
           <div

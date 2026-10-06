@@ -4,9 +4,9 @@ export const site = {
   phone: "+44 (0) 207 183 5478",
   /** For tel: links: international format, without the "(0)" (which would dial a wrong number). */
   phoneLink: "tel:+442071835478",
-  email: "hello@thecollective.co.uk",
-  /** Press enquiries (as on the Press design). */
-  pressEmail: "press@thecollective.co.uk",
+  email: "hello@thecollective.com",
+  /** Press enquiries. */
+  pressEmail: "press@thecollective.com",
   address: ["The Collective", "14 Bedford Square", "London", "WC1B 3JA"],
   legal: [
     { label: "Privacy", href: "/privacy" },

@@ -2,6 +2,7 @@ import {
   Basin, Bed, Bill, CalendarCheck, Desk, Dumbbell, Guard, Hob, Router, Sofa, SprayBottle, TapeMeasure, WashingMachine,
 } from "@/components/icons";
 import type { CircleImage, GalleryImage, PromoCard, Room, RoomDetails, Testimonial } from "@/lib/types";
+import { site } from "@/config/site";
 
 const gallery = "/images/old-oak/gallery";
 const thumbs = `${gallery}/thumbs`;
@@ -153,13 +154,13 @@ export const oldOakTestimonials: Testimonial[] = [
   { name: "TJ", image: { src: `${residents}/resident-5.jpg`, alt: "TJ, an Old Oak resident" }, video: residentVideo },
 ];
 
-// TODO: real profile links and the newsletter sign-up URL
+// Profiles from the old site. TODO: the newsletter sign-up URL
 export const socialLinks: import("@/components/sections/SocialLinks").SocialLink[] = [
-  { platform: "youtube", label: "The Collective on YouTube", href: "#" },
-  { platform: "twitter", label: "The Collective on Twitter", href: "#" },
-  { platform: "facebook", label: "The Collective on Facebook", href: "#" },
-  { platform: "instagram", label: "The Collective on Instagram", href: "#" },
-  { platform: "email", label: "Email The Collective", href: "mailto:hello@example.com" },
+  { platform: "youtube", label: "The Collective on YouTube", href: "https://www.youtube.com/thecollectiveliving" },
+  { platform: "twitter", label: "The Collective on Twitter", href: "https://twitter.com/collective_llp" },
+  { platform: "facebook", label: "The Collective on Facebook", href: "https://www.facebook.com/thecollectiveliving" },
+  { platform: "instagram", label: "The Collective on Instagram", href: "https://www.instagram.com/thecollective_living" },
+  { platform: "email", label: "Email The Collective", href: `mailto:${site.email}` },
 ];
 
 const promos = "/images/old-oak/promos";

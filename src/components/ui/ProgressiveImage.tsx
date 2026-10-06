@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { blurFor } from "@/components/ui/Photo";
 import { useState } from "react";
+import type { ImagePosition } from "@/lib/types";
 
 type ProgressiveImageProps = {
   /** Full-size image. If missing, only the blurred placeholder is shown. */
@@ -11,6 +12,8 @@ type ProgressiveImageProps = {
   placeholder: string;
   alt: string;
   sizes: string;
+  /** Edge the crop is pinned to (default centre). */
+  position?: ImagePosition;
   className?: string;
 };
 
@@ -19,7 +22,7 @@ type ProgressiveImageProps = {
  * the full-size image in once it has loaded. Until the thumbnail itself arrives, the photo's
  * inline blur preview (see `Photo`) stands in. Place inside a positioned, overflow-hidden parent.
  */
-export default function ProgressiveImage({ src, placeholder, alt, sizes, className = "" }: ProgressiveImageProps) {
+export default function ProgressiveImage({ src, placeholder, alt, sizes, position, className = "" }: ProgressiveImageProps) {
   const [loaded, setLoaded] = useState(false);
   const blur = blurFor(src);
 
@@ -36,6 +39,7 @@ export default function ProgressiveImage({ src, placeholder, alt, sizes, classNa
         sizes="128px"
         draggable={false}
         className={`scale-110 object-cover blur-2xl ${className}`}
+        style={{ objectPosition: position }}
       />
       {src && (
         <Image
@@ -47,6 +51,7 @@ export default function ProgressiveImage({ src, placeholder, alt, sizes, classNa
           draggable={false}
           onLoad={() => setLoaded(true)}
           className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"} ${className}`}
+          style={{ objectPosition: position }}
         />
       )}
     </>
