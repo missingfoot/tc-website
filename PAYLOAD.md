@@ -64,9 +64,8 @@ npm run dev                            # then open http://localhost:3000/admin
   is laid out, one per kind. Built from sections like a page: "Location" sections fill themselves
   from the place shown (header, intro, gallery, what's included, pricing, directions) and hold the
   words those pages share; any other section shows the same on all of them. A room's main column
-  (booking card, facts) is fixed, with its shared content in the room template. Until a type's
-  template exists its pages use the old fixed layout, with the (now hidden) Location pages global's
-  values; that global goes once production has its templates.
+  (booking card, facts) is fixed, with its shared content in the room template. Templates come
+  from the seed (from `content/location-pages.ts`): without one, that type's pages are not found.
 - **Link fields** pick from the site's pages (by page, location, room or other page) or take a
   typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
 - **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.

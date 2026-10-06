@@ -707,51 +707,13 @@ else {
   console.log("social links: created");
 }
 
-// What location and room pages share, from content/location-pages.ts, unless it's set up already
-const shared = await payload.findGlobal({ slug: "locationPages", depth: 0 });
-if (shared.working?.includedIntro) console.log("location pages: already set up, left as they are");
-else {
-  const d = locationPagesDefaults;
-  const { about } = d.rooms;
-  await payload.updateGlobal({
-    slug: "locationPages",
-    data: {
-      working: {
-        includedIntro: d.working.includedIntro,
-        standard: d.working.included.flatMap((group) => group.items).map((item) => ({ label: item.label, icon: iconName(item.icon) })),
-        pricing: d.working.pricing,
-        tour: d.working.tour,
-        promos: await promoCards(d.working.promos),
-      },
-      serviced: { includedIntro: d.serviced.includedIntro, pricing: d.serviced.pricing, promos: await promoCards(d.serviced.promos) },
-      venues: { includedHeading: d.venues.includedHeading, includedIntro: d.venues.includedIntro, pricing: d.venues.pricing, promos: await promoCards(d.venues.promos) },
-      rooms: {
-        included: d.rooms.included.map((item) => ({ label: item.label, icon: iconName(item.icon) })),
-        about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },
-        coLivingAbout: d.rooms.coLivingAbout.join("\n\n"),
-        promos: await promoCards(d.rooms.promos),
-      },
-    } as never,
-  });
-  console.log("location pages: created");
-}
-
 // Templates (how location and room pages are laid out), in the layout they had in code, with
-// Location pages' values (or content/location-pages.ts'), unless they've been made already
+// content/location-pages.ts' words, unless they've been made already
 {
-  type Row = Record<string, unknown>;
-  // A copy without the array rows' ids, so the values can go into a new document
-  const strip = <T,>(value: T): T => JSON.parse(JSON.stringify(value, (key, v) => (key === "id" ? undefined : v)));
-  const g = await payload.findGlobal({ slug: "locationPages", depth: 0 });
   const d = locationPagesDefaults;
-  const fromGlobal = Boolean(g.working?.includedIntro);
-  const promosFor = async (type: "working" | "serviced" | "venues" | "rooms") =>
-    fromGlobal ? strip((g[type] as { promos?: Row[] }).promos ?? []) : await promoCards(d[type].promos);
-  const pricingFor = (type: "working" | "serviced" | "venues") => {
-    const p = fromGlobal ? (g[type] as { pricing?: Row }).pricing : d[type].pricing;
-    return strip(p ?? {});
-  };
-  const icon = (item: { label: string; icon: unknown }) => ({ label: item.label, icon: typeof item.icon === "string" ? item.icon : iconName(item.icon) });
+  const promosFor = (type: "working" | "serviced" | "venues" | "rooms") => promoCards(d[type].promos);
+  const pricingFor = (type: "working" | "serviced" | "venues") => d[type].pricing;
+  const icon = (item: { label: string; icon: unknown }) => ({ label: item.label, icon: iconName(item.icon) });
   const social = { blockType: "socialLinks", heading: "Connect with us", intro: "Keep up with what we are up to on social media, and get the chance to get promotions!" };
 
   const locationLayout = async (type: "working" | "serviced" | "venues", included: { heading: string; intro: string; standard: object[] }, tour?: object) => [
@@ -771,17 +733,17 @@ else {
         "working",
         {
           heading: "What’s included",
-          intro: fromGlobal ? g.working.includedIntro : d.working.includedIntro,
-          standard: fromGlobal ? strip(g.working.standard ?? []) : d.working.included.flatMap((group) => group.items).map(icon),
+          intro: d.working.includedIntro,
+          standard: d.working.included.flatMap((group) => group.items).map(icon),
         },
-        fromGlobal ? strip(g.working.tour) : d.working.tour,
+        d.working.tour,
       ),
     serviced: async () =>
-      locationLayout("serviced", { heading: "What’s included", intro: fromGlobal ? g.serviced.includedIntro : d.serviced.includedIntro, standard: [] }),
+      locationLayout("serviced", { heading: "What’s included", intro: d.serviced.includedIntro, standard: [] }),
     venue: async () =>
       locationLayout("venues", {
-        heading: fromGlobal ? g.venues.includedHeading : d.venues.includedHeading,
-        intro: fromGlobal ? g.venues.includedIntro : d.venues.includedIntro,
+        heading: d.venues.includedHeading,
+        intro: d.venues.includedIntro,
         standard: [],
       }),
     room: async () => [{ blockType: "locationGallery", heading: "Explore the room" }, { blockType: "promoCards", cards: await promosFor("rooms") }],
@@ -798,18 +760,16 @@ else {
     const roomColumn =
       type !== "room"
         ? undefined
-        : fromGlobal
-          ? strip({ included: g.rooms.included, about: g.rooms.about, coLivingAbout: g.rooms.coLivingAbout })
-          : {
-              included: d.rooms.included.map(icon),
-              about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },
-              coLivingAbout: d.rooms.coLivingAbout.join("\n\n"),
-            };
+        : {
+            included: d.rooms.included.map(icon),
+            about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },
+            coLivingAbout: d.rooms.coLivingAbout.join("\n\n"),
+          };
     await payload.create({
       collection: "templates",
       data: { name: names[type], type, floatingEnquiry: type !== "room", layout: await templates[type](), ...(roomColumn && { roomColumn }) } as never,
     });
-    console.log(`template ${type}: created${fromGlobal ? " (from Location pages)" : ""}`);
+    console.log(`template ${type}: created`);
   }
 }
 

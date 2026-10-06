@@ -7,7 +7,6 @@ import { footerNav, mainNav, mobileNav, type MobileNavGroup, type NavLink } from
 import { site } from "@/config/site";
 import type { SocialLink } from "@/components/sections/SocialLinks";
 import { socialLinks } from "@/content/old-oak";
-import { locationPagesDefaults, type PricingSettings } from "@/content/location-pages";
 import type { Location, Media, Page, Room as RoomDoc, Template } from "@/payload-types";
 import type { CircleImage, Cta, GalleryImage, LocationDetails, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
@@ -219,66 +218,18 @@ type PromoCardData = { heading: string; image: number | Media; position?: string
 export const promoCards = (cards?: PromoCardData[] | null): PromoCard[] =>
   (cards ?? []).map((card) => ({ heading: card.heading, image: mediaImage(card.image, card.position), cta: { label: card.ctaLabel, href: card.ctaHref, enquiry: card.enquiry ?? undefined } }));
 
-type PricingData = {
-  heading: string;
-  intro?: string | null;
-  note?: string | null;
-  button?: { opens?: PricingSettings["button"]["opens"] | null; href?: string | null; label?: string | null };
-};
-
-/** A location page's pricing words and button from the CMS. */
-const pricingSettings = (pricing: PricingData): PricingSettings => ({
-  heading: pricing.heading,
-  intro: pricing.intro ?? undefined,
-  note: pricing.note ?? undefined,
-  button: { opens: pricing.button?.opens ?? "enquiry", href: pricing.button?.href ?? undefined, label: pricing.button?.label ?? undefined },
-});
-
-/**
- * What every page of a type shares (/admin → Location pages): working spaces, serviced living,
- * venues and Old Oak rooms. Each tab falls back to content/location-pages.ts while it's not set up.
- */
-export const getLocationPages = cache(async () => {
-  const shared = await (await payload()).findGlobal({ slug: "locationPages", depth: 1 });
-  const d = locationPagesDefaults;
-  const { working, serviced, venues, rooms } = shared;
-  return {
-    working: working?.includedIntro
-      ? {
-          includedIntro: working.includedIntro,
-          // The standard list is one list, shown as a single group
-          included: [{ items: iconItems(working.standard) }],
-          pricing: pricingSettings(working.pricing),
-          tour: working.tour?.label && working.tour.href ? { label: working.tour.label, href: working.tour.href } : undefined,
-          promos: promoCards(working.promos),
-        }
-      : d.working,
-    serviced: serviced?.includedIntro ? { includedIntro: serviced.includedIntro, pricing: pricingSettings(serviced.pricing), promos: promoCards(serviced.promos) } : d.serviced,
-    venues: venues?.includedIntro ? { includedHeading: venues.includedHeading, includedIntro: venues.includedIntro, pricing: pricingSettings(venues.pricing), promos: promoCards(venues.promos) } : d.venues,
-    rooms: rooms?.about?.heading
-      ? {
-          included: iconItems(rooms.included),
-          about: { heading: rooms.about.heading, text: paragraphs(rooms.about.text), poster: mediaImage(rooms.about.poster), video: rooms.about.video },
-          coLivingAbout: paragraphs(rooms.coLivingAbout),
-          promos: promoCards(rooms.promos),
-        }
-      : d.rooms,
-  };
-});
-
 /** The template for a kind of place (/admin → Templates), if it's been made. */
 export const getTemplate = cache(async (type: Template["type"]): Promise<Template | null> => {
   const { docs } = await (await payload()).find({ collection: "templates", where: { type: { equals: type } }, limit: 1, depth: 2 });
   return docs[0] ?? null;
 });
 
-/** A room template's main-column content (what's included, about the building, about co-living), if it has it. */
-export function roomColumn(template: Template | null) {
-  const column = template?.roomColumn;
-  if (!column?.about?.heading) return null;
+/** A room template's main-column content (what's included, about the building, about co-living); each part empty if it's not filled in. */
+export function roomColumn(template: Template) {
+  const column = template.roomColumn;
   return {
-    included: iconItems(column.included),
-    about: { heading: column.about.heading, text: paragraphs(column.about.text ?? ""), poster: mediaImage(column.about.poster), video: column.about.video ?? "" },
-    coLivingAbout: paragraphs(column.coLivingAbout ?? ""),
+    included: iconItems(column?.included),
+    about: { heading: column?.about?.heading ?? "", text: paragraphs(column?.about?.text ?? ""), poster: mediaImage(column?.about?.poster), video: column?.about?.video ?? "" },
+    coLivingAbout: paragraphs(column?.coLivingAbout ?? ""),
   };
 }

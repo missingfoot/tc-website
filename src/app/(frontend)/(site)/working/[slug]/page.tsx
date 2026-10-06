@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import LocationDetail from "@/components/sections/LocationDetail";
-import Button from "@/components/ui/Button";
-import { Icon360 } from "@/components/icons";
 import { RenderTemplate } from "@/components/payload/RenderBlocks";
-import { getLocation, getLocationPages, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
+import { getLocation, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
 
-// Working spaces are in the CMS (/admin → Locations); what every working space's page shares is too (/admin → Location pages).
+// Working spaces are in the CMS (/admin → Locations), and laid out by their template (/admin → Templates).
 
 export async function generateStaticParams() {
   return (await getLocations("working")).map(({ slug }) => ({ slug }));
@@ -27,31 +24,14 @@ export async function generateMetadata({ params }: PageProps<"/working/[slug]">)
 export default async function WorkingLocation({ params }: PageProps<"/working/[slug]">) {
   const { slug } = await params;
   const location = await findLocation(slug);
-  const details = locationDetails(location);
-  const own = locationIncluded(location);
-  // Laid out by its template (/admin → Templates); the fixed layout below until that's made
   const template = await getTemplate("working");
-  if (template) return <RenderTemplate template={template} place={{ details, gallery: details.gallery, included: own, enquiry: "working" }} />;
-  const { working: shared } = await getLocationPages();
+  // Templates come from the seed: without one, there's no layout to show
+  if (!template) notFound();
+  const details = locationDetails(location);
   return (
-    <LocationDetail
-      location={details}
-      enquiry="working"
-      included={{
-        intro: shared.includedIntro,
-        // A working space without its own list shows the standard one
-        groups: own.length ? own : shared.included,
-      }}
-      pricing={shared.pricing}
-      promos={shared.promos}
-      galleryFooter={
-        shared.tour && (
-          <Button href={shared.tour.href} variant="dark">
-            <Icon360 />
-            {shared.tour.label}
-          </Button>
-        )
-      }
+    <RenderTemplate
+      template={template}
+      place={{ details, gallery: details.gallery, included: locationIncluded(location), enquiry: "working" }}
     />
   );
 }

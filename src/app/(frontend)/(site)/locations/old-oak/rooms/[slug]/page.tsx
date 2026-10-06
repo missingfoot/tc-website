@@ -4,8 +4,6 @@ import Image from "next/image";
 import Photo from "@/components/ui/Photo";
 import { notFound } from "next/navigation";
 import Hero from "@/components/sections/Hero";
-import Gallery from "@/components/sections/Gallery";
-import PromoCards from "@/components/sections/PromoCards";
 import Button from "@/components/ui/Button";
 import StickyBar from "@/components/ui/StickyBar";
 import Container from "@/components/ui/Container";
@@ -14,7 +12,7 @@ import RoomBooking from "@/components/ui/RoomBooking";
 import Section from "@/components/ui/Section";
 import VideoButton from "@/components/ui/VideoButton";
 import RenderBlocks from "@/components/payload/RenderBlocks";
-import { getLocationPages, getRoom, getRooms, getTemplate, roomColumn, roomDetails } from "@/lib/payload";
+import { getRoom, getRooms, getTemplate, roomColumn, roomDetails } from "@/lib/payload";
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
@@ -67,10 +65,10 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
   const { slug } = await params;
   const room = await findRoom(slug);
   // The room template (/admin → Templates) has the main column's shared content and the sections
-  // after it; until it's made, the fixed ones below
+  // after it. Templates come from the seed: without one, there's no layout to show
   const template = await getTemplate("room");
-  const fallback = (await getLocationPages()).rooms;
-  const shared = roomColumn(template) ?? fallback;
+  if (!template) notFound();
+  const shared = roomColumn(template);
   const apply = { label: "Apply now", href: `/locations/old-oak/rooms/${room.slug}/apply` };
 
   return (
@@ -104,10 +102,13 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
               </Block>
             )}
 
-            <Block heading="What’s included">
-              <FeatureList items={shared.included} twoColumn />
-            </Block>
+            {shared.included.length > 0 && (
+              <Block heading="What’s included">
+                <FeatureList items={shared.included} twoColumn />
+              </Block>
+            )}
 
+            {shared.about.heading && (
             <Block heading={shared.about.heading}>
               <Paragraphs items={shared.about.text} />
               <div className="relative mt-8 aspect-[7/4] overflow-hidden rounded-2xl bg-ink/10">
@@ -117,22 +118,18 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
                 </div>
               </div>
             </Block>
+            )}
 
-            <Block heading="About Co-living">
-              <Paragraphs items={shared.coLivingAbout} />
-            </Block>
+            {shared.coLivingAbout.length > 0 && (
+              <Block heading="About Co-living">
+                <Paragraphs items={shared.coLivingAbout} />
+              </Block>
+            )}
           </div>
         </Container>
       </Section>
 
-      {template ? (
-        <RenderBlocks blocks={template.layout} place={{ gallery: room.photos }} />
-      ) : (
-        <>
-          <Gallery heading="Explore the room" images={room.photos} />
-          <PromoCards cards={fallback.promos} />
-        </>
-      )}
+      <RenderBlocks blocks={template.layout} place={{ gallery: room.photos }} />
 
       <StickyBar title={room.name} subtitle={`From ${room.price} pw`} hideWhenVisible="#booking">
         <Button href={apply.href} variant="dark">

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import LocationDetail from "@/components/sections/LocationDetail";
 import { RenderTemplate } from "@/components/payload/RenderBlocks";
-import { getLocation, getLocationPages, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
+import { getLocation, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
 
-// Venues are in the CMS (/admin → Locations); what every venue's page shares is too (/admin → Location pages).
+// Venues are in the CMS (/admin → Locations), and laid out by their template (/admin → Templates).
 
 export async function generateStaticParams() {
   return (await getLocations("venue")).map(({ slug }) => ({ slug }));
@@ -25,24 +24,14 @@ export async function generateMetadata({ params }: PageProps<"/event-spaces/[slu
 export default async function EventVenue({ params }: PageProps<"/event-spaces/[slug]">) {
   const { slug } = await params;
   const venue = await findVenue(slug);
-  const details = locationDetails(venue);
-  // Laid out by its template (/admin → Templates); the fixed layout below until that's made
   const template = await getTemplate("venue");
-  if (template)
-    return (
-      <RenderTemplate
-        template={template}
-        place={{ details, gallery: details.gallery, included: locationIncluded(venue), enquiry: "events", venue: venue.slug }}
-      />
-    );
-  const { venues: shared } = await getLocationPages();
+  // Templates come from the seed: without one, there's no layout to show
+  if (!template) notFound();
+  const details = locationDetails(venue);
   return (
-    <LocationDetail
-      location={details}
-      enquiry="events"
-      included={{ heading: shared.includedHeading, intro: shared.includedIntro, groups: locationIncluded(venue) }}
-      pricing={shared.pricing}
-      promos={shared.promos}
+    <RenderTemplate
+      template={template}
+      place={{ details, gallery: details.gallery, included: locationIncluded(venue), enquiry: "events", venue: venue.slug }}
     />
   );
 }

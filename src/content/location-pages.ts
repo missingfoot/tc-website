@@ -12,8 +12,8 @@ export type PricingSettings = {
 };
 
 /**
- * What every page of a type shares (location and room pages). Editable in the CMS (/admin →
- * Location pages): this is what the seed fills it from, and the fallback while it's not set up.
+ * The words location and room pages share, as they were in code: what the seed builds their
+ * templates (/admin → Templates) from. Edited in the templates since.
  */
 export const locationPagesDefaults = {
   working: {
