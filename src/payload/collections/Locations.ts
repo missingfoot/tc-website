@@ -25,7 +25,7 @@ const iconItems = (name: string, label: string, extra: Partial<Field> = {}): Fie
     label,
     type: "array",
     admin: itemLabel("Item"),
-    fields: [{ type: "row", fields: [{ name: "label", type: "text", required: true }, iconField("", true)] }],
+    fields: [{ name: "label", type: "text", required: true }, iconField("", true)],
     ...extra,
   }) as Field;
 
@@ -67,7 +67,7 @@ export const Locations: CollectionConfig = {
             { type: "row", fields: [{ name: "area", type: "text", required: true, admin: { description: "Neighbourhood, e.g. Bloomsbury" } }, { name: "postcode", type: "text", required: true }] },
             { name: "fromPrice", label: "Price pill", type: "text", required: true, admin: { description: "e.g. “From £150 per month”, or a venue's capacity." } },
             { name: "image", type: "upload", relationTo: "media", required: true },
-            iconItems("features", "Highlights", { maxRows: 4, minRows: 1, admin: { ...itemLabel("Highlight"), description: "Transport and key facilities: the card's tiles and the page header's rows (up to 4)." } }),
+            iconItems("features", "Highlights", { labels: { singular: "Highlight", plural: "Highlights" }, maxRows: 4, minRows: 1, admin: { ...itemLabel("Highlight"), description: "Transport and key facilities: the card's tiles and the page header's rows (up to 4)." } }),
           ],
         },
         {
@@ -93,9 +93,11 @@ export const Locations: CollectionConfig = {
             {
               name: "included",
               label: "What's included",
+              labels: { singular: "Group", plural: "Groups" },
               type: "array",
               admin: {
-                ...itemLabel("Group"),
+                ...itemLabel("Group", "No label"),
+                initCollapsed: false,
                 description: "Facilities, in groups (a label is optional). Working spaces can leave it empty to show the standard list every working space has.",
               },
               fields: [{ name: "label", type: "text" }, iconItems("items", "Items")],

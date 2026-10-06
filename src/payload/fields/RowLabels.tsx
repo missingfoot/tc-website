@@ -2,6 +2,7 @@
 
 import { Pill, useConfig, useRowLabel } from "@payloadcms/ui";
 import { useEffect, useState } from "react";
+import * as icons from "@/components/icons";
 
 type Row = Record<string, unknown>;
 
@@ -98,8 +99,8 @@ function useRowPhoto(row: Row | undefined, api: string): MediaInfo | undefined {
 }
 
 /**
- * Header of an item in a list (a card, a value, a quote, a person, a link): a thumbnail of its
- * photo, if it has one, then its name (or its photo's alt text), or "Card 03" until it has one,
+ * Header of an item in a list (a card, a value, a quote, a person, a link): its icon or a thumbnail
+ * of its photo, if it has one, then its name (or its photo's alt text), or "Card 03" until it has one,
  * then where it leads (a link's address) and whether it's hidden. The thumbnail comes small from
  * the site's image resizer, not the full-size upload.
  */
@@ -110,9 +111,12 @@ export function ItemLabel({ fallback, unnamed }: { fallback: string; unnamed?: s
   // Rows left unnamed on purpose (e.g. the menu's first section, which has no heading) say so
   const name = nameOf(data) ?? text(photo?.alt) ?? unnamed ?? `${fallback} ${String(rowNumber + 1).padStart(2, "0")}`;
   const detail = detailOf(data);
+  // An item's icon (a features or checklist list), as it shows on the page
+  const Icon = typeof data?.icon === "string" ? icons[data.icon as keyof typeof icons] : undefined;
   const hidden = data?.show === false;
   return (
     <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, opacity: hidden ? 0.5 : 1 }}>
+      {Icon && <Icon style={{ width: 24, height: 24, flexShrink: 0 }} />}
       {photo?.url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -123,8 +127,8 @@ export function ItemLabel({ fallback, unnamed }: { fallback: string; unnamed?: s
           style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 4, flexShrink: 0 }}
         />
       )}
-      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-      {detail && <span style={muted}>{detail}</span>}
+      <span style={{ flexShrink: 0, whiteSpace: "nowrap" }}>{name}</span>
+      {detail && <span style={{ ...muted, minWidth: 0 }}>{detail}</span>}
       {hidden && <span style={muted}>(hidden)</span>}
     </span>
   );

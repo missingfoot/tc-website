@@ -47,11 +47,12 @@ export const Rooms: CollectionConfig = {
             {
               name: "features",
               label: "Highlights",
+              labels: { singular: "Highlight", plural: "Highlights" },
               type: "array",
               minRows: 1,
               maxRows: 4,
               admin: { ...itemLabel("Highlight"), description: "The card's tiles and the page's key facts (up to 4)." },
-              fields: [{ type: "row", fields: [{ name: "label", type: "text", required: true }, iconField("", true)] }],
+              fields: [{ name: "label", type: "text", required: true }, iconField("", true)],
             },
             { name: "about", label: "About the room", type: "textarea", required: true, admin: { description: "Leave a blank line between paragraphs." } },
             {

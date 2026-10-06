@@ -2178,97 +2178,88 @@ export interface LocationPage {
     /**
      * Shown on a working space's page unless it has its own list (Locations → its Page tab).
      */
-    included?:
+    standard?:
       | {
-          /**
-           * Optional: a small label above the group.
-           */
-          label?: string | null;
-          items?:
-            | {
-                label: string;
-                icon:
-                  | 'Api'
-                  | 'Automate'
-                  | 'BarKitchen'
-                  | 'Basin'
-                  | 'Bed'
-                  | 'Bike'
-                  | 'Bill'
-                  | 'Bus'
-                  | 'Calendar'
-                  | 'CalendarCheck'
-                  | 'Car'
-                  | 'Cctv'
-                  | 'Check'
-                  | 'Chef'
-                  | 'Cocktail'
-                  | 'Community'
-                  | 'Crowd'
-                  | 'Database'
-                  | 'DealFlow'
-                  | 'Desk'
-                  | 'Dining'
-                  | 'DoorEntry'
-                  | 'Dumbbell'
-                  | 'FeasibilityModel'
-                  | 'FruitBowl'
-                  | 'Groceries'
-                  | 'Guard'
-                  | 'Hack'
-                  | 'HandsHeart'
-                  | 'Handshake'
-                  | 'Help'
-                  | 'Hob'
-                  | 'Icon360'
-                  | 'Info'
-                  | 'IntegrateData'
-                  | 'Integrations'
-                  | 'Lion'
-                  | 'LocationPin'
-                  | 'Lock'
-                  | 'Lounge'
-                  | 'Mail'
-                  | 'ManageMembership'
-                  | 'MeetingTable'
-                  | 'MemberSupport'
-                  | 'Membership'
-                  | 'Microwave'
-                  | 'Outdoor'
-                  | 'Oven'
-                  | 'Padlock'
-                  | 'People'
-                  | 'Plane'
-                  | 'Play'
-                  | 'PrivateOffice'
-                  | 'QuoteMark'
-                  | 'Relationships'
-                  | 'Reporting'
-                  | 'Restaurant'
-                  | 'RestaurantsNearby'
-                  | 'RoomAllocation'
-                  | 'RoomPricing'
-                  | 'Roundel'
-                  | 'Router'
-                  | 'Scales'
-                  | 'Shelves'
-                  | 'SmartHome'
-                  | 'SocialNetwork'
-                  | 'Sofa'
-                  | 'SprayBottle'
-                  | 'Sprout'
-                  | 'Star'
-                  | 'SunCloud'
-                  | 'TapeMeasure'
-                  | 'TeamChat'
-                  | 'TrackMarket'
-                  | 'Train'
-                  | 'WashingMachine'
-                  | 'Workshop'
-                  | 'Wrench';
-                id?: string | null;
-              }[]
-            | null;
+          label: string;
+          icon:
+            | 'Api'
+            | 'Automate'
+            | 'BarKitchen'
+            | 'Basin'
+            | 'Bed'
+            | 'Bike'
+            | 'Bill'
+            | 'Bus'
+            | 'Calendar'
+            | 'CalendarCheck'
+            | 'Car'
+            | 'Cctv'
+            | 'Check'
+            | 'Chef'
+            | 'Cocktail'
+            | 'Community'
+            | 'Crowd'
+            | 'Database'
+            | 'DealFlow'
+            | 'Desk'
+            | 'Dining'
+            | 'DoorEntry'
+            | 'Dumbbell'
+            | 'FeasibilityModel'
+            | 'FruitBowl'
+            | 'Groceries'
+            | 'Guard'
+            | 'Hack'
+            | 'HandsHeart'
+            | 'Handshake'
+            | 'Help'
+            | 'Hob'
+            | 'Icon360'
+            | 'Info'
+            | 'IntegrateData'
+            | 'Integrations'
+            | 'Lion'
+            | 'LocationPin'
+            | 'Lock'
+            | 'Lounge'
+            | 'Mail'
+            | 'ManageMembership'
+            | 'MeetingTable'
+            | 'MemberSupport'
+            | 'Membership'
+            | 'Microwave'
+            | 'Outdoor'
+            | 'Oven'
+            | 'Padlock'
+            | 'People'
+            | 'Plane'
+            | 'Play'
+            | 'PrivateOffice'
+            | 'QuoteMark'
+            | 'Relationships'
+            | 'Reporting'
+            | 'Restaurant'
+            | 'RestaurantsNearby'
+            | 'RoomAllocation'
+            | 'RoomPricing'
+            | 'Roundel'
+            | 'Router'
+            | 'Scales'
+            | 'Shelves'
+            | 'SmartHome'
+            | 'SocialNetwork'
+            | 'Sofa'
+            | 'SprayBottle'
+            | 'Sprout'
+            | 'Star'
+            | 'SunCloud'
+            | 'TapeMeasure'
+            | 'TeamChat'
+            | 'TrackMarket'
+            | 'Train'
+            | 'WashingMachine'
+            | 'Workshop'
+            | 'Wrench';
           id?: string | null;
         }[]
       | null;
@@ -2583,17 +2574,11 @@ export interface LocationPagesSelect<T extends boolean = true> {
     | T
     | {
         includedIntro?: T;
-        included?:
+        standard?:
           | T
           | {
               label?: T;
-              items?:
-                | T
-                | {
-                    label?: T;
-                    icon?: T;
-                    id?: T;
-                  };
+              icon?: T;
               id?: T;
             };
         pricingIntro?: T;

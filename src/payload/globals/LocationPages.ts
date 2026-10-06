@@ -1,6 +1,6 @@
 import type { Field, GlobalConfig } from "payload";
 import { revalidatePath } from "next/cache";
-import { featureGroupsField, promoCardsField } from "../blocks";
+import { promoCardsField } from "../blocks";
 import { iconField, itemLabel } from "../fields/shared";
 import { locationPaths } from "../collections/Locations";
 import { roomsPath } from "../collections/Rooms";
@@ -31,11 +31,13 @@ export const LocationPages: GlobalConfig = {
           fields: [
             { name: "includedIntro", label: "“What's included” intro", type: "textarea", required: true },
             {
-              ...featureGroupsField,
-              name: "included",
+              name: "standard",
               label: "What's included as standard",
-              admin: { ...itemLabel("Group"), description: "Shown on a working space's page unless it has its own list (Locations → its Page tab)." },
-            } as Field,
+              labels: { singular: "Item", plural: "Items" },
+              type: "array",
+              admin: { ...itemLabel("Item"), description: "Shown on a working space's page unless it has its own list (Locations → its Page tab)." },
+              fields: [{ name: "label", type: "text", required: true }, iconField("", true)],
+            },
             { name: "pricingIntro", label: "Pricing intro", type: "textarea", required: true },
             {
               name: "tour",
@@ -78,6 +80,7 @@ export const LocationPages: GlobalConfig = {
             {
               name: "included",
               label: "What's included",
+              labels: { singular: "Item", plural: "Items" },
               type: "array",
               admin: itemLabel("Item"),
               fields: [{ name: "label", type: "text", required: true }, iconField("", true)],

@@ -46,9 +46,12 @@ export const IconPicker: SelectFieldClientComponent = ({ field, path, readOnly }
         style={{ width: "100%", marginTop: 8, padding: "8px 12px", borderRadius: 6, border: "1px solid var(--theme-elevation-150)", background: "var(--theme-input-bg)", color: "var(--theme-text)" }}
       />
       <div role="radiogroup" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(48px, 1fr))", gap: 6, marginTop: 8 }}>
-        <button type="button" role="radio" aria-checked={!value} title="No icon" disabled={readOnly} onClick={() => setValue(null)} style={tile(!value)}>
-          <span style={{ fontSize: 12 }}>None</span>
-        </button>
+        {/* No "None" where an icon is required */}
+        {!field.required && (
+          <button type="button" role="radio" aria-checked={!value} title="No icon" disabled={readOnly} onClick={() => setValue(null)} style={tile(!value)}>
+            <span style={{ fontSize: 12 }}>None</span>
+          </button>
+        )}
         {shown.map((name) => {
           const Icon = icons[name];
           return (

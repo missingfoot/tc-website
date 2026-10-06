@@ -718,7 +718,7 @@ else {
     data: {
       working: {
         includedIntro: d.working.includedIntro,
-        included: featureGroups(d.working.included),
+        standard: d.working.included.flatMap((group) => group.items).map((item) => ({ label: item.label, icon: iconName(item.icon) })),
         pricingIntro: d.working.pricingIntro,
         tour: d.working.tour,
         promos: await promoCards(d.working.promos),

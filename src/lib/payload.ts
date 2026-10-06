@@ -219,9 +219,6 @@ type PromoCardData = { heading: string; image: number | Media; position?: string
 export const promoCards = (cards?: PromoCardData[] | null): PromoCard[] =>
   (cards ?? []).map((card) => ({ heading: card.heading, image: mediaImage(card.image, card.position), cta: { label: card.ctaLabel, href: card.ctaHref, enquiry: card.enquiry ?? undefined } }));
 
-const featureGroups = (groups?: { label?: string | null; items?: { label: string; icon: string }[] | null }[] | null): FeatureGroup[] =>
-  (groups ?? []).map((group) => ({ label: group.label ?? undefined, items: iconItems(group.items) }));
-
 /**
  * What every page of a type shares (/admin → Location pages): working spaces, serviced living,
  * venues and Old Oak rooms. Each tab falls back to content/location-pages.ts while it's not set up.
@@ -234,7 +231,8 @@ export const getLocationPages = cache(async () => {
     working: working?.includedIntro
       ? {
           includedIntro: working.includedIntro,
-          included: featureGroups(working.included),
+          // The standard list is one list, shown as a single group
+          included: [{ items: iconItems(working.standard) }],
           pricingIntro: working.pricingIntro,
           tour: working.tour?.label && working.tour.href ? { label: working.tour.label, href: working.tour.href } : undefined,
           promos: promoCards(working.promos),

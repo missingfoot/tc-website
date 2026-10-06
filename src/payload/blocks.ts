@@ -77,7 +77,8 @@ export const promoCardsField: Field = {
 export const featureGroupsField: Field = {
   name: "groups",
   type: "array",
-  admin: itemLabel("Group"),
+  // Open: there are only ever a few, and their items are what's edited
+  admin: { ...itemLabel("Group", "No label"), initCollapsed: false },
   minRows: 1,
   fields: [
     { name: "label", type: "text", admin: { description: "Optional: a small label above the group." } },
@@ -85,7 +86,7 @@ export const featureGroupsField: Field = {
       name: "items",
       type: "array",
       admin: itemLabel("Item"),
-      fields: [{ type: "row", fields: [{ name: "label", type: "text", required: true }, iconField("", true)] }],
+      fields: [{ name: "label", type: "text", required: true }, iconField("", true)],
     },
   ],
 };
@@ -350,6 +351,7 @@ export const TeamGridBlock: Block = {
 const faqItems: Field = {
   name: "items",
   label: "Questions",
+  labels: { singular: "Question", plural: "Questions" },
   type: "array",
   admin: itemLabel("Question"),
   minRows: 1,
