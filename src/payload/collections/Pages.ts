@@ -32,7 +32,8 @@ export const Pages: CollectionConfig = {
       admin: { position: "sidebar", description: "The page's address: /foundation for “foundation”. Lowercase letters, numbers and hyphens." },
       validate: (value: unknown) => (typeof value === "string" && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value)) || "Use lowercase letters, numbers and hyphens, e.g. our-story",
     },
-    { name: "layout", label: "Sections", type: "blocks", blocks: pageBlocks, required: true },
+    // Sections start collapsed, so a page reads as a list of its sections (headers show each one's heading)
+    { name: "layout", label: "Sections", type: "blocks", blocks: pageBlocks, required: true, admin: { initCollapsed: true } },
   ],
   hooks: {
     afterChange: [

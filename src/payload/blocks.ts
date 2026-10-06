@@ -42,6 +42,15 @@ const cta: Field = {
   ],
 };
 
+/**
+ * A list's items start collapsed, each header showing its name (see fields/RowLabels.tsx), or e.g.
+ * "Card 03" until it has one.
+ */
+const itemLabel = (fallback: string) => ({
+  initCollapsed: true,
+  components: { RowLabel: { path: "/payload/fields/RowLabels#ItemLabel", clientProps: { fallback } } },
+});
+
 export const HeroBlock: Block = {
   slug: "hero",
   labels: { singular: "Hero", plural: "Heroes" },
@@ -108,6 +117,7 @@ export const PromoCardsBlock: Block = {
     {
       name: "cards",
       type: "array",
+      admin: itemLabel("Card"),
       minRows: 1,
       maxRows: 3,
       fields: [
@@ -146,9 +156,15 @@ export const ChecklistBlock: Block = {
     {
       name: "items",
       type: "array",
+      admin: itemLabel("Value"),
       minRows: 1,
       fields: [
-        { name: "icon", type: "select", options: checklistIcons, admin: { description: "Optional: shown beside the item." } },
+        {
+          name: "icon",
+          type: "select",
+          options: checklistIcons,
+          admin: { description: "Optional: shown beside the item.", components: { Field: "/payload/fields/IconPicker#IconPicker" } },
+        },
         { name: "title", type: "text", required: true },
         { name: "text", type: "textarea", required: true },
       ],
@@ -166,6 +182,7 @@ export const LinkCardsBlock: Block = {
     {
       name: "cards",
       type: "array",
+      admin: itemLabel("Card"),
       minRows: 1,
       fields: [
         { name: "title", type: "text", required: true },
@@ -195,6 +212,7 @@ export const PressQuotesBlock: Block = {
     {
       name: "quotes",
       type: "array",
+      admin: itemLabel("Quote"),
       minRows: 1,
       fields: [
         { name: "quote", type: "textarea", required: true },
@@ -215,6 +233,7 @@ export const TeamGridBlock: Block = {
     {
       name: "people",
       type: "array",
+      admin: itemLabel("Person"),
       minRows: 1,
       fields: [
         { type: "row", fields: [{ name: "name", type: "text", required: true }, { name: "role", type: "text", required: true }] },
@@ -226,6 +245,12 @@ export const TeamGridBlock: Block = {
   ],
 };
 
+/** A section's header shows its type and heading (see fields/RowLabels.tsx), not "Untitled". */
+const withHeading = (block: Block): Block => ({
+  ...block,
+  admin: { ...block.admin, components: { ...block.admin?.components, Label: { path: "/payload/fields/RowLabels#SectionLabel", clientProps: { label: block.labels?.singular } } } },
+});
+
 export const pageBlocks = [
   HeroBlock,
   IntroBlock,
@@ -236,4 +261,4 @@ export const pageBlocks = [
   TeamGridBlock,
   PromoCardsBlock,
   SocialLinksBlock,
-];
+].map(withHeading);
