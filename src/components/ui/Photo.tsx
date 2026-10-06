@@ -22,12 +22,18 @@ type State = "loading" | "fading" | "shown";
  * Fill image for photos (place inside a positioned, overflow-hidden parent). Shows a blurred
  * preview straight away (inlined, no extra request), then fades the photo in once it has
  * loaded, so slow connections never see an empty box. A photo that's already loaded when it
- * mounts (e.g. cached) shows at once, without the fade. Previews come from
+ * mounts (e.g. cached) shows at once, without the fade.
+ *
+ * Above-the-fold photos (`loading="eager"`, `fetchPriority="high"` or `preload`) are never
+ * hidden: they draw over the preview as they arrive, which is removed once they've loaded.
+ * Hiding them until the page's JavaScript noticed the load kept already-downloaded hero photos
+ * invisible for seconds on slow phones. Previews come from
  * `src/lib/blur-placeholders.json`, generated from `public/images` by `npm run blur` (runs
  * before `dev` and `build`); a photo without one simply loads as normal.
  */
 export default function Photo({ alt, className = "", style, onLoad, ...props }: Omit<ImageProps, "fill">) {
   const blur = typeof props.src === "string" ? blurFor(props.src) : undefined;
+  const aboveFold = props.loading === "eager" || props.fetchPriority === "high" || !!props.preload;
   const [state, setState] = useState<State>(blur ? "loading" : "shown");
   // Already loaded when it mounts (cached, or arrived before the page's JavaScript ran): no fade.
   // Stable, so it only runs on mount (a new function each render would re-run it mid-fade).
@@ -52,12 +58,12 @@ export default function Photo({ alt, className = "", style, onLoad, ...props }: 
         data-photo
         ref={checkLoaded}
         onLoad={(e) => {
-          setState((s) => (s === "loading" ? "fading" : s));
+          setState((s) => (s === "loading" ? (aboveFold ? "shown" : "fading") : s));
           onLoad?.(e);
         }}
         onError={() => setState("shown")}
         onTransitionEnd={() => setState("shown")}
-        className={`${className} ${state === "loading" ? "opacity-0" : ""} ${state === "fading" ? "transition-opacity duration-500 motion-reduce:transition-none" : ""}`}
+        className={`${className} ${state === "loading" && !aboveFold ? "opacity-0" : ""} ${state === "fading" ? "transition-opacity duration-500 motion-reduce:transition-none" : ""}`}
         style={style}
         {...props}
       />

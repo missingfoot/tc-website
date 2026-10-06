@@ -9,6 +9,7 @@ import { Check } from "@/components/icons";
 import { PhoneField, TextField } from "@/components/application/fields";
 import BackButton from "./BackButton";
 import { venueOptions } from "@/content/events";
+import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 import type { EnquiryKind } from "@/lib/types";
 
@@ -83,10 +84,11 @@ export default function EnquiryForm({ kind, venue, referral }: EnquiryFormProps)
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-2">
-      {/* Desktop: the photo in a rounded panel filling the left half, inset from the screen edge */}
+      {/* Desktop: the photo in a rounded panel filling the left half, inset from the screen edge.
+          Lazy (with high priority) rather than preloaded, so phones, where it's hidden, skip it */}
       <div className="hidden p-6 lg:sticky lg:top-0 lg:block lg:h-dvh">
         <div className="relative h-full overflow-hidden rounded-4xl bg-ink/10">
-          <Photo src={image.src} alt={image.alt} priority sizes="(min-resolution: 2dppx) 50vw, 100vw" quality={90} className="object-cover" />
+          <Photo src={image.src} alt={image.alt} fetchPriority="high" sizes={sizes2x([null, "50vw"])} quality={90} className="object-cover" />
         </div>
       </div>
 

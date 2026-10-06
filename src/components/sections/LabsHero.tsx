@@ -11,7 +11,7 @@ type LabsHeroProps = {
 };
 
 // The rocket's light trail, pre-rendered by scripts/labs-trail.mjs (which prints its size and position)
-const trail = { src: "/images/labs/rocket-trail.webp", width: 1003, height: 767, unoptimized: true, priority: true };
+const trail = { src: "/images/labs/rocket-trail.webp", width: 1003, height: 767, unoptimized: true, preload: true };
 const trailPosition = "absolute top-[calc(50%+12px-96px)] left-[calc(50%-935px)] max-w-none";
 
 /**
@@ -53,7 +53,7 @@ export default function LabsHero({ title, subtitle, cta }: LabsHeroProps) {
           />
           <div className="relative size-full motion-safe:animate-[rocket-hover_4s_ease-in-out_1.8s_infinite]">
             <div className="size-full motion-safe:animate-[rocket-launch_1.8s_linear_both]">
-              <Image src="/images/labs/rocket.png" alt="" width={268} height={268} priority className="size-full" />
+              <Image src="/images/labs/rocket.png" alt="" width={268} height={268} preload className="size-full" />
             </div>
           </div>
         </div>
