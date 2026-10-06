@@ -1,8 +1,8 @@
 # Payload CMS proof of concept
 
 The site with [Payload](https://payloadcms.com) built in: an admin at `/admin` where pages are put
-together from the site's own sections. Foundation (`/foundation`) is served from Payload as the
-example; every other page is still written in code.
+together from the site's own sections. Foundation (`/foundation`) and Mission (`/mission`) are served
+from Payload; every other page is still written in code.
 
 ## Try it
 
@@ -11,7 +11,7 @@ npm install
 # .env needs PAYLOAD_SECRET, DATABASE_URI (the Neon "dev" branch's direct address, no -pooler)
 # and the R2_* values for the tc-web-dev bucket (see Deploying)
 npx payload migrate                    # brings the database up to date
-npx payload run src/payload/seed.ts   # the Foundation page (safe to rerun)
+npx payload run src/payload/seed.ts   # the CMS pages (safe to rerun: existing pages are left alone)
 npm run dev                            # then open http://localhost:3000/admin
 ```
 
@@ -43,7 +43,12 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Uploads** go from the browser straight to Cloudflare R2, get a blurred preview made
   automatically, and are resized per screen by `next/image`, like the site's own photos.
 - **A photo a page uses can't be deleted**: the admin says which pages use it, to replace it there first.
+- **Framing photos**: click the photo's focal point in the Media library; crops keep it in view. A
+  section's own "position" setting, where it has one, wins.
 - Pages written in code (e.g. `/co-living`) win over a Payload page with the same slug.
+- **Moving a page from code into Payload**: add any missing section types, add the page to
+  `seed.ts` (from its content file), delete its `page.tsx`. Before pushing, run the migration and
+  seed on production (see Deploying), so the live page exists by the time the code page is gone.
 
 ## Deploying (e.g. Netlify)
 
