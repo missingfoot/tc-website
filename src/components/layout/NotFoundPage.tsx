@@ -2,15 +2,13 @@ import Nav from "@/components/layout/Nav";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 
-export const metadata = { title: "Page not found" };
-
 /**
- * The 404 page (any unknown URL, or notFound()), as on the old site: a raccoon washing away its
- * candy floss loops full screen behind the message. Its still first frame shows while the video
- * loads, and in its place for people who prefer reduced motion. WebM first (1MB); the MP4 is for
- * older iPhones, which can't play WebM.
+ * The 404 page's content (used by the site's not-found and the global 404), as on the old site:
+ * a raccoon washing away its candy floss loops full screen behind the message. Its still first
+ * frame shows while the video loads, and in its place for people who prefer reduced motion. WebM
+ * first (1MB); the MP4 is for older iPhones, which can't play WebM.
  */
-export default function NotFound() {
+export default function NotFoundPage() {
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-black text-white">
       <video

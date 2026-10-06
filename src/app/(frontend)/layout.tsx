@@ -1,27 +1,19 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import NavigationTracker from "@/components/layout/NavigationTracker";
+import { circular } from "./fonts";
 import "./globals.css";
 
-// Circular Std, self-hosted. Weights match the Figma: Book 450, Medium 500, Bold 700, Black 900.
-const circular = localFont({
-  variable: "--font-circular",
-  src: [
-    { path: "./fonts/CircularStd-Book.woff2", weight: "450", style: "normal" },
-    { path: "./fonts/CircularStd-Medium.woff2", weight: "500", style: "normal" },
-    { path: "./fonts/CircularStd-Bold.woff2", weight: "700", style: "normal" },
-    { path: "./fonts/CircularStd-Black.woff2", weight: "900", style: "normal" },
-  ],
-});
-
 export const metadata: Metadata = {
+  // For absolute social-preview image links (e.g. blog covers). Netlify sets URL to the site's address.
+  metadataBase: new URL(process.env.URL ?? "http://localhost:3000"),
   title: { default: "The Collective", template: "%s | The Collective" },
   description: "A new way to live, work and play",
   // A portfolio remake of The Collective's site: keep it out of search results (see robots.ts)
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+/** The site's root layout (Payload's admin, in the (payload) group, has its own). */
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${circular.variable} h-full antialiased`}>
       <head>
