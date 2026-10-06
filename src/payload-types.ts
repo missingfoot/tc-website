@@ -159,21 +159,21 @@ export interface Page {
            * A video button has a play icon and opens the video over the page.
            */
           type?: ('none' | 'button' | 'video') | null;
-          /**
-           * For an enquiry form, leave empty to use the form's usual label (e.g. “Book a viewing”).
-           */
-          label?: string | null;
           opens?: ('link' | 'enquiry') | null;
           /**
-           * A page (/co-living), a full URL or mailto:…
+           * A page, another site, mailto:… or #section
            */
           href?: string | null;
           enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
-          arrow?: boolean | null;
           /**
            * YouTube, Vimeo or an .mp4
            */
           videoUrl?: string | null;
+          /**
+           * For an enquiry form, leave empty to use the form's usual label (e.g. “Book a viewing”).
+           */
+          label?: string | null;
+          arrow?: boolean | null;
         };
         id?: string | null;
         blockName?: string | null;
@@ -193,7 +193,7 @@ export interface Page {
         cta?: {
           label?: string | null;
           /**
-           * A page (/co-living), a full URL or mailto:…
+           * A page, another site, mailto:… or #section
            */
           href?: string | null;
         };
@@ -526,7 +526,7 @@ export interface Page {
         cta?: {
           label?: string | null;
           /**
-           * A page (/co-living), a full URL or mailto:…
+           * A page, another site, mailto:… or #section
            */
           href?: string | null;
         };
@@ -689,7 +689,7 @@ export interface Page {
         cta?: {
           label?: string | null;
           /**
-           * A page (/co-living), a full URL or mailto:…
+           * A page, another site, mailto:… or #section
            */
           href?: string | null;
         };
@@ -1423,12 +1423,12 @@ export interface PagesSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    label?: T;
                     opens?: T;
                     href?: T;
                     enquiry?: T;
-                    arrow?: T;
                     videoUrl?: T;
+                    label?: T;
+                    arrow?: T;
                   };
               id?: T;
               blockName?: T;

@@ -10,6 +10,7 @@ import { Media } from "./payload/collections/Media";
 import { Pages } from "./payload/collections/Pages";
 import { Rooms } from "./payload/collections/Rooms";
 import { Users } from "./payload/collections/Users";
+import { siteLinks } from "./payload/endpoints/siteLinks";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -29,6 +30,7 @@ export default buildConfig({
     components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
   },
   collections: [Pages, Locations, Rooms, Media, Users],
+  endpoints: [siteLinks],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",
   typescript: { outputFile: path.resolve(dirname, "payload-types.ts") },
