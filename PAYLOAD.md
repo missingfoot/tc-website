@@ -1,8 +1,8 @@
 # Payload CMS proof of concept
 
 The site with [Payload](https://payloadcms.com) built in: an admin at `/admin` where pages are put
-together from the site's own sections. Foundation (`/foundation`) and Mission (`/mission`) are served
-from Payload; every other page is still written in code.
+together from the site's own sections. Home (`/`, the page with the slug `home`), Foundation, Mission,
+Careers, Press and FAQ are served from Payload; every other page is still written in code.
 
 ## Try it
 
@@ -46,6 +46,8 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Framing photos**: click the photo's focal point in the Media library; crops keep it in view. A
   section's own "position" setting, where it has one, wins.
 - Pages written in code (e.g. `/co-living`) win over a Payload page with the same slug.
+- **Some sections keep part of their content in code**: Open positions lists the job pages
+  (`content/careers.ts`), and Media kit's downloads are `content/press.ts`; editors set their headings.
 - **Moving a page from code into Payload**: add any missing section types, add the page to
   `seed.ts` (from its content file), delete its `page.tsx`. Before pushing, run the migration and
   seed on production (see Deploying), so the live page exists by the time the code page is gone.

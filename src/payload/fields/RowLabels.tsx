@@ -7,7 +7,8 @@ type Row = Record<string, unknown>;
 const text = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim() : undefined);
 
 /** A row's own name: the first of these fields it has filled in. */
-const nameOf = (row: Row | undefined) => text(row?.heading) ?? text(row?.title) ?? text(row?.name) ?? text(row?.publication);
+const nameOf = (row: Row | undefined) =>
+  text(row?.heading) ?? text(row?.title) ?? text(row?.name) ?? text(row?.publication) ?? text(row?.topic) ?? text(row?.question);
 
 /**
  * What a section is about, for its header: its heading or title, or, for a section without one

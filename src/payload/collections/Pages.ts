@@ -6,7 +6,7 @@ import { pageBlocks } from "../blocks";
 function refresh(slug?: string | null) {
   if (!slug) return;
   try {
-    revalidatePath(`/${slug}`);
+    revalidatePath(slug === "home" ? "/" : `/${slug}`);
   } catch {
     // Outside Next (e.g. the seed script) there's no page cache to refresh
   }

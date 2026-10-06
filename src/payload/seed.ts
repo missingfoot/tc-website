@@ -1,4 +1,4 @@
-// Seeds Payload with the pages moved out of code (Foundation, Mission), as they were built, so the
+// Seeds Payload with the pages moved out of code (Home, Foundation, Mission, Careers, Press, FAQ), as they were built, so the
 // CMS starts with real content. Safe to rerun, including on production: images already uploaded
 // are reused, and a page that already exists is left alone, so edits made in the admin are kept.
 //
@@ -6,9 +6,15 @@
 import path from "node:path";
 import { getPayload } from "payload";
 import * as icons from "@/components/icons";
-import type { CircleImage } from "@/lib/types";
+import type { CircleImage, LinkCard, PressQuote, PromoCard } from "@/lib/types";
+import type { FaqItem } from "@/components/ui/FaqAccordion";
+import { careersBenefits } from "@/content/careers";
 import { coLivingPress } from "@/content/co-living";
+import { faqTopics } from "@/content/faq";
+import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
+import { oldOakPromos, oldOakTestimonials } from "@/content/old-oak";
+import { morePressUrl, pressInfo, pressNews, pressQuotes } from "@/content/press";
 import config from "../payload.config";
 
 const payload = await getPayload({ config });
@@ -30,6 +36,17 @@ async function media(src: string, alt: string, position?: string): Promise<numbe
 
 const photo = (image: CircleImage) => media(image.src, image.alt, image.position);
 const iconName = (icon: unknown) => Object.entries(icons).find(([, component]) => component === icon)?.[0] as keyof typeof icons | undefined;
+
+// Content-file shapes as block data
+const linkCards = (cards: LinkCard[]) =>
+  Promise.all(cards.map(async (card) => ({ title: card.title, text: card.text, image: await photo(card.image), ctaLabel: card.cta.label, ctaHref: card.cta.href })));
+const promoCards = (cards: PromoCard[]) =>
+  Promise.all(cards.map(async (card) => ({ heading: card.heading, image: await photo(card.image), ctaLabel: card.cta.label, ctaHref: card.cta.href, enquiry: card.cta.enquiry })));
+const pressQuoteItems = (quotes: PressQuote[]) =>
+  Promise.all(quotes.map(async (q) => ({ quote: q.quote, publication: q.publication, logo: q.logo ? await media(q.logo, `${q.publication} logo`) : undefined })));
+const faqItems = (items: FaqItem[]) =>
+  items.map((item) => ({ question: item.question, answer: [item.answer].flat().join("\n\n"), numbered: item.numbered ?? false }));
+const socialLinks = { blockType: "socialLinks", heading: "Connect with us", intro: "Keep up with what we are up to on social media, and get the chance to get promotions!" };
 
 /** Creates a page unless one with this slug exists. */
 async function seedPage(slug: string, title: string, layout: object[]) {
@@ -144,9 +161,7 @@ const mission = [
   {
     blockType: "pressQuotes",
     heading: "The Collective in the press",
-    quotes: await Promise.all(
-      coLivingPress.map(async (q) => ({ quote: q.quote, publication: q.publication, logo: q.logo ? await media(q.logo, `${q.publication} logo`) : undefined })),
-    ),
+    quotes: await pressQuoteItems(coLivingPress),
   },
   {
     blockType: "teamGrid",
@@ -158,11 +173,108 @@ const mission = [
     blockType: "promoCards",
     cards: await Promise.all(missionPromos.map(async (card) => ({ heading: card.heading, image: await photo(card.image), ctaLabel: card.cta.label, ctaHref: card.cta.href }))),
   },
-  { blockType: "socialLinks", heading: "Connect with us", intro: "Keep up with what we are up to on social media, and get the chance to get promotions!" },
+  socialLinks,
 ];
 
+const home = [
+  {
+    blockType: "hero",
+    eyebrow: "The Collective",
+    title: "A new way to live work and play",
+    image: await media("/images/old-oak/benefits/shared-dinner.jpg", "Residents sharing dinner around a long table"),
+    video: { label: "Watch video", url: "https://youtu.be/XkZbmXgOWOA" },
+  },
+  {
+    blockType: "intro",
+    heading: "We're unlocking the world's greatest cities for the creative and ambitious",
+    layout: "stacked",
+    body: "Our mission is simple: we want to build a world that’s more alive, more together and more collaborative. Our buildings are so much more than just bricks and mortar: they redefine the way people choose to live, work and play by providing unique shared environments that unlock inspiration and make every single day extraordinary. We create places where you can meet new people, try new things, and learn something new every day.",
+    cta: { label: "Read more", href: "/mission" },
+  },
+  { blockType: "linkCards", cardStyle: "dark", cards: await linkCards(homeMainLinks) },
+  {
+    blockType: "testimonials",
+    heading: "Residents love our spaces",
+    tone: "cream",
+    people: await Promise.all(oldOakTestimonials.map(async (t) => ({ name: t.name, photo: await photo(t.image), video: t.video }))),
+  },
+  { blockType: "pressQuotes", heading: "The Collective in the Press", quotes: await pressQuoteItems(homePress) },
+  { blockType: "linkCards", heading: "What’s New", cardStyle: "light", cards: await linkCards(homeWhatsNew) },
+  socialLinks,
+  { blockType: "promoCards", cards: await promoCards(oldOakPromos) },
+];
+
+const careers = [
+  {
+    blockType: "hero",
+    title: "Help us build a better world, together",
+    image: await media("/images/careers/team-laptop.jpg", "Team members working through ideas around a table"),
+    cta: { label: "See our open positions", href: "#open-positions" },
+  },
+  {
+    blockType: "intro",
+    heading: "Big ambitions need great people",
+    body: [
+      "Transforming the way people live, to change the world for the better, doesn’t happen overnight. To make it happen, we need some pretty great people.",
+      "Working at The Collective means never settling for what you know. We’re constantly hustling, learning, challenging and pushing the boundaries of what it means to live in a connected world, with a culture of support and ambition that gives our team the confidence to make their big thinking happen.",
+      "We’re innovating through uncharted territory, and we’d love to have you along for the ride.",
+    ].join("\n\n"),
+  },
+  {
+    blockType: "checklist",
+    heading: "Benefits",
+    tone: "cream",
+    items: careersBenefits.map((item) => ({ icon: iconName(item.icon), title: item.title, text: item.text })),
+  },
+  { blockType: "openPositions", heading: "Open positions" },
+];
+
+const press = [
+  {
+    blockType: "hero",
+    title: "Press",
+    subtitle: "News, coverage and everything you need to write about The Collective.",
+    image: await media("/images/press-kit/working/the-exchange-1.jpg", "The Exchange at The Collective Old Oak"),
+  },
+  { blockType: "linkCards", heading: "News", cardStyle: "dark", cards: await linkCards(pressNews), moreLink: { label: "Read more press articles", href: morePressUrl } },
+  { blockType: "faq", heading: "The Collective info", tone: "cream", items: faqItems(pressInfo) },
+  { blockType: "pressQuotes", heading: "In the press", quotes: await pressQuoteItems(pressQuotes) },
+  { blockType: "mediaKit", heading: "Media resources", intro: "Our logos and photos, free to use when writing about The Collective. Photos download full size." },
+  {
+    blockType: "intro",
+    heading: "Press enquiries",
+    layout: "stacked",
+    body: "For any press enquiries about us, our team, our properties or our programmes, email press@thecollective.com and we’ll get back to you.",
+    buttons: "dark",
+    cta: { label: "Email the press team", href: "mailto:press@thecollective.com" },
+  },
+];
+
+const faq = [
+  {
+    blockType: "hero",
+    title: "Frequently asked questions",
+    subtitle: "Everything you need to know about living at The Collective.",
+    image: await media("/images/old-oak/gallery/05-reception.jpg", "The reception at The Collective Old Oak"),
+  },
+  { blockType: "faqDirectory", topics: faqTopics.map((t) => ({ topic: t.topic, items: faqItems(t.items) })) },
+  {
+    blockType: "intro",
+    heading: "Still have a question?",
+    layout: "stacked",
+    tone: "cream",
+    body: "Our team is here to help. Give us a call or drop us an email, or book a tour and see it for yourself.",
+    buttons: "contact",
+  },
+  { blockType: "promoCards", cards: await promoCards(oldOakPromos) },
+];
+
+await seedPage("home", "Home", home);
 await seedPage("foundation", "Foundation", foundation);
 await seedPage("mission", "Mission", mission);
+await seedPage("careers", "Careers", careers);
+await seedPage("press", "Press", press);
+await seedPage("faq", "FAQ", faq);
 
 const images = await payload.count({ collection: "media" });
 console.log(`${images.totalDocs} images in the Media library.`);

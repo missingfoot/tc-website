@@ -135,6 +135,10 @@ export interface Page {
   slug: string;
   layout: (
     | {
+        /**
+         * Optional: a short line above the title.
+         */
+        eyebrow?: string | null;
         title: string;
         subtitle?: string | null;
         image: number | Media;
@@ -142,6 +146,26 @@ export interface Page {
          * Which edge of the photo stays in view when it's cropped (centred if empty).
          */
         imagePosition?: ('top' | 'bottom' | 'left' | 'right') | null;
+        /**
+         * Optional: links to a page. Leave both empty for no button.
+         */
+        cta?: {
+          label?: string | null;
+          /**
+           * A page (/co-living), a full URL or mailto:…
+           */
+          href?: string | null;
+        };
+        /**
+         * Optional: opens this video over the page. Used instead of the button above.
+         */
+        video?: {
+          label?: string | null;
+          /**
+           * YouTube, Vimeo or an .mp4
+           */
+          url?: string | null;
+        };
         id?: string | null;
         blockName?: string | null;
         blockType: 'hero';
@@ -153,6 +177,7 @@ export interface Page {
          */
         body: string;
         layout?: ('split' | 'stacked') | null;
+        buttons?: ('light' | 'dark' | 'contact') | null;
         /**
          * Optional: leave both empty for no button.
          */
@@ -291,6 +316,13 @@ export interface Page {
               id?: string | null;
             }[]
           | null;
+        /**
+         * Optional, e.g. “Read more press articles”.
+         */
+        moreLink?: {
+          label?: string | null;
+          href?: string | null;
+        };
         cardStyle?: ('dark' | 'light') | null;
         imageShape?: ('wide' | 'tall') | null;
         /**
@@ -330,6 +362,28 @@ export interface Page {
         id?: string | null;
         blockName?: string | null;
         blockType: 'collageSplit';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        people?:
+          | {
+              name: string;
+              photo: number | Media;
+              /**
+               * Optional: their video, as a YouTube or Vimeo link or an .mp4.
+               */
+              video?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'testimonials';
       }
     | {
         heading: string;
@@ -377,6 +431,81 @@ export interface Page {
         blockType: 'teamGrid';
       }
     | {
+        heading: string;
+        intro?: string | null;
+        items?:
+          | {
+              question: string;
+              /**
+               * Leave a blank line between paragraphs.
+               */
+              answer: string;
+              numbered?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'faq';
+      }
+    | {
+        topics?:
+          | {
+              topic: string;
+              items?:
+                | {
+                    question: string;
+                    /**
+                     * Leave a blank line between paragraphs.
+                     */
+                    answer: string;
+                    numbered?: boolean | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'faqDirectory';
+      }
+    | {
+        /**
+         * Lists the job pages (written in code, in content/careers.ts). Link here with #open-positions.
+         */
+        heading: string;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'openPositions';
+      }
+    | {
+        /**
+         * The logos and photos to download are in code (content/press.ts).
+         */
+        heading: string;
+        intro?: string | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'mediaKit';
+      }
+    | {
         cards?:
           | {
               heading: string;
@@ -387,6 +516,10 @@ export interface Page {
               position?: ('top' | 'bottom' | 'left' | 'right') | null;
               ctaLabel: string;
               ctaHref: string;
+              /**
+               * Optional: an enquiry form instead of the link (which then isn't used).
+               */
+              enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
               id?: string | null;
             }[]
           | null;
@@ -550,10 +683,23 @@ export interface PagesSelect<T extends boolean = true> {
         hero?:
           | T
           | {
+              eyebrow?: T;
               title?: T;
               subtitle?: T;
               image?: T;
               imagePosition?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              video?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -563,6 +709,7 @@ export interface PagesSelect<T extends boolean = true> {
               heading?: T;
               body?: T;
               layout?: T;
+              buttons?: T;
               cta?:
                 | T
                 | {
@@ -606,6 +753,12 @@ export interface PagesSelect<T extends boolean = true> {
                     ctaHref?: T;
                     id?: T;
                   };
+              moreLink?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
               cardStyle?: T;
               imageShape?: T;
               tone?: T;
@@ -630,6 +783,23 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     label?: T;
                     href?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              people?:
+                | T
+                | {
+                    name?: T;
+                    photo?: T;
+                    video?: T;
+                    id?: T;
                   };
               tone?: T;
               id?: T;
@@ -670,6 +840,61 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    numbered?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faqDirectory?:
+          | T
+          | {
+              topics?:
+                | T
+                | {
+                    topic?: T;
+                    items?:
+                      | T
+                      | {
+                          question?: T;
+                          answer?: T;
+                          numbered?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        openPositions?:
+          | T
+          | {
+              heading?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        mediaKit?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
         promoCards?:
           | T
           | {
@@ -681,6 +906,7 @@ export interface PagesSelect<T extends boolean = true> {
                     position?: T;
                     ctaLabel?: T;
                     ctaHref?: T;
+                    enquiry?: T;
                     id?: T;
                   };
               tone?: T;

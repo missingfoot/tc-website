@@ -51,14 +51,34 @@ const itemLabel = (fallback: string) => ({
   components: { RowLabel: { path: "/payload/fields/RowLabels#ItemLabel", clientProps: { fallback } } },
 });
 
+// Enquiry forms a button can open instead of linking to a page
+const enquiryKinds = [
+  { label: "Co-living enquiry", value: "living" },
+  { label: "Working enquiry", value: "working" },
+  { label: "Serviced living enquiry", value: "serviced" },
+  { label: "Events enquiry", value: "events" },
+  { label: "Waitlist", value: "waitlist" },
+];
+
 export const HeroBlock: Block = {
   slug: "hero",
   labels: { singular: "Hero", plural: "Heroes" },
   fields: [
+    { name: "eyebrow", type: "text", admin: { description: "Optional: a short line above the title." } },
     { name: "title", type: "text", required: true },
     { name: "subtitle", type: "textarea" },
     image("image"),
     { ...position, name: "imagePosition", label: "Image position" },
+    { ...cta, label: "Button (with an arrow)", admin: { description: "Optional: links to a page. Leave both empty for no button." } },
+    {
+      name: "video",
+      label: "Video button (with a play icon)",
+      type: "group",
+      admin: { description: "Optional: opens this video over the page. Used instead of the button above." },
+      fields: [
+        { type: "row", fields: [{ name: "label", type: "text" }, { name: "url", label: "Video link", type: "text", admin: { description: "YouTube, Vimeo or an .mp4" } }] },
+      ],
+    },
   ],
 };
 
@@ -77,7 +97,17 @@ export const IntroBlock: Block = {
         { label: "Stacked: heading above the text (long headings)", value: "stacked" },
       ],
     },
-    cta,
+    {
+      name: "buttons",
+      type: "select",
+      defaultValue: "light",
+      options: [
+        { label: "The button below, light", value: "light" },
+        { label: "The button below, dark", value: "dark" },
+        { label: "Call us, email us and apply", value: "contact" },
+      ],
+    },
+    { ...cta, admin: { ...cta.admin, condition: (_, block) => block?.buttons !== "contact" } },
     tone,
   ],
 };
@@ -125,6 +155,7 @@ export const PromoCardsBlock: Block = {
         image("image"),
         position,
         { type: "row", fields: [{ name: "ctaLabel", label: "Button label", type: "text", required: true }, { name: "ctaHref", label: "Button link", type: "text", required: true }] },
+        { name: "enquiry", label: "Button opens", type: "select", options: enquiryKinds, admin: { description: "Optional: an enquiry form instead of the link (which then isn't used)." } },
       ],
     },
     tone,
@@ -193,6 +224,13 @@ export const LinkCardsBlock: Block = {
       ],
     },
     {
+      name: "moreLink",
+      label: "Link under the cards",
+      type: "group",
+      admin: { description: "Optional, e.g. “Read more press articles”." },
+      fields: [{ type: "row", fields: [{ name: "label", type: "text" }, { name: "href", label: "Link", type: "text" }] }],
+    },
+    {
       type: "row",
       fields: [
         { name: "cardStyle", label: "Card colour", type: "select", defaultValue: "dark", options: [{ label: "Dark", value: "dark" }, { label: "Light", value: "light" }] },
@@ -245,6 +283,80 @@ export const TeamGridBlock: Block = {
   ],
 };
 
+const faqItems: Field = {
+  name: "items",
+  label: "Questions",
+  type: "array",
+  admin: itemLabel("Question"),
+  minRows: 1,
+  fields: [
+    { name: "question", type: "text", required: true },
+    { name: "answer", type: "textarea", required: true, admin: { description: "Leave a blank line between paragraphs." } },
+    { name: "numbered", type: "checkbox", label: "Show the answer's paragraphs as a numbered list" },
+  ],
+};
+
+export const TestimonialsBlock: Block = {
+  slug: "testimonials",
+  labels: { singular: "Testimonials", plural: "Testimonials" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "people",
+      type: "array",
+      admin: itemLabel("Person"),
+      minRows: 1,
+      fields: [
+        { name: "name", type: "text", required: true },
+        image("photo"),
+        { name: "video", type: "text", admin: { description: "Optional: their video, as a YouTube or Vimeo link or an .mp4." } },
+      ],
+    },
+    { ...tone, defaultValue: "cream" },
+  ],
+};
+
+export const FaqBlock: Block = {
+  slug: "faq",
+  labels: { singular: "FAQ", plural: "FAQs" },
+  fields: [{ name: "heading", type: "text", required: true }, intro, faqItems, tone],
+};
+
+export const FaqDirectoryBlock: Block = {
+  slug: "faqDirectory",
+  labels: { singular: "FAQ directory", plural: "FAQ directories" },
+  fields: [
+    {
+      name: "topics",
+      type: "array",
+      admin: itemLabel("Topic"),
+      minRows: 1,
+      fields: [{ name: "topic", type: "text", required: true }, faqItems],
+    },
+    tone,
+  ],
+};
+
+export const OpenPositionsBlock: Block = {
+  slug: "openPositions",
+  labels: { singular: "Open positions", plural: "Open positions" },
+  fields: [
+    { name: "heading", type: "text", required: true, defaultValue: "Open positions", admin: { description: "Lists the job pages (written in code, in content/careers.ts). Link here with #open-positions." } },
+    tone,
+  ],
+};
+
+export const MediaKitBlock: Block = {
+  slug: "mediaKit",
+  labels: { singular: "Media kit", plural: "Media kits" },
+  fields: [
+    { name: "heading", type: "text", required: true, admin: { description: "The logos and photos to download are in code (content/press.ts)." } },
+    intro,
+    { ...tone, defaultValue: "cream" },
+  ],
+};
+
 /** A section's header shows its type and heading (see fields/RowLabels.tsx), not "Untitled". */
 const withHeading = (block: Block): Block => ({
   ...block,
@@ -257,8 +369,13 @@ export const pageBlocks = [
   ChecklistBlock,
   LinkCardsBlock,
   CollageSplitBlock,
+  TestimonialsBlock,
   PressQuotesBlock,
   TeamGridBlock,
+  FaqBlock,
+  FaqDirectoryBlock,
+  OpenPositionsBlock,
+  MediaKitBlock,
   PromoCardsBlock,
   SocialLinksBlock,
 ].map(withHeading);

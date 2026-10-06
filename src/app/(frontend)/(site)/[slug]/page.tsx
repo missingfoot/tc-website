@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import RenderBlocks from "@/components/payload/RenderBlocks";
 import { getPage, getPageSlugs } from "@/lib/payload";
 
@@ -8,7 +8,7 @@ import { getPage, getPageSlugs } from "@/lib/payload";
  * Pages collection's hooks). Pages written in code (e.g. /co-living) take priority over this route.
  */
 export async function generateStaticParams() {
-  return (await getPageSlugs()).map((slug) => ({ slug }));
+  return (await getPageSlugs()).filter((slug) => slug !== "home").map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[slug]">) {
@@ -17,7 +17,10 @@ export async function generateMetadata({ params }: PageProps<"/[slug]">) {
 }
 
 export default async function PayloadPage({ params }: PageProps<"/[slug]">) {
-  const page = await getPage((await params).slug);
+  const { slug } = await params;
+  // The home page is served at / (app/(frontend)/(site)/page.tsx)
+  if (slug === "home") permanentRedirect("/");
+  const page = await getPage(slug);
   if (!page) notFound();
   return <RenderBlocks blocks={page.layout} />;
 }
