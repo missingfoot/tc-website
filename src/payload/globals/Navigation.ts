@@ -20,7 +20,7 @@ const linkFields: Field[] = [
 ];
 
 const links = (name: string, label: string, fallback: string, extra: Partial<Field> = {}): Field =>
-  ({ name, label, type: "array", admin: itemLabel(fallback), fields: linkFields, ...extra }) as Field;
+  ({ name, label, labels: { singular: fallback, plural: label }, type: "array", admin: itemLabel(fallback), fields: linkFields, ...extra }) as Field;
 
 /**
  * The site's navigation: the menu (mobile, and the desktop bar's More dropdown), the desktop bar
@@ -30,25 +30,31 @@ const links = (name: string, label: string, fallback: string, extra: Partial<Fie
 export const Navigation: GlobalConfig = {
   slug: "navigation",
   access: { read: () => true },
-  admin: { description: "The menu, the desktop bar and the footer. Drag to reorder; untick Show to hide a link." },
+  admin: {
+    description:
+      "The site's three menus. Drag rows to reorder them, and untick Show to hide a link without deleting it. Changes show on every page as soon as you save.",
+  },
   fields: [
     {
       type: "tabs",
       tabs: [
         {
           label: "Menu",
-          description: "The mobile menu. Its sections with a heading also make up the desktop bar's More dropdown.",
+          description:
+            "The menu that opens from the ☰ button on phones and tablets, top to bottom. Its sections with a heading (More Products, The Collective…) are also what the desktop bar's More dropdown shows.",
           fields: [
             {
               name: "menu",
               label: "Sections",
+              labels: { singular: "Section", plural: "Sections" },
               type: "array",
-              admin: itemLabel("Section"),
+              admin: itemLabel("Section", "No heading"),
               fields: [
-                { name: "heading", type: "text", admin: { description: "Optional: a small grey heading. The first section usually has none." } },
+                { name: "heading", type: "text", admin: { description: "A small grey heading above its links. Leave empty for the first section (Home, Locations…), which has none." } },
                 {
                   name: "items",
                   label: "Links",
+                  labels: { singular: "Link", plural: "Links" },
                   type: "array",
                   admin: itemLabel("Link"),
                   fields: [
@@ -56,11 +62,13 @@ export const Navigation: GlobalConfig = {
                       type: "row",
                       fields: [
                         { name: "label", type: "text", required: true },
-                        { name: "href", label: "Link", type: "text", admin: { ...linkPicker, description: "Not needed with sub-links: tapping it opens them." } },
+                        { name: "href", label: "Link", type: "text", admin: { ...linkPicker, description: "Leave empty if it has sub-links: tapping it then opens them instead." } },
                       ],
                     },
                     show,
-                    links("subLinks", "Sub-links", "Sub-link", { admin: { ...itemLabel("Sub-link"), description: "Optional: shown by tapping the link's arrow." } }),
+                    links("subLinks", "Sub-links", "Sub-link", {
+                      admin: { ...itemLabel("Sub-link"), description: "Optional: links that fold out under this one, e.g. Locations → Old Oak, Canary Wharf." },
+                    }),
                   ],
                 },
               ],
@@ -69,11 +77,13 @@ export const Navigation: GlobalConfig = {
         },
         {
           label: "Desktop bar",
-          description: "The links along the top on desktop.",
+          description:
+            "The links across the top of every page on desktop, left to right (the Account button always comes last). Each one goes to a page, or opens a dropdown: either of its own links (like Locations), or of the menu's sections (More).",
           fields: [
             {
               name: "desktop",
               label: "Links",
+              labels: { singular: "Link", plural: "Links" },
               type: "array",
               admin: itemLabel("Link"),
               fields: [
@@ -83,11 +93,11 @@ export const Navigation: GlobalConfig = {
                   type: "radio",
                   defaultValue: "link",
                   options: [
-                    { label: "A link", value: "link" },
-                    { label: "A dropdown of its own links", value: "dropdown" },
-                    { label: "The menu's sections (a More dropdown)", value: "menu" },
+                    { label: "Goes to a page", value: "link" },
+                    { label: "Opens a dropdown of its own links", value: "dropdown" },
+                    { label: "Opens the menu's sections (More)", value: "menu" },
                   ],
-                  admin: { layout: "horizontal" },
+                  admin: { layout: "horizontal", description: "“The menu's sections” shows the Menu tab's sections that have a heading, so they're kept in one place." },
                 },
                 { name: "href", label: "Link", type: "text", admin: { ...linkPicker, condition: (_, item) => item?.opens === "link" } },
                 links("subLinks", "Dropdown links", "Link", { admin: { ...itemLabel("Link"), condition: (_, item) => item?.opens === "dropdown" } }),
@@ -98,10 +108,12 @@ export const Navigation: GlobalConfig = {
         },
         {
           label: "Footer",
+          description: "The columns of links at the bottom of every page, left to right after the logo (three fit side by side on desktop).",
           fields: [
             {
               name: "footer",
               label: "Columns",
+              labels: { singular: "Column", plural: "Columns" },
               type: "array",
               admin: itemLabel("Column"),
               fields: [{ name: "heading", type: "text", required: true }, links("links", "Links", "Link"), show],

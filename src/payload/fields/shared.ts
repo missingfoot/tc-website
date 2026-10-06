@@ -5,11 +5,11 @@ import * as icons from "@/components/icons";
 
 /**
  * A list's items start collapsed, each header showing its name (see RowLabels.tsx), or e.g.
- * "Card 03" until it has one.
+ * "Card 03" until it has one (or `unnamed`, for rows that may have no name on purpose).
  */
-export const itemLabel = (fallback: string) => ({
+export const itemLabel = (fallback: string, unnamed?: string) => ({
   initCollapsed: true,
-  components: { RowLabel: { path: "/payload/fields/RowLabels#ItemLabel", clientProps: { fallback } } },
+  components: { RowLabel: { path: "/payload/fields/RowLabels#ItemLabel", clientProps: { fallback, unnamed } } },
 });
 
 // Icons editors can pick: everything in the icon set except interface controls and brand logos,

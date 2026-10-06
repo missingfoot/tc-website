@@ -9,7 +9,28 @@ const text = (value: unknown) => (typeof value === "string" && value.trim() ? va
 
 /** A row's own name: the first of these fields it has filled in. */
 const nameOf = (row: Row | undefined) =>
-  text(row?.heading) ?? text(row?.title) ?? text(row?.name) ?? text(row?.publication) ?? text(row?.topic) ?? text(row?.question);
+  text(row?.heading) ?? text(row?.title) ?? text(row?.name) ?? text(row?.label) ?? text(row?.publication) ?? text(row?.topic) ?? text(row?.question);
+
+/** The names of what's in a list, comma-separated (e.g. a footer column's links). */
+const namesIn = (items: unknown) =>
+  Array.isArray(items)
+    ? (items as Row[])
+        .map(nameOf)
+        .filter(Boolean)
+        .join(", ")
+    : undefined;
+
+/**
+ * What a row leads to, after its name: what's in it (a section's or column's links, a dropdown's or
+ * a link's sub-links), what a desktop link opens, or its link's address.
+ */
+function detailOf(row: Row | undefined) {
+  if (row?.opens === "menu") return "opens the menu's sections (More)";
+  const inside = namesIn(row?.subLinks) || namesIn(row?.links) || namesIn(row?.items);
+  if (row?.opens === "dropdown") return inside ? `▾ ${inside}` : "▾ (empty dropdown)";
+  if (inside) return inside;
+  return text(row?.href);
+}
 
 /**
  * What a section is about, for its header: its heading or title, or, for a section without one
@@ -77,17 +98,21 @@ function useRowPhoto(row: Row | undefined, api: string): MediaInfo | undefined {
 }
 
 /**
- * Header of an item in a list (a card, a value, a quote, a person): a thumbnail of its photo, if it
- * has one, then its name (or its photo's alt text), or "Card 03" until it has one. The thumbnail
- * comes small from the site's image resizer, not the full-size upload.
+ * Header of an item in a list (a card, a value, a quote, a person, a link): a thumbnail of its
+ * photo, if it has one, then its name (or its photo's alt text), or "Card 03" until it has one,
+ * then where it leads (a link's address) and whether it's hidden. The thumbnail comes small from
+ * the site's image resizer, not the full-size upload.
  */
-export function ItemLabel({ fallback }: { fallback: string }) {
+export function ItemLabel({ fallback, unnamed }: { fallback: string; unnamed?: string }) {
   const { data, rowNumber = 0 } = useRowLabel<Row>();
   const { config } = useConfig();
   const photo = useRowPhoto(data, `${config.serverURL}${config.routes.api}`);
-  const name = nameOf(data) ?? text(photo?.alt) ?? `${fallback} ${String(rowNumber + 1).padStart(2, "0")}`;
+  // Rows left unnamed on purpose (e.g. the menu's first section, which has no heading) say so
+  const name = nameOf(data) ?? text(photo?.alt) ?? unnamed ?? `${fallback} ${String(rowNumber + 1).padStart(2, "0")}`;
+  const detail = detailOf(data);
+  const hidden = data?.show === false;
   return (
-    <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+    <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, opacity: hidden ? 0.5 : 1 }}>
       {photo?.url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -99,6 +124,8 @@ export function ItemLabel({ fallback }: { fallback: string }) {
         />
       )}
       <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+      {detail && <span style={muted}>{detail}</span>}
+      {hidden && <span style={muted}>(hidden)</span>}
     </span>
   );
 }

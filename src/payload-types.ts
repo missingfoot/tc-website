@@ -2006,7 +2006,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * The menu, the desktop bar and the footer. Drag to reorder; untick Show to hide a link.
+ * The site's three menus. Drag rows to reorder them, and untick Show to hide a link without deleting it. Changes show on every page as soon as you save.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation".
@@ -2016,14 +2016,14 @@ export interface Navigation {
   menu?:
     | {
         /**
-         * Optional: a small grey heading. The first section usually has none.
+         * A small grey heading above its links. Leave empty for the first section (Home, Locations…), which has none.
          */
         heading?: string | null;
         items?:
           | {
               label: string;
               /**
-               * Not needed with sub-links: tapping it opens them.
+               * Leave empty if it has sub-links: tapping it then opens them instead.
                */
               href?: string | null;
               /**
@@ -2031,7 +2031,7 @@ export interface Navigation {
                */
               show?: boolean | null;
               /**
-               * Optional: shown by tapping the link's arrow.
+               * Optional: links that fold out under this one, e.g. Locations → Old Oak, Canary Wharf.
                */
               subLinks?:
                 | {
@@ -2053,6 +2053,9 @@ export interface Navigation {
   desktop?:
     | {
         label: string;
+        /**
+         * “The menu's sections” shows the Menu tab's sections that have a heading, so they're kept in one place.
+         */
         opens?: ('link' | 'dropdown' | 'menu') | null;
         href?: string | null;
         subLinks?:
