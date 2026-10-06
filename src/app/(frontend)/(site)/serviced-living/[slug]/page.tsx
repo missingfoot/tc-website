@@ -30,7 +30,7 @@ export default async function ServicedLivingLocation({ params }: PageProps<"/ser
       location={locationDetails(location)}
       enquiry="serviced"
       included={{ intro: shared.includedIntro, groups: locationIncluded(location) }}
-      pricingIntro={shared.pricingIntro}
+      pricing={shared.pricing}
       promos={shared.promos}
     />
   );

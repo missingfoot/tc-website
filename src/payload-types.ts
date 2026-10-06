@@ -2263,7 +2263,25 @@ export interface LocationPage {
           id?: string | null;
         }[]
       | null;
-    pricingIntro: string;
+    /**
+     * The section with the price cards. The prices themselves are each location's own (Locations → its Page tab); without any, the section isn't shown.
+     */
+    pricing: {
+      heading: string;
+      intro: string;
+      /**
+       * Optional: a small line under the cards, e.g. “Prices exclude VAT.”
+       */
+      note?: string | null;
+      button?: {
+        opens?: ('enquiry' | 'link' | 'none') | null;
+        href?: string | null;
+        /**
+         * For the enquiry form, leave empty for its usual label (e.g. “Get a free day trial”).
+         */
+        label?: string | null;
+      };
+    };
     /**
      * Under the gallery. Leave the link empty for no button.
      */
@@ -2294,7 +2312,25 @@ export interface LocationPage {
   };
   serviced: {
     includedIntro: string;
-    pricingIntro: string;
+    /**
+     * The section with the price cards. The prices themselves are each location's own (Locations → its Page tab); without any, the section isn't shown.
+     */
+    pricing: {
+      heading: string;
+      intro: string;
+      /**
+       * Optional: a small line under the cards, e.g. “Prices exclude VAT.”
+       */
+      note?: string | null;
+      button?: {
+        opens?: ('enquiry' | 'link' | 'none') | null;
+        href?: string | null;
+        /**
+         * For the enquiry form, leave empty for its usual label (e.g. “Get a free day trial”).
+         */
+        label?: string | null;
+      };
+    };
     /**
      * The cards at the bottom of every page of this type.
      */
@@ -2319,6 +2355,25 @@ export interface LocationPage {
   venues: {
     includedHeading: string;
     includedIntro: string;
+    /**
+     * The section with the price cards. The prices themselves are each location's own (Locations → its Page tab); without any, the section isn't shown.
+     */
+    pricing: {
+      heading: string;
+      intro?: string | null;
+      /**
+       * Optional: a small line under the cards, e.g. “Prices exclude VAT.”
+       */
+      note?: string | null;
+      button?: {
+        opens?: ('enquiry' | 'link' | 'none') | null;
+        href?: string | null;
+        /**
+         * For the enquiry form, leave empty for its usual label (e.g. “Get a free day trial”).
+         */
+        label?: string | null;
+      };
+    };
     /**
      * The cards at the bottom of every page of this type.
      */
@@ -2581,7 +2636,20 @@ export interface LocationPagesSelect<T extends boolean = true> {
               icon?: T;
               id?: T;
             };
-        pricingIntro?: T;
+        pricing?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              note?: T;
+              button?:
+                | T
+                | {
+                    opens?: T;
+                    href?: T;
+                    label?: T;
+                  };
+            };
         tour?:
           | T
           | {
@@ -2604,7 +2672,20 @@ export interface LocationPagesSelect<T extends boolean = true> {
     | T
     | {
         includedIntro?: T;
-        pricingIntro?: T;
+        pricing?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              note?: T;
+              button?:
+                | T
+                | {
+                    opens?: T;
+                    href?: T;
+                    label?: T;
+                  };
+            };
         promos?:
           | T
           | {
@@ -2622,6 +2703,20 @@ export interface LocationPagesSelect<T extends boolean = true> {
     | {
         includedHeading?: T;
         includedIntro?: T;
+        pricing?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              note?: T;
+              button?:
+                | T
+                | {
+                    opens?: T;
+                    href?: T;
+                    label?: T;
+                  };
+            };
         promos?:
           | T
           | {

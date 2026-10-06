@@ -7,6 +7,42 @@ import { roomsPath } from "../collections/Rooms";
 
 const promos: Field = { ...promoCardsField, name: "promos", label: "Promo cards", admin: { ...itemLabel("Card"), description: "The cards at the bottom of every page of this type." } } as Field;
 
+/** The pricing section's words and button (its prices are each location's own, in Locations). */
+const pricing = (intro: boolean): Field => ({
+  name: "pricing",
+  type: "group",
+  admin: { description: "The section with the price cards. The prices themselves are each location's own (Locations → its Page tab); without any, the section isn't shown." },
+  fields: [
+    { name: "heading", type: "text", required: true, defaultValue: "Pricing" },
+    { name: "intro", type: "textarea", required: intro },
+    { name: "note", label: "Note under the prices", type: "text", admin: { description: "Optional: a small line under the cards, e.g. “Prices exclude VAT.”" } },
+    {
+      name: "button",
+      type: "group",
+      fields: [
+        {
+          name: "opens",
+          label: "The button",
+          type: "radio",
+          defaultValue: "enquiry",
+          options: [
+            { label: "Opens the enquiry form", value: "enquiry" },
+            { label: "Goes to a link", value: "link" },
+            { label: "No button", value: "none" },
+          ],
+          admin: { layout: "horizontal" },
+        },
+        { name: "href", label: "Link", type: "text", admin: { condition: (_, button) => button?.opens === "link", components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
+        {
+          name: "label",
+          type: "text",
+          admin: { condition: (_, button) => button?.opens !== "none", description: "For the enquiry form, leave empty for its usual label (e.g. “Get a free day trial”)." },
+        },
+      ],
+    },
+  ],
+});
+
 /**
  * What every page of a type shares (the working spaces', serviced living houses', venues' and
  * Old Oak rooms' pages): the parts each location or room doesn't have its own of. Every such page
@@ -38,7 +74,7 @@ export const LocationPages: GlobalConfig = {
               admin: { ...itemLabel("Item"), description: "Shown on a working space's page unless it has its own list (Locations → its Page tab)." },
               fields: [{ name: "label", type: "text", required: true }, iconField("", true)],
             },
-            { name: "pricingIntro", label: "Pricing intro", type: "textarea", required: true },
+            pricing(true),
             {
               name: "tour",
               label: "3D tour button",
@@ -58,7 +94,7 @@ export const LocationPages: GlobalConfig = {
           description: "Shared by every serviced living house's page (/serviced-living/…). Each house has its own “What's included” list.",
           fields: [
             { name: "includedIntro", label: "“What's included” intro", type: "textarea", required: true },
-            { name: "pricingIntro", label: "Pricing intro", type: "textarea", required: true },
+            pricing(true),
             promos,
           ],
         },
@@ -69,6 +105,7 @@ export const LocationPages: GlobalConfig = {
           fields: [
             { name: "includedHeading", label: "Facilities heading", type: "text", required: true },
             { name: "includedIntro", label: "Facilities intro", type: "textarea", required: true },
+            pricing(false),
             promos,
           ],
         },

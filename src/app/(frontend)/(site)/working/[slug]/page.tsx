@@ -37,7 +37,7 @@ export default async function WorkingLocation({ params }: PageProps<"/working/[s
         // A working space without its own list shows the standard one
         groups: own.length ? own : shared.included,
       }}
-      pricingIntro={shared.pricingIntro}
+      pricing={shared.pricing}
       promos={shared.promos}
       galleryFooter={
         shared.tour && (

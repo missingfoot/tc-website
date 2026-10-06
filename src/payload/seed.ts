@@ -719,12 +719,12 @@ else {
       working: {
         includedIntro: d.working.includedIntro,
         standard: d.working.included.flatMap((group) => group.items).map((item) => ({ label: item.label, icon: iconName(item.icon) })),
-        pricingIntro: d.working.pricingIntro,
+        pricing: d.working.pricing,
         tour: d.working.tour,
         promos: await promoCards(d.working.promos),
       },
-      serviced: { includedIntro: d.serviced.includedIntro, pricingIntro: d.serviced.pricingIntro, promos: await promoCards(d.serviced.promos) },
-      venues: { includedHeading: d.venues.includedHeading, includedIntro: d.venues.includedIntro, promos: await promoCards(d.venues.promos) },
+      serviced: { includedIntro: d.serviced.includedIntro, pricing: d.serviced.pricing, promos: await promoCards(d.serviced.promos) },
+      venues: { includedHeading: d.venues.includedHeading, includedIntro: d.venues.includedIntro, pricing: d.venues.pricing, promos: await promoCards(d.venues.promos) },
       rooms: {
         included: d.rooms.included.map((item) => ({ label: item.label, icon: iconName(item.icon) })),
         about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },

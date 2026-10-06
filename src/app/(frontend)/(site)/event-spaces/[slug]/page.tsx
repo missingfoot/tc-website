@@ -30,6 +30,7 @@ export default async function EventVenue({ params }: PageProps<"/event-spaces/[s
       location={locationDetails(venue)}
       enquiry="events"
       included={{ heading: shared.includedHeading, intro: shared.includedIntro, groups: locationIncluded(venue) }}
+      pricing={shared.pricing}
       promos={shared.promos}
     />
   );

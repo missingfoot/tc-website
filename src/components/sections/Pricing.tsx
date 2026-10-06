@@ -8,14 +8,16 @@ type PricingProps = {
   heading: string;
   intro?: string;
   prices: Price[];
+  /** A small line under the cards, e.g. "Prices exclude VAT". */
+  note?: string;
   /** Under the cards, e.g. an "Enquire now" button (made full width below lg). */
   action?: ReactNode;
   /** Section background (default cream; the cards are white). */
   tone?: SectionTone;
 };
 
-/** Heading and intro, then side-by-side price cards and an optional button (full width below lg). */
-export default function Pricing({ heading, intro, prices, action, tone = "cream" }: PricingProps) {
+/** Heading and intro, then side-by-side price cards, an optional note and an optional button (full width below lg). */
+export default function Pricing({ heading, intro, prices, note, action, tone = "cream" }: PricingProps) {
   return (
     <Section tone={tone}>
       <Container>
@@ -31,6 +33,7 @@ export default function Pricing({ heading, intro, prices, action, tone = "cream"
               </li>
             ))}
           </ul>
+          {note && <p className="-mt-4 text-center text-sm text-stone">{note}</p>}
           {action && <div className="w-full *:w-full *:justify-center lg:w-auto lg:*:w-auto">{action}</div>}
         </div>
       </Container>

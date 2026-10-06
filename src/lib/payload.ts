@@ -7,7 +7,7 @@ import { footerNav, mainNav, mobileNav, type MobileNavGroup, type NavLink } from
 import { site } from "@/config/site";
 import type { SocialLink } from "@/components/sections/SocialLinks";
 import { socialLinks } from "@/content/old-oak";
-import { locationPagesDefaults } from "@/content/location-pages";
+import { locationPagesDefaults, type PricingSettings } from "@/content/location-pages";
 import type { Location, Media, Page, Room as RoomDoc } from "@/payload-types";
 import type { CircleImage, Cta, GalleryImage, LocationDetails, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
@@ -219,6 +219,21 @@ type PromoCardData = { heading: string; image: number | Media; position?: string
 export const promoCards = (cards?: PromoCardData[] | null): PromoCard[] =>
   (cards ?? []).map((card) => ({ heading: card.heading, image: mediaImage(card.image, card.position), cta: { label: card.ctaLabel, href: card.ctaHref, enquiry: card.enquiry ?? undefined } }));
 
+type PricingData = {
+  heading: string;
+  intro?: string | null;
+  note?: string | null;
+  button?: { opens?: PricingSettings["button"]["opens"] | null; href?: string | null; label?: string | null };
+};
+
+/** A location page's pricing words and button from the CMS. */
+const pricingSettings = (pricing: PricingData): PricingSettings => ({
+  heading: pricing.heading,
+  intro: pricing.intro ?? undefined,
+  note: pricing.note ?? undefined,
+  button: { opens: pricing.button?.opens ?? "enquiry", href: pricing.button?.href ?? undefined, label: pricing.button?.label ?? undefined },
+});
+
 /**
  * What every page of a type shares (/admin → Location pages): working spaces, serviced living,
  * venues and Old Oak rooms. Each tab falls back to content/location-pages.ts while it's not set up.
@@ -233,13 +248,13 @@ export const getLocationPages = cache(async () => {
           includedIntro: working.includedIntro,
           // The standard list is one list, shown as a single group
           included: [{ items: iconItems(working.standard) }],
-          pricingIntro: working.pricingIntro,
+          pricing: pricingSettings(working.pricing),
           tour: working.tour?.label && working.tour.href ? { label: working.tour.label, href: working.tour.href } : undefined,
           promos: promoCards(working.promos),
         }
       : d.working,
-    serviced: serviced?.includedIntro ? { includedIntro: serviced.includedIntro, pricingIntro: serviced.pricingIntro, promos: promoCards(serviced.promos) } : d.serviced,
-    venues: venues?.includedIntro ? { includedHeading: venues.includedHeading, includedIntro: venues.includedIntro, promos: promoCards(venues.promos) } : d.venues,
+    serviced: serviced?.includedIntro ? { includedIntro: serviced.includedIntro, pricing: pricingSettings(serviced.pricing), promos: promoCards(serviced.promos) } : d.serviced,
+    venues: venues?.includedIntro ? { includedHeading: venues.includedHeading, includedIntro: venues.includedIntro, pricing: pricingSettings(venues.pricing), promos: promoCards(venues.promos) } : d.venues,
     rooms: rooms?.about?.heading
       ? {
           included: iconItems(rooms.included),

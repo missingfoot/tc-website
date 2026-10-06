@@ -3,6 +3,14 @@ import { oldOakAbout, oldOakPromos, oldOakRoomIncluded } from "@/content/old-oak
 import { servicedPromos } from "@/content/serviced-living";
 import { workingLocationIncluded } from "@/content/working";
 
+/** A location page's pricing section: its words and button (the prices are each location's). */
+export type PricingSettings = {
+  heading: string;
+  intro?: string;
+  note?: string;
+  button: { opens: "enquiry" | "link" | "none"; href?: string; label?: string };
+};
+
 /**
  * What every page of a type shares (location and room pages). Editable in the CMS (/admin →
  * Location pages): this is what the seed fills it from, and the fallback while it's not set up.
@@ -11,19 +19,20 @@ export const locationPagesDefaults = {
   working: {
     includedIntro: "All of our locations come with these features as standard, as well as all of their own unique offerings.",
     included: workingLocationIncluded,
-    pricingIntro: "Simple monthly memberships, with everything above included.",
+    pricing: { heading: "Pricing", intro: "Simple monthly memberships, with everything above included.", button: { opens: "enquiry" } } as PricingSettings,
     // TODO: link target for the 3D tour
     tour: { label: "View 3D Tour", href: "#" },
     promos: oldOakPromos,
   },
   serviced: {
     includedIntro: "Everything you need, all included in one weekly price.",
-    pricingIntro: "Weekly prices with all bills, cleaning and linen changes included.",
+    pricing: { heading: "Pricing", intro: "Weekly prices with all bills, cleaning and linen changes included.", button: { opens: "enquiry" } } as PricingSettings,
     promos: servicedPromos,
   },
   venues: {
     includedHeading: "Capacity & facilities",
     includedIntro: "Hire it as a blank canvas or styled to suit, with catering and bar service available.",
+    pricing: { heading: "Pricing", button: { opens: "enquiry" } } as PricingSettings,
     promos: servicedPromos,
   },
   rooms: {
