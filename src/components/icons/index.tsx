@@ -520,8 +520,10 @@ export function Roundel({ className = "", ...props }: IconProps) {
 // Brand marks: solid shapes on their own grids, so they use a plain filled <svg> rather than
 // the outline Icon wrapper. Sized like the other icons (24px by default).
 function BrandIcon({ viewBox, title, className = "", children }: { viewBox: string; title?: string; className?: string; children: ReactNode }) {
+  // 24px unless className sets a size (two size classes would clash, as in Icon)
+  const defaultSize = /(^|\s)(size|h|w)-/.test(className) ? "" : "size-6";
   return (
-    <svg viewBox={viewBox} fill="currentColor" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} className={`size-6 shrink-0 ${className}`}>
+    <svg viewBox={viewBox} fill="currentColor" role={title ? "img" : undefined} aria-hidden={title ? undefined : true} className={`${defaultSize} shrink-0 ${className}`}>
       {title && <title>{title}</title>}
       {children}
     </svg>
@@ -571,6 +573,15 @@ export function Mail(props: Pick<IconProps, "title" | "className">) {
 }
 
 /** Opening quotation mark (filled), for pull quotes. */
+/** A solid star, e.g. for review ratings. */
+export function Star(props: Pick<IconProps, "title" | "className">) {
+  return (
+    <BrandIcon viewBox="0 0 24 24" {...props}>
+      <path d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6l-6.4 3.5L7 14l-5.3-5 7.2-.9L12 1.5Z" />
+    </BrandIcon>
+  );
+}
+
 export function QuoteMark({ className = "", title }: Pick<IconProps, "title" | "className">) {
   return (
     <BrandIcon viewBox="0 0 32 24" title={title} className={className}>

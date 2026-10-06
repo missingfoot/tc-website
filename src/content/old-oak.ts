@@ -1,7 +1,7 @@
 import {
   Basin, Bed, Bill, CalendarCheck, Desk, Dumbbell, Guard, Hob, Router, Sofa, SprayBottle, TapeMeasure, WashingMachine,
 } from "@/components/icons";
-import type { CircleImage, GalleryImage, PromoCard, Room, RoomDetails, Testimonial } from "@/lib/types";
+import type { CircleImage, GalleryImage, PromoCard, Review, Room, RoomDetails, Testimonial } from "@/lib/types";
 import { site } from "@/config/site";
 
 const gallery = "/images/old-oak/gallery";
@@ -176,5 +176,74 @@ export const oldOakPromos: PromoCard[] = [
     heading: "Like what you see?",
     image: { src: `${promos}/bar-night.jpg`, alt: "Residents chatting at the bar" },
     cta: { label: "Apply now", href: "#", enquiry: "living" },
+  },
+];
+
+const reviewers = "/images/old-oak/reviews";
+
+/** Reviews of The Collective Old Oak, word for word (typos included: they're people's own words). */
+export const oldOakReviews: Review[] = [
+  {
+    name: "Joe Guimaraes",
+    photo: `${reviewers}/joe-guimaraes.jpg`,
+    rating: 5,
+    text: [
+      "I couldn't have asked for more!",
+      "I am a student here in London looking to make new friends and grasp exciting opportunities in the business world - I am happy to say that I nailed my decision to base my self at the Old Oak.",
+      "The communal areas provided me the opportunity to network with other undergrads, but mainly post grads and young professionals, who would tell me the ins and outs of their stat-up stories - what to do, and what not to do. What a time.",
+    ],
+  },
+  {
+    name: "Jennine Fox",
+    photo: `${reviewers}/jennine-fox.jpg`,
+    rating: 5,
+    text: [
+      "I stayed as a guest for the night, it was ideal and good value for money- much prefer this than paying for an overpriced hotel! The room was very clean and had everything I needed for a night in London (shampoo, shower gel, soap, hair dryer and a towel were all included).",
+      "I was on the 8th floor and the view was quite decent too.",
+      "The service from reception was good, the food and coffee in the bar was good!",
+      "Two of my friends are residents here and showed me round the building and I was impressed with the different amenities the residents have access too!",
+      "I would definitely book this again.",
+    ],
+  },
+  {
+    name: "Carly Lipman",
+    photo: `${reviewers}/carly-lipman.jpg`,
+    rating: 5,
+    text: [
+      "Truly inspiring company and culture. What they are creating for young working professionals is something different, innovative and exciting. The company ethos and the vision I have no doubt will create huge success and communities in a way we have not seen before.",
+      "Connecting individuals through working and living, this is a lifestyle everyone will want to be part of!",
+    ],
+  },
+  {
+    name: "Karen Ren",
+    photo: `${reviewers}/karen-ren.jpg`,
+    rating: 5,
+    text: [
+      "Honestly this is one of my best renting experience in London. The studio is sooo amazing, providing me with excellent living condition and opportunities to meet others from all over the world. I love it and will definitely recommend it to my friends who will be in London.",
+    ],
+  },
+  {
+    name: "Dan Pavel",
+    photo: `${reviewers}/dan-pavel.jpg`,
+    rating: 5,
+    text: [
+      "I stayed in The Collective for a few nights as a guest and absolutely loved it! As an architect, I was intrigued by the clever use of space in order to comfortably accommodate as many people as possible. I loved the community, the different events that take place there and the staff.",
+    ],
+  },
+  {
+    name: "Frank Xie",
+    photo: `${reviewers}/frank-xie.jpg`,
+    rating: 5,
+    text: [
+      'Well I shared the place with my friend in one of your studios last week. So honestly I am not 100% qualified to make this review as a tenant. But the place really amazed me. The room is not that large but it is comfortable enough to feel at home. I love the design and the atmosphere there, not to mention the concept "co-living". Having experience with school accommodations, shared flats and personal studio, I\'ve got to say it s easier said than done to get ppl live together, share lifestyle and actually make friends. But the Collective has got it right. Ace!',
+    ],
+  },
+  {
+    name: "Mixalis Galen",
+    photo: `${reviewers}/mixalis-galen.jpg`,
+    rating: 5,
+    text: [
+      "The studio I am living at is lovely. It's very bright and whenever I have a question the customer service always responds promptly and gently. I have friends moving to London and I will definitely recommend to stay in one of their properties. I've seen pics of a new building the've created in west London so that should be a great experience and a great opportunity for them to meet new people",
+    ],
   },
 ];

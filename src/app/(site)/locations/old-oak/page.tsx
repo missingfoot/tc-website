@@ -5,6 +5,7 @@ import CollageSplit from "@/components/sections/CollageSplit";
 import RoomCards from "@/components/sections/RoomCards";
 import FeatureGroups from "@/components/sections/FeatureGroups";
 import Testimonials from "@/components/sections/Testimonials";
+import Reviews from "@/components/sections/Reviews";
 import Directions from "@/components/sections/Directions";
 import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
@@ -14,7 +15,7 @@ import Button from "@/components/ui/Button";
 import FloatingButton from "@/components/ui/FloatingButton";
 import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import { Icon360 } from "@/components/icons";
-import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakRooms, oldOakPromos, oldOakTestimonials, socialLinks } from "@/content/old-oak";
+import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakRooms, oldOakPromos, oldOakReviews, oldOakTestimonials, socialLinks } from "@/content/old-oak";
 
 export const metadata = { title: "Old Oak" };
 
@@ -92,6 +93,8 @@ export default function OldOak() {
         intro="More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses shared spaces and facilities to create a more fulfilling lifestyle."
         testimonials={oldOakTestimonials}
       />
+
+      <Reviews heading="Rated 5 stars" intro="What residents and guests say about staying with us." reviews={oldOakReviews} />
 
       <Directions
         heading="Well connected"

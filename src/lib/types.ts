@@ -55,6 +55,17 @@ export type Room = {
   href: string;
 };
 
+/** A review from a site like Facebook or Google: who wrote it, its star rating and its text. */
+export type Review = {
+  name: string;
+  /** Their profile photo (shown small and round); without one, their initials show instead. */
+  photo?: string;
+  /** Out of 5. */
+  rating: number;
+  /** One string per paragraph, word for word. */
+  text: string[];
+};
+
 export type Testimonial = {
   name: string;
   image: CircleImage;

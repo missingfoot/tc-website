@@ -14,6 +14,8 @@ type CarouselProps<T> = {
   dotLabel?: (position: number, total: number) => string;
   /** Classes for each slide (e.g. aspect ratio, rounding). */
   slideClassName?: string;
+  /** Wider slides from lg (448px rather than 300px), for long text like reviews. */
+  wide?: boolean;
 };
 
 /**
@@ -23,7 +25,7 @@ type CarouselProps<T> = {
  * content's left edge. A trailing spacer lets the last slides reach the start, so every dot
  * works. Dots are hidden when there's only one slide.
  */
-export default function Carousel<T>({ items, renderItem, getKey, label, dotLabel, slideClassName = "" }: CarouselProps<T>) {
+export default function Carousel<T>({ items, renderItem, getKey, label, dotLabel, slideClassName = "", wide = false }: CarouselProps<T>) {
   const { ref, index, goTo } = useSnapCarousel(items.length);
 
   return (
@@ -34,11 +36,12 @@ export default function Carousel<T>({ items, renderItem, getKey, label, dotLabel
         className="-mx-6 mt-10 flex cursor-grab snap-x snap-mandatory scroll-px-6 gap-8 overflow-x-auto overscroll-x-contain px-6 select-none active:cursor-grabbing [scrollbar-width:none] md:-mx-12 md:scroll-px-12 md:px-12 lg:mt-16 xl:[--g:max(12rem,calc((100vw-90rem)/2+12rem))] xl:-mx-(--g) xl:scroll-px-(--g) xl:px-(--g) [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
-          <li key={getKey(item, i)} className={`w-75 shrink-0 snap-start ${slideClassName}`}>
+          <li key={getKey(item, i)} className={`w-75 shrink-0 snap-start ${wide ? "lg:w-md" : ""} ${slideClassName}`}>
             {renderItem(item, i)}
           </li>
         ))}
-        <li aria-hidden="true" className="w-[calc(100%-18.75rem-2rem)] shrink-0" />
+        {/* As wide as the space left beside one slide (and its gap), so the last slide can reach the start */}
+        <li aria-hidden="true" className={`w-[calc(100%-18.75rem-2rem)] shrink-0 ${wide ? "lg:w-[calc(100%-28rem-2rem)]" : ""}`} />
       </ul>
 
       {items.length > 1 && (
