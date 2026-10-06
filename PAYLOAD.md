@@ -56,6 +56,9 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Navigation** (/admin → Navigation) holds the menu (mobile, and the desktop bar's More dropdown),
   the desktop bar and the footer, each in its own order with a Show switch per link. While it's
   empty the site falls back to `config/navigation.ts`, which is also what the seed fills it from.
+- **Contact details** (/admin → Contact details): the phone, email and address, used by the
+  footer, the Call us/Email us buttons, the careers pages, Social links' email and the account
+  page. The tel: link is worked out from the number as shown. Falls back to `config/site.ts`.
 - **Link fields** pick from the site's pages (by page, location, room or other page) or take a
   typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
 - **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.

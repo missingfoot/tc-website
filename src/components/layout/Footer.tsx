@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { site } from "@/config/site";
 import Container from "@/components/ui/Container";
-import { getNavigation } from "@/lib/payload";
+import { getContact, getNavigation } from "@/lib/payload";
 import { LogoMark } from "./Logo";
 
 const underlined = "border-b border-white/20 pb-0.5 transition-colors hover:border-white";
@@ -11,7 +11,7 @@ const underlined = "border-b border-white/20 pb-0.5 transition-colors hover:bord
  * on dark. Centred on mobile; columns on desktop. The columns are in the CMS (/admin → Navigation).
  */
 export default async function Footer() {
-  const { footer } = await getNavigation();
+  const [{ footer }, contact] = await Promise.all([getNavigation(), getContact()]);
   return (
     <footer>
       <div className="bg-cream py-12 text-center lg:py-20 lg:text-left">
@@ -41,19 +41,19 @@ export default async function Footer() {
       <div className="bg-ink py-12 text-center text-white lg:py-16">
         <Container className="flex flex-col items-center">
           <h2 className="text-sm font-bold text-ash">Contact us</h2>
-          <a href={site.phoneLink} className="mt-6 text-lg font-medium transition-opacity hover:opacity-70">
-            {site.phone}
+          <a href={contact.phoneLink} className="mt-6 text-lg font-medium transition-opacity hover:opacity-70">
+            {contact.phone}
           </a>
-          <a href={`mailto:${site.email}`} className={`mt-4 text-lg font-medium ${underlined}`}>
-            {site.email}
+          <a href={`mailto:${contact.email}`} className={`mt-4 text-lg font-medium ${underlined}`}>
+            {contact.email}
           </a>
 
           <div className="mt-12 flex flex-col items-center gap-12 lg:mt-14 lg:flex-row lg:gap-12">
             <address className="text-base text-ash not-italic">
-              {site.address.map((line, i) => (
+              {contact.address.map((line, i) => (
                 <span key={line} className="block lg:inline">
                   {line}
-                  {i < site.address.length - 1 && <span className="hidden lg:inline"> </span>}
+                  {i < contact.address.length - 1 && <span className="hidden lg:inline"> </span>}
                 </span>
               ))}
             </address>

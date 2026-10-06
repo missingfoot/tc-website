@@ -24,6 +24,7 @@ import {
 } from "@/content/co-living";
 import { bedfordVenues, eventsGallery, oldOakVenues, venues } from "@/content/events";
 import { footerNav, mainNav, mobileNav } from "@/config/navigation";
+import { site } from "@/config/site";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
@@ -681,6 +682,14 @@ else {
     },
   });
   console.log("navigation: created");
+}
+
+// Contact details, from config/site.ts, unless they've been set in the admin already
+const contact = await payload.findGlobal({ slug: "contactDetails", depth: 0 });
+if (contact.phone) console.log("contact details: already set, left as they are");
+else {
+  await payload.updateGlobal({ slug: "contactDetails", data: { phone: site.phone, email: site.email, address: site.address.join("\n") } });
+  console.log("contact details: created");
 }
 
 process.exit(0);

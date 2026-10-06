@@ -9,13 +9,8 @@ const show: Field = { name: "show", type: "checkbox", defaultValue: true, admin:
 
 /** A label and where it goes, with a Show switch. */
 const linkFields: Field[] = [
-  {
-    type: "row",
-    fields: [
-      { name: "label", type: "text", required: true },
-      { name: "href", label: "Link", type: "text", required: true, admin: linkPicker },
-    ],
-  },
+  { name: "label", type: "text", required: true },
+  { name: "href", label: "Link", type: "text", required: true, admin: linkPicker },
   show,
 ];
 
@@ -58,13 +53,8 @@ export const Navigation: GlobalConfig = {
                   type: "array",
                   admin: itemLabel("Link"),
                   fields: [
-                    {
-                      type: "row",
-                      fields: [
-                        { name: "label", type: "text", required: true },
-                        { name: "href", label: "Link", type: "text", admin: { ...linkPicker, description: "Leave empty if it has sub-links: tapping it then opens them instead." } },
-                      ],
-                    },
+                    { name: "label", type: "text", required: true },
+                    { name: "href", label: "Link", type: "text", admin: { ...linkPicker, description: "Leave empty if it has sub-links: tapping it then opens them instead." } },
                     show,
                     links("subLinks", "Sub-links", "Sub-link", {
                       admin: { ...itemLabel("Sub-link"), description: "Optional: links that fold out under this one, e.g. Locations → Old Oak, Canary Wharf." },

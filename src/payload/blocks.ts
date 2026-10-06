@@ -192,7 +192,8 @@ export const PromoCardsBlock: Block = {
         { name: "heading", type: "text", required: true },
         image("image"),
         position,
-        { type: "row", fields: [{ name: "ctaLabel", label: "Button label", type: "text", required: true }, { name: "ctaHref", label: "Button link", type: "text", required: true, admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } }] },
+        { name: "ctaLabel", label: "Button label", type: "text", required: true },
+        { name: "ctaHref", label: "Button link", type: "text", required: true, admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
         { name: "enquiry", label: "Button opens", type: "select", options: enquiryKinds, admin: { isClearable: true, description: "Optional: an enquiry form instead of the link (which then isn't used)." } },
       ],
     },
@@ -259,7 +260,8 @@ export const LinkCardsBlock: Block = {
         { name: "text", type: "textarea", required: true },
         image("image"),
         position,
-        { type: "row", fields: [{ name: "ctaLabel", label: "Button label", type: "text", required: true }, { name: "ctaHref", label: "Button link", type: "text", required: true, admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } }] },
+        { name: "ctaLabel", label: "Button label", type: "text", required: true },
+        { name: "ctaHref", label: "Button link", type: "text", required: true, admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
       ],
     },
     {
@@ -267,7 +269,10 @@ export const LinkCardsBlock: Block = {
       label: "Link under the cards",
       type: "group",
       admin: { description: "Optional, e.g. “Read more press articles”." },
-      fields: [{ type: "row", fields: [{ name: "label", type: "text" }, { name: "href", label: "Link", type: "text", admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } }] }],
+      fields: [
+        { name: "label", type: "text" },
+        { name: "href", label: "Link", type: "text", admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
+      ],
     },
     {
       type: "row",
@@ -425,7 +430,10 @@ export const GalleryBlock: Block = {
       label: "3D tour button",
       type: "group",
       admin: { description: "Optional: a “View 3D Tour” button under the photos." },
-      fields: [{ type: "row", fields: [{ name: "label", type: "text", defaultValue: "View 3D Tour" }, { name: "href", label: "Link", type: "text", admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } }] }],
+      fields: [
+        { name: "label", type: "text", defaultValue: "View 3D Tour" },
+        { name: "href", label: "Link", type: "text", admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
+      ],
     },
     { ...tone, defaultValue: "cream" },
   ],
@@ -489,7 +497,8 @@ export const ImageCarouselBlock: Block = {
       admin: { description: "Optional: text ending in a link, e.g. “…following us on Instagram @thecollective_living”." },
       fields: [
         { name: "text", type: "text" },
-        { type: "row", fields: [{ name: "linkLabel", label: "Link text", type: "text" }, { name: "linkHref", label: "Link", type: "text", admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } }] },
+        { name: "linkLabel", label: "Link text", type: "text" },
+        { name: "linkHref", label: "Link", type: "text", admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
       ],
     },
     tone,

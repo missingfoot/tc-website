@@ -4,6 +4,7 @@ import { cache } from "react";
 import * as icons from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import { footerNav, mainNav, mobileNav, type MobileNavGroup, type NavLink } from "@/config/navigation";
+import { site } from "@/config/site";
 import type { Location, Media, Page, Room as RoomDoc } from "@/payload-types";
 import type { CircleImage, GalleryImage, LocationDetails, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
@@ -169,5 +170,23 @@ export const getNavigation = cache(async (): Promise<{ menu: MobileNavGroup[]; d
     menu: menu.length ? menu : mobileNav,
     desktop: desktop.length ? desktop : mainNav,
     footer: footer.length ? footer : footerNav,
+  };
+});
+
+/** A phone number as shown ("+44 (0) 207 183 5478") as a tel: link: international, without the "(0)". */
+export const telLink = (phone: string) => `tel:${phone.replace("(0)", "").replace(/[^\d+]/g, "")}`;
+
+/**
+ * The company's contact details from the CMS (/admin → Contact details), falling back to
+ * config/site.ts while they're not set.
+ */
+export const getContact = cache(async () => {
+  const contact = await (await payload()).findGlobal({ slug: "contactDetails", depth: 0 });
+  const phone = contact.phone || site.phone;
+  return {
+    phone,
+    phoneLink: telLink(phone),
+    email: contact.email || site.email,
+    address: contact.address ? lines(contact.address) : site.address,
   };
 });

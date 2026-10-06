@@ -95,9 +95,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     navigation: Navigation;
+    contactDetails: ContactDetail;
   };
   globalsSelect: {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
+    contactDetails: ContactDetailsSelect<false> | ContactDetailsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -2101,6 +2103,26 @@ export interface Navigation {
   createdAt?: string | null;
 }
 /**
+ * Shown in the footer, on the Call us and Email us buttons, on the careers pages and in Social links. Changes show everywhere as soon as you save.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactDetails".
+ */
+export interface ContactDetail {
+  id: number;
+  /**
+   * As it's shown, e.g. “+44 (0) 207 183 5478”. Tapping it dials the number (without the “(0)”).
+   */
+  phone: string;
+  email: string;
+  /**
+   * One line per line of the address. Shown on one line on desktop.
+   */
+  address: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation_select".
  */
@@ -2159,6 +2181,18 @@ export interface NavigationSelect<T extends boolean = true> {
         show?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contactDetails_select".
+ */
+export interface ContactDetailsSelect<T extends boolean = true> {
+  phone?: T;
+  email?: T;
+  address?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
