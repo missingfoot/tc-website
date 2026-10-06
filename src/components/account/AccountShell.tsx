@@ -46,7 +46,8 @@ export default function AccountShell({ children }: { children: ReactNode }) {
 
         {/* Mobile: pills that wrap onto a second line rather than run off the screen. Desktop: a sidebar. */}
         <nav aria-label="Account" className="mt-6 lg:mt-10">
-          <ul className="flex flex-wrap gap-2 lg:flex-col lg:flex-nowrap lg:gap-1">
+          {/* Desktop: pulled out by the links' padding, so their text lines up with the greeting and the highlight extends past it */}
+          <ul className="flex flex-wrap gap-2 lg:-mx-4 lg:flex-col lg:flex-nowrap lg:gap-1">
             {tabs.map((tab) => {
               // A tab stays selected on its sub-pages (e.g. Renewal → Moving out)
               // The Direct Debit page belongs to Membership

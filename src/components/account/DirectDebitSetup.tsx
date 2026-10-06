@@ -51,11 +51,6 @@ export default function DirectDebitSetup() {
         heading={changing ? "Change your bank details" : "Set up your Direct Debit"}
         intro="Your rent is collected by Direct Debit on the 1st of each month, through our payment partner GoCardless."
       >
-        <InfoBox className="mb-6">
-          <span className="font-bold">Demo:</span> on the live site this step happens on GoCardless’s own secure page, so your bank details never pass through
-          ours.
-        </InfoBox>
-
         <form onSubmit={submit} className="flex flex-col gap-6">
           <TextField id="holder" label="Account holder name" autoComplete="name" required defaultValue={account.name} />
           <div className="grid gap-6 sm:grid-cols-2">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import { Check } from "@/components/icons";
+import { ArrowRight, Check } from "@/components/icons";
 import { Details } from "@/components/application/fields";
 import { formatMoney } from "@/lib/application";
 import { renewalDates, useAccount, type Referral } from "@/lib/account";
@@ -13,8 +13,18 @@ import Countdown from "./Countdown";
 import DirectDebitStatus from "./DirectDebitStatus";
 
 const long = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" });
-// Short months for the check-in / check-out box, which is only half the width on phones
-const short = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
+// Short months for the check-in / check-out box, where each date gets under half the width on phones
+const dayMonth = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
+
+/** A check-in / check-out date: "8 Jan 2026", with the year on a subtle line of its own on phones. */
+function BoxDate({ date }: { date: Date }) {
+  return (
+    <p className="mt-1 text-xl font-bold text-ink">
+      {dayMonth.format(date)}
+      <span className="max-sm:block max-sm:text-sm max-sm:font-normal max-sm:text-stone"> {date.getFullYear()}</span>
+    </p>
+  );
+}
 
 // `detail` (e.g. the friend's email) is left out on phones, where long ones crowd the row
 type Deduction = { amount: number; reason: string; detail?: string };
@@ -91,14 +101,16 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
             ["Room number", m.roomNumber],
           ]}
         />
-        <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-cream p-5">
+        {/* Spread evenly, so the arrow sits the same distance from both dates whatever their length */}
+        <div className="mt-6 flex items-center justify-between gap-4 rounded-2xl bg-cream p-5">
           <div>
             <p className={text.label}>Check-in</p>
-            <p className="mt-1 text-xl font-bold text-ink">{short.format(checkIn)}</p>
+            <BoxDate date={checkIn} />
           </div>
-          <div>
+          <ArrowRight className="size-6 shrink-0 text-stone" />
+          <div className="text-right">
             <p className={text.label}>Check-out</p>
-            <p className="mt-1 text-xl font-bold text-ink">{short.format(checkOut)}</p>
+            <BoxDate date={checkOut} />
           </div>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -117,7 +129,8 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
           ) : (
             <Countdown start={new Date(m.checkIn)} emphasis label="Time left to renew" target={renewBy} note={`Renew by ${long.format(renewBy)} to keep your room`} passed="Renewal deadline passed" />
           )}
-          <Countdown start={new Date(m.checkIn)} label="Until check-out" target={checkOut} note={`${long.format(checkOut)}, by 10:00`} passed="Checked out" />
+          {/* After renewing, the bar starts full again and drains towards the new check-out */}
+          <Countdown start={new Date(m.renewal.requested?.at ?? m.checkIn)} label="Until check-out" target={checkOut} note={`${long.format(checkOut)}, by 10:00`} passed="Checked out" />
         </div>
         {!m.renewal.movingOut && (
           <p className={`mt-6 ${text.body}`}>Your notice period is {m.noticeMonths} months.</p>
