@@ -32,6 +32,8 @@ export type GalleryImage = {
   alt: string;
   /** Edge the crop is pinned to (default centre). */
   position?: ImagePosition;
+  /** Blurred preview while it loads, for a photo not in blur-placeholders.json (e.g. a CMS upload). */
+  blur?: string;
 };
 
 /** A photo shown in a circle, or a cover-cropped card photo. `position` frames the subject. */

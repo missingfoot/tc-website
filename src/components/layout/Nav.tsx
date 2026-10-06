@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { mainNav, type NavLink } from "@/config/navigation";
-import { pageTitles } from "@/config/page-titles";
+import { getPageTitles } from "@/config/page-titles";
 import Container from "@/components/ui/Container";
 import AccountButton from "./AccountButton";
 import Logo from "./Logo";
@@ -24,7 +24,7 @@ type NavProps = {
  * Site header: transparent over the top of the page (so the first block should be a dark
  * Hero), then a floating dark pill once scrolled.
  */
-export default function Nav({ links = mainNav, children, logoLinksHome = false }: NavProps) {
+export default async function Nav({ links = mainNav, children, logoLinksHome = false }: NavProps) {
   return (
     <StickyHeader>
       {/* relative + isolate so the dock pill can sit behind the content (-z-10). On mobile the
@@ -39,7 +39,7 @@ export default function Nav({ links = mainNav, children, logoLinksHome = false }
         ) : (
           <>
             <Logo />
-            <PageTitle titles={pageTitles} />
+            <PageTitle titles={await getPageTitles()} />
 
             <nav aria-label="Main">
               <ul className="hidden items-center gap-10 text-base font-medium leading-5 lg:flex">

@@ -1,5 +1,5 @@
 import type { Block, Field } from "payload";
-import * as icons from "@/components/icons";
+import { iconField } from "./fields/shared";
 
 // Page blocks: one per section component, with the same content its props take. Pages are a list
 // of these, so editors pick, order and fill in sections while the design stays in code.
@@ -171,10 +171,6 @@ export const SocialLinksBlock: Block = {
   ],
 };
 
-// Icons editors can put beside a checklist item: everything in the icon set except interface
-// controls and brand logos, which mean something else on the page
-const notForContent = ["ArrowLeft", "ArrowRight", "Menu", "Close", "ChevronDown", "Download", "Search", "YouTube", "Facebook", "Instagram", "Twitter", "VisaLogo", "MastercardLogo", "AmexLogo"];
-export const checklistIcons = Object.keys(icons).filter((name) => !notForContent.includes(name));
 
 const intro: Field = { name: "intro", type: "textarea" };
 
@@ -190,12 +186,7 @@ export const ChecklistBlock: Block = {
       admin: itemLabel("Value"),
       minRows: 1,
       fields: [
-        {
-          name: "icon",
-          type: "select",
-          options: checklistIcons,
-          admin: { description: "Optional: shown beside the item.", components: { Field: "/payload/fields/IconPicker#IconPicker" } },
-        },
+        iconField("Optional: shown beside the item."),
         { name: "title", type: "text", required: true },
         { name: "text", type: "textarea", required: true },
       ],

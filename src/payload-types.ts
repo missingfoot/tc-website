@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     pages: Page;
+    locations: Location;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
+    locations: LocationsSelect<false> | LocationsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -553,6 +555,7 @@ export interface Media {
    */
   alt: string;
   blur?: string | null;
+  source?: string | null;
   _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -565,6 +568,258 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * Working spaces, serviced living houses and event venues: their cards and their own pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: number;
+  _order?: string | null;
+  name: string;
+  /**
+   * The page's address after its type's, e.g. /working/bedford-square for “bedford-square”.
+   */
+  slug: string;
+  type: 'working' | 'serviced' | 'venue';
+  /**
+   * Neighbourhood, e.g. Bloomsbury
+   */
+  area: string;
+  postcode: string;
+  /**
+   * e.g. “From £150 per month”, or a venue's capacity.
+   */
+  fromPrice: string;
+  image: number | Media;
+  /**
+   * Transport and key facilities: the card's tiles and the page header's rows (up to 4).
+   */
+  features?:
+    | {
+        label: string;
+        icon:
+          | 'Api'
+          | 'Automate'
+          | 'BarKitchen'
+          | 'Basin'
+          | 'Bed'
+          | 'Bike'
+          | 'Bill'
+          | 'Bus'
+          | 'Calendar'
+          | 'CalendarCheck'
+          | 'Car'
+          | 'Cctv'
+          | 'Check'
+          | 'Chef'
+          | 'Cocktail'
+          | 'Community'
+          | 'Crowd'
+          | 'Database'
+          | 'DealFlow'
+          | 'Desk'
+          | 'Dining'
+          | 'DoorEntry'
+          | 'Dumbbell'
+          | 'FeasibilityModel'
+          | 'FruitBowl'
+          | 'Groceries'
+          | 'Guard'
+          | 'Hack'
+          | 'HandsHeart'
+          | 'Handshake'
+          | 'Help'
+          | 'Hob'
+          | 'Icon360'
+          | 'Info'
+          | 'IntegrateData'
+          | 'Integrations'
+          | 'Lion'
+          | 'LocationPin'
+          | 'Lock'
+          | 'Lounge'
+          | 'Mail'
+          | 'ManageMembership'
+          | 'MeetingTable'
+          | 'MemberSupport'
+          | 'Membership'
+          | 'Microwave'
+          | 'Outdoor'
+          | 'Oven'
+          | 'Padlock'
+          | 'People'
+          | 'Plane'
+          | 'Play'
+          | 'PrivateOffice'
+          | 'QuoteMark'
+          | 'Relationships'
+          | 'Reporting'
+          | 'Restaurant'
+          | 'RestaurantsNearby'
+          | 'RoomAllocation'
+          | 'RoomPricing'
+          | 'Roundel'
+          | 'Router'
+          | 'Scales'
+          | 'Shelves'
+          | 'SmartHome'
+          | 'SocialNetwork'
+          | 'Sofa'
+          | 'SprayBottle'
+          | 'Sprout'
+          | 'Star'
+          | 'SunCloud'
+          | 'TapeMeasure'
+          | 'TeamChat'
+          | 'TrackMarket'
+          | 'Train'
+          | 'WashingMachine'
+          | 'Workshop'
+          | 'Wrench';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Leave a blank line between paragraphs.
+   */
+  intro: string;
+  gallery?:
+    | {
+        image: number | Media;
+        /**
+         * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
+         */
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Pricing cards. Leave empty to leave pricing out (e.g. venues, priced on request).
+   */
+  prices?:
+    | {
+        label: string;
+        amount: string;
+        period: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Facilities, in groups (a label is optional). Working spaces can leave it empty to show the standard list every working space has.
+   */
+  included?:
+    | {
+        label?: string | null;
+        items?:
+          | {
+              label: string;
+              icon:
+                | 'Api'
+                | 'Automate'
+                | 'BarKitchen'
+                | 'Basin'
+                | 'Bed'
+                | 'Bike'
+                | 'Bill'
+                | 'Bus'
+                | 'Calendar'
+                | 'CalendarCheck'
+                | 'Car'
+                | 'Cctv'
+                | 'Check'
+                | 'Chef'
+                | 'Cocktail'
+                | 'Community'
+                | 'Crowd'
+                | 'Database'
+                | 'DealFlow'
+                | 'Desk'
+                | 'Dining'
+                | 'DoorEntry'
+                | 'Dumbbell'
+                | 'FeasibilityModel'
+                | 'FruitBowl'
+                | 'Groceries'
+                | 'Guard'
+                | 'Hack'
+                | 'HandsHeart'
+                | 'Handshake'
+                | 'Help'
+                | 'Hob'
+                | 'Icon360'
+                | 'Info'
+                | 'IntegrateData'
+                | 'Integrations'
+                | 'Lion'
+                | 'LocationPin'
+                | 'Lock'
+                | 'Lounge'
+                | 'Mail'
+                | 'ManageMembership'
+                | 'MeetingTable'
+                | 'MemberSupport'
+                | 'Membership'
+                | 'Microwave'
+                | 'Outdoor'
+                | 'Oven'
+                | 'Padlock'
+                | 'People'
+                | 'Plane'
+                | 'Play'
+                | 'PrivateOffice'
+                | 'QuoteMark'
+                | 'Relationships'
+                | 'Reporting'
+                | 'Restaurant'
+                | 'RestaurantsNearby'
+                | 'RoomAllocation'
+                | 'RoomPricing'
+                | 'Roundel'
+                | 'Router'
+                | 'Scales'
+                | 'Shelves'
+                | 'SmartHome'
+                | 'SocialNetwork'
+                | 'Sofa'
+                | 'SprayBottle'
+                | 'Sprout'
+                | 'Star'
+                | 'SunCloud'
+                | 'TapeMeasure'
+                | 'TeamChat'
+                | 'TrackMarket'
+                | 'Train'
+                | 'WashingMachine'
+                | 'Workshop'
+                | 'Wrench';
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Street address: drives the map and the “open in Maps” links. Without one, the map is left out.
+   */
+  address?: string | null;
+  directionsIntro: string;
+  travelModes?:
+    | {
+        label: string;
+        icon: 'underground' | 'overground' | 'bus' | 'car';
+        /**
+         * One step per line.
+         */
+        steps: string;
+        mapsUrl: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -619,6 +874,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'locations';
+        value: number | Location;
       } | null)
     | ({
         relationTo: 'media';
@@ -927,11 +1186,75 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations_select".
+ */
+export interface LocationsSelect<T extends boolean = true> {
+  _order?: T;
+  name?: T;
+  slug?: T;
+  type?: T;
+  area?: T;
+  postcode?: T;
+  fromPrice?: T;
+  image?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        id?: T;
+      };
+  intro?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        id?: T;
+      };
+  prices?:
+    | T
+    | {
+        label?: T;
+        amount?: T;
+        period?: T;
+        id?: T;
+      };
+  included?:
+    | T
+    | {
+        label?: T;
+        items?:
+          | T
+          | {
+              label?: T;
+              icon?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  address?: T;
+  directionsIntro?: T;
+  travelModes?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        steps?: T;
+        mapsUrl?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   blur?: T;
+  source?: T;
   _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;

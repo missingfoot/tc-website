@@ -14,6 +14,8 @@ type ProgressiveImageProps = {
   sizes: string;
   /** Edge the crop is pinned to (default centre). */
   position?: ImagePosition;
+  /** A blur preview of your own (e.g. a CMS upload's), in place of the generated one. */
+  preview?: string;
   className?: string;
 };
 
@@ -22,9 +24,9 @@ type ProgressiveImageProps = {
  * the full-size image in once it has loaded. Until the thumbnail itself arrives, the photo's
  * inline blur preview (see `Photo`) stands in. Place inside a positioned, overflow-hidden parent.
  */
-export default function ProgressiveImage({ src, placeholder, alt, sizes, position, className = "" }: ProgressiveImageProps) {
+export default function ProgressiveImage({ src, placeholder, alt, sizes, position, preview, className = "" }: ProgressiveImageProps) {
   const [loaded, setLoaded] = useState(false);
-  const blur = blurFor(src);
+  const blur = preview ?? blurFor(src);
 
   return (
     <>

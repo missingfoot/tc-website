@@ -6,30 +6,44 @@
 import path from "node:path";
 import { getPayload } from "payload";
 import * as icons from "@/components/icons";
-import type { CircleImage, LinkCard, PressQuote, PromoCard } from "@/lib/types";
+import type { CircleImage, LinkCard, LocationDetails, PressQuote, PromoCard } from "@/lib/types";
 import type { FaqItem } from "@/components/ui/FaqAccordion";
 import { careersBenefits } from "@/content/careers";
 import { coLivingPress } from "@/content/co-living";
+import { venues } from "@/content/events";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
 import { oldOakPromos, oldOakTestimonials } from "@/content/old-oak";
 import { morePressUrl, pressInfo, pressNews, pressQuotes } from "@/content/press";
+import { servicedLocationIncluded, servicedLocationPages } from "@/content/serviced-living";
+import { workingLocationPages } from "@/content/working";
+import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import config from "../payload.config";
 
 const payload = await getPayload({ config });
 const publicDir = path.resolve(process.cwd(), "public");
 
 /**
- * Uploads an image from public/ to the Media library (once), and returns its id. A fine-tuned crop
- * ("50% 30%") becomes the photo's focal point.
+ * Uploads an image from public/ to the Media library (once), and returns its id. Uploads are
+ * matched by the file they came from (file names repeat across folders); ones seeded before that
+ * was recorded, by file name and alt text. A fine-tuned crop ("50% 30%") becomes the photo's focal
+ * point.
  */
 async function media(src: string, alt: string, position?: string): Promise<number> {
-  const filename = path.basename(src);
-  const existing = await payload.find({ collection: "media", where: { filename: { equals: filename } }, limit: 1 });
-  if (existing.docs[0]) return existing.docs[0].id;
+  const bySource = await payload.find({ collection: "media", where: { source: { equals: src } }, limit: 1 });
+  if (bySource.docs[0]) return bySource.docs[0].id;
+  const legacy = await payload.find({
+    collection: "media",
+    where: { and: [{ filename: { equals: path.basename(src) } }, { alt: { equals: alt } }, { source: { exists: false } }] },
+    limit: 1,
+  });
+  if (legacy.docs[0]) {
+    await payload.update({ collection: "media", id: legacy.docs[0].id, data: { source: src } });
+    return legacy.docs[0].id;
+  }
   const focal = position?.match(/^(\d+)% (\d+)%$/);
-  const data = focal ? { alt, focalX: Number(focal[1]), focalY: Number(focal[2]) } : { alt };
+  const data = { alt, source: src, ...(focal && { focalX: Number(focal[1]), focalY: Number(focal[2]) }) };
   const doc = await payload.create({ collection: "media", data, filePath: path.join(publicDir, src) });
   return doc.id;
 }
@@ -48,16 +62,16 @@ const faqItems = (items: FaqItem[]) =>
   items.map((item) => ({ question: item.question, answer: [item.answer].flat().join("\n\n"), numbered: item.numbered ?? false }));
 const socialLinks = { blockType: "socialLinks", heading: "Connect with us", intro: "Keep up with what we are up to on social media, and get the chance to get promotions!" };
 
-/** Creates a page unless one with this slug exists. */
-async function seedPage(slug: string, title: string, layout: object[]) {
+/** Creates a page unless one with this slug exists (its layout, and so its uploads, only then). */
+async function seedPage(slug: string, title: string, layout: () => Promise<object[]>) {
   const existing = await payload.find({ collection: "pages", where: { slug: { equals: slug } }, limit: 1 });
   if (existing.docs[0]) return console.log(`/${slug}: already exists, left as it is`);
-  await payload.create({ collection: "pages", data: { title, slug, layout } as never });
+  await payload.create({ collection: "pages", data: { title, slug, layout: await layout() } as never });
   console.log(`/${slug}: created`);
 }
 
 const f = "/images/foundation";
-const foundation = [
+const foundation = async () => [
   {
     blockType: "hero" as const,
     title: "The Collective Foundation",
@@ -122,7 +136,7 @@ const foundation = [
   },
 ];
 
-const mission = [
+const mission = async () => [
   {
     blockType: "hero",
     title: "Meet The Collective",
@@ -176,7 +190,7 @@ const mission = [
   socialLinks,
 ];
 
-const home = [
+const home = async () => [
   {
     blockType: "hero",
     eyebrow: "The Collective",
@@ -204,7 +218,7 @@ const home = [
   { blockType: "promoCards", cards: await promoCards(oldOakPromos) },
 ];
 
-const careers = [
+const careers = async () => [
   {
     blockType: "hero",
     title: "Help us build a better world, together",
@@ -229,7 +243,7 @@ const careers = [
   { blockType: "openPositions", heading: "Open positions" },
 ];
 
-const press = [
+const press = async () => [
   {
     blockType: "hero",
     title: "Press",
@@ -250,7 +264,7 @@ const press = [
   },
 ];
 
-const faq = [
+const faq = async () => [
   {
     blockType: "hero",
     title: "Frequently asked questions",
@@ -268,6 +282,39 @@ const faq = [
   },
   { blockType: "promoCards", cards: await promoCards(oldOakPromos) },
 ];
+
+/** Creates a location unless one of this type and slug exists. */
+async function seedLocation(type: "working" | "serviced" | "venue", location: LocationDetails, included: FeatureGroup[] = []) {
+  const existing = await payload.find({ collection: "locations", where: { and: [{ type: { equals: type } }, { slug: { equals: location.slug } }] }, limit: 1 });
+  if (existing.docs[0]) return console.log(`${type} ${location.slug}: already exists, left as it is`);
+  const iconItems = (items: { icon: unknown; label: string }[]) => items.map((item) => ({ label: item.label, icon: iconName(item.icon) }));
+  await payload.create({
+    collection: "locations",
+    data: {
+      type,
+      name: location.name,
+      slug: location.slug,
+      area: location.area,
+      postcode: location.postcode,
+      fromPrice: location.fromPrice,
+      image: await photo(location.image),
+      features: iconItems(location.features),
+      intro: location.intro.join("\n\n"),
+      gallery: await Promise.all(location.gallery.map(async (g) => ({ image: await media(g.src ?? g.thumb, g.alt, g.position), name: g.alt }))),
+      prices: location.prices,
+      included: included.map((group) => ({ label: group.label, items: iconItems(group.items) })),
+      address: location.address,
+      directionsIntro: location.directionsIntro,
+      travelModes: location.travelModes.map((mode) => ({ ...mode, steps: mode.steps.join("\n") })),
+    } as never,
+  });
+  console.log(`${type} ${location.slug}: created`);
+}
+
+// In order: cards follow the order locations were created in (then drag to reorder in the admin)
+for (const location of workingLocationPages) await seedLocation("working", location);
+for (const location of servicedLocationPages) await seedLocation("serviced", location, servicedLocationIncluded[location.slug]);
+for (const venue of venues) await seedLocation("venue", venue, venue.venueFacilities);
 
 await seedPage("home", "Home", home);
 await seedPage("foundation", "Foundation", foundation);

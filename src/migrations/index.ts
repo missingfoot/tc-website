@@ -2,6 +2,8 @@ import * as migration_20261006_182330_initial from './20261006_182330_initial';
 import * as migration_20261006_183230_r2_storage from './20261006_183230_r2_storage';
 import * as migration_20261006_210304_mission_blocks from './20261006_210304_mission_blocks';
 import * as migration_20261006_213423_more_pages from './20261006_213423_more_pages';
+import * as migration_20261006_214846_locations from './20261006_214846_locations';
+import * as migration_20261006_215011_gallery_names from './20261006_215011_gallery_names';
 
 export const migrations = [
   {
@@ -22,6 +24,16 @@ export const migrations = [
   {
     up: migration_20261006_213423_more_pages.up,
     down: migration_20261006_213423_more_pages.down,
-    name: '20261006_213423_more_pages'
+    name: '20261006_213423_more_pages',
+  },
+  {
+    up: migration_20261006_214846_locations.up,
+    down: migration_20261006_214846_locations.down,
+    name: '20261006_214846_locations',
+  },
+  {
+    up: migration_20261006_215011_gallery_names.up,
+    down: migration_20261006_215011_gallery_names.down,
+    name: '20261006_215011_gallery_names'
   },
 ];

@@ -28,7 +28,8 @@ npm run dev                            # then open http://localhost:3000/admin
 | Payload config (collections, database) | `src/payload.config.ts` |
 | Database migrations | `src/migrations/` |
 | Page sections editors can add | `src/payload/blocks.ts`, one per section component |
-| Pages and Media collections | `src/payload/collections/` |
+| Pages, Locations and Media collections | `src/payload/collections/` |
+| Location pages (`/working/…`, `/serviced-living/…`, `/event-spaces/…`) | their `[slug]` routes, reading Locations |
 | Blocks → section components | `src/components/payload/RenderBlocks.tsx` |
 | Payload pages at `/<slug>` | `src/app/(frontend)/(site)/[slug]/page.tsx` |
 | Admin and API routes (generated) | `src/app/(payload)/` |
@@ -46,6 +47,10 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Framing photos**: click the photo's focal point in the Media library; crops keep it in view. A
   section's own "position" setting, where it has one, wins.
 - Pages written in code (e.g. `/co-living`) win over a Payload page with the same slug.
+- **Locations** (working spaces, serviced living houses, event venues) are a collection: each one's
+  card and its own page come from the same record, so a price or photo changes in one place. Drag
+  to reorder them in the list. What every page of a type shares (e.g. the standard "What's
+  included" for working spaces, the promos) is in its `[slug]` route.
 - **Some sections keep part of their content in code**: Open positions lists the job pages
   (`content/careers.ts`), and Media kit's downloads are `content/press.ts`; editors set their headings.
 - **Moving a page from code into Payload**: add any missing section types, add the page to

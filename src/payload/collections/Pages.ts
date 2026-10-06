@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { revalidatePath } from "next/cache";
 import { pageBlocks } from "../blocks";
+import { slugField } from "../fields/shared";
 
 /** Refreshes a page's pre-built HTML after an edit, so the change shows straight away. */
 function refresh(slug?: string | null) {
@@ -23,15 +24,7 @@ export const Pages: CollectionConfig = {
   access: { read: () => true },
   fields: [
     { name: "title", type: "text", required: true, admin: { description: "The browser tab title, and the page's name here." } },
-    {
-      name: "slug",
-      type: "text",
-      required: true,
-      unique: true,
-      index: true,
-      admin: { position: "sidebar", description: "The page's address: /foundation for “foundation”. Lowercase letters, numbers and hyphens." },
-      validate: (value: unknown) => (typeof value === "string" && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value)) || "Use lowercase letters, numbers and hyphens, e.g. our-story",
-    },
+    slugField("The page's address: /foundation for “foundation”. Lowercase letters, numbers and hyphens."),
     // Sections start collapsed, so a page reads as a list of its sections (headers show each one's heading)
     { name: "layout", label: "Sections", type: "blocks", blocks: pageBlocks, required: true, admin: { initCollapsed: true } },
   ],
