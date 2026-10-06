@@ -2,5 +2,12 @@
 # code ahead of its schema. Migrations use the direct (unpooled) address: Neon's pooler can't
 # hold the session a migration needs. Deploy previews don't migrate: they'd change the live
 # database before their code is merged.
+# Turbopack's build cache (kept by Netlify between builds, for faster builds) records the
+# environment variables the build read, values included, so Netlify's secrets scan would fail the
+# deploy on it. The cache is never published, and the scan still covers everything that is
+# (functions and static files).
+[build.environment]
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache/**,.next/cache/**"
+
 [context.production]
   command = "DATABASE_URI=$DATABASE_URI_UNPOOLED npx payload migrate && npm run build"
