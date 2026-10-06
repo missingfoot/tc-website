@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 import createMDX from "@next/mdx";
+import { withPayload } from "@payloadcms/next/withPayload";
 
 const nextConfig: NextConfig = {
+  // The app has two root layouts (the site's and Payload's admin), so unknown URLs get their 404
+  // from app/global-not-found.tsx
+  experimental: { globalNotFound: true },
   // Let phones on the local network use the dev server (live reload, dev assets), e.g. testing
   // on an iPhone at http://192.168.1.x:3000. Dev only; has no effect on production builds.
   allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
@@ -36,4 +40,5 @@ const nextConfig: NextConfig = {
 // Blog posts are MDX files in src/content/blog, imported by the blog pages (see mdx-components.tsx)
 const withMDX = createMDX();
 
-export default withMDX(nextConfig);
+// Payload's admin and API live in app/(payload)
+export default withPayload(withMDX(nextConfig));

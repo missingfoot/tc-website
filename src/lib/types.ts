@@ -39,6 +39,8 @@ export type CircleImage = {
   src: string;
   alt: string;
   position?: ImagePosition;
+  /** Blurred preview to show while it loads, for images not in blur-placeholders.json (e.g. CMS uploads). */
+  blur?: string;
 };
 
 

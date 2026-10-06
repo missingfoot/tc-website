@@ -70,7 +70,7 @@ console.log(`LabsHero: width={${info.width}} height={${info.height}}, left-[calc
 
 // Reveal keyframes: a soft mask edge that sits at the rocket and faces its direction of travel,
 // read from the rocket-launch keyframes (which already follow the curve with the easing baked in)
-const css = readFileSync("src/app/globals.css", "utf8");
+const css = readFileSync("src/app/(frontend)/globals.css", "utf8");
 const launch = css.match(/@keyframes rocket-launch \{([\s\S]*?)\n\}/)[1];
 const frames = [...launch.matchAll(/(\d+)% \{ transform: (?:translate\((-?\d+)px, (-?\d+)px\) rotate\(([\d.]+)deg\)|none)/g)];
 console.log("@keyframes rocket-trail {");

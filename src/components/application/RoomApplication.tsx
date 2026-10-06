@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useModalDialog } from "@/hooks/useModalDialog";
 import Button from "@/components/ui/Button";
@@ -121,9 +122,9 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
               <form onSubmit={complete(1)} className="flex flex-col gap-8">
                 <p className={text.body}>
                   We ask for this as part of our affordability check, and we keep it safe. Read more in our{" "}
-                  <a href="/privacy" className="font-medium text-ink underline underline-offset-4">
+                  <Link href="/privacy" className="font-medium text-ink underline underline-offset-4">
                     privacy policy
-                  </a>
+                  </Link>
                   .
                 </p>
                 <DateOfBirth defaultValue={personal.day ? { day: personal.day, month: personal.month, year: personal.year } : undefined} />
@@ -185,9 +186,9 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
                       <dt className="font-medium text-ink">If you cancel</dt>
                       <dd className={`mt-1 ${text.body}`}>
                         The holding deposit isn’t refundable if you cancel before signing your membership agreement. See our{" "}
-                        <a href="/terms" className="font-medium text-ink underline underline-offset-4">
+                        <Link href="/terms" className="font-medium text-ink underline underline-offset-4">
                           terms &amp; conditions
-                        </a>
+                        </Link>
                         .
                       </dd>
                     </div>
@@ -303,15 +304,15 @@ function PaymentForm({ total, onSubmit }: { total: number; onSubmit: (e: FormEve
       <div className="flex flex-col gap-4">
         <Checkbox name="terms" required>
           I have read and agree to the{" "}
-          <a href="/terms" className="font-medium underline underline-offset-4">
+          <Link href="/terms" className="font-medium underline underline-offset-4">
             terms &amp; conditions
-          </a>
+          </Link>
         </Checkbox>
         <p className={text.body}>
           By completing your application you agree to our{" "}
-          <a href="/privacy" className="font-medium text-ink underline underline-offset-4">
+          <Link href="/privacy" className="font-medium text-ink underline underline-offset-4">
             privacy policy
-          </a>
+          </Link>
           .
         </p>
       </div>
