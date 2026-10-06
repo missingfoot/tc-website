@@ -1,4 +1,5 @@
 import { jobs } from "@/content/careers";
+import { blogCategories, postSlugs } from "@/lib/blog";
 import { venues } from "@/content/events";
 import { oldOakRoomDetails } from "@/content/old-oak";
 import { servicedLocationPages } from "@/content/serviced-living";
@@ -31,6 +32,10 @@ export const pageTitles: Record<string, string> = {
   "/refer-a-friend/terms": "Referral terms",
   "/foundation": "Foundation",
   "/labs": "Labs",
+  "/blog": "Blog",
+  ...Object.fromEntries(Object.entries(blogCategories).map(([slug, label]) => [`/blog/category/${slug}`, label])),
+  // Post titles are too long for the bar
+  ...Object.fromEntries(postSlugs().map((slug) => [`/blog/${slug}`, "Blog"])),
   "/privacy": "Privacy",
   "/terms": "Terms",
   "/cookies": "Cookies",

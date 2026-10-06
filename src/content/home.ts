@@ -25,13 +25,13 @@ export const homeWhatsNew: LinkCard[] = [
     title: "News",
     text: "Read the latest news about the community, our projects and the The Collective company in general.",
     image: { src: `${home}/news.jpg`, alt: "A cyclist on the canal path beside Old Oak" },
-    cta: { label: "Read the latest news", href: "/blog" },
+    cta: { label: "Read the latest news", href: "/blog/category/news" },
   },
   {
     title: "Community",
     text: "Find out more about our community and meet some of our members where they share their experiences living with us",
     image: { src: `${home}/community.jpg`, alt: "Residents playing games in the games room" },
-    cta: { label: "Explore the community", href: "#" },
+    cta: { label: "Explore the community", href: "/blog/category/community" },
   },
   {
     title: "Innovation",
@@ -43,6 +43,6 @@ export const homeWhatsNew: LinkCard[] = [
     title: "City Life",
     text: "New to London? We give you some great tips and insights into living in London and some best practices",
     image: { src: `${home}/city-life.jpg`, alt: "Aerial view of London and the Thames" },
-    cta: { label: "See our guide to London", href: "#" },
+    cta: { label: "See our guide to London", href: "/blog/category/city-living" },
   },
 ];

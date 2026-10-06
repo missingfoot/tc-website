@@ -10,6 +10,7 @@ Next.js (App Router) + Tailwind v4 rebuild of The Collective site from Figma (14
 - `src/components/layout/` — site-wide pieces (Nav, StickyHeader, Logo)
 - `src/components/sections/` — full-width page blocks that take content as props
 - `src/content/` — per-page content/data; `src/config/` — site config (nav links)
+- Blog: one MDX file per post in `src/content/blog/` (an exported `metadata` object, then the post in Markdown; `<Figure>` for captioned images, `<Embed>` for videos and players), images in `public/images/blog/<slug>/` (an exception to the image rules below: WebP 90, capped at 2400px, 2× the widest a blog image is shown, as there are hundreds). `npm run blur` records blog images' sizes and previews in `src/content/blog/images.json`, kept out of the shared placeholders file. Posts were imported from the old WordPress blog by `scripts/import-blog.mjs` (one-off: rerunning overwrites edits).
 - Colours are theme tokens in `src/app/globals.css` (`ink`, `stone`, `cream`, `cream-dark`, `ash`)
 - Large headings (hero titles, section and intro headings, card titles) use `leading-heading` (1.1, a theme token); body copy uses `leading-relaxed`.
 - Font: Circular Std, self-hosted from `src/app/fonts/` via `next/font/local`. Only weights 450 (Book), 500, 700 and 900 exist, so use `font-normal` (renders Book 450), `font-medium`, `font-bold`, `font-black`, never `font-semibold`.

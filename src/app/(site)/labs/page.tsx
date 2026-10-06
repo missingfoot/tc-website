@@ -41,7 +41,7 @@ export default function Labs() {
       <ProductShowcase product={colab} side="right" />
       <ProductShowcase tone="cream" product={mobileApp} />
 
-      <ResearchSection {...research} cta={{ label: "Read more on our blog", href: "/blog" }} />
+      <ResearchSection {...research} cta={{ label: "Read more on our blog", href: "/blog/category/innovation" }} />
 
       <SocialLinks
         heading="Connect with us"

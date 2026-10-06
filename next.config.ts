@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 const nextConfig: NextConfig = {
   // Let phones on the local network use the dev server (live reload, dev assets), e.g. testing
@@ -11,4 +12,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Blog posts are MDX files in src/content/blog, imported by the blog pages (see mdx-components.tsx)
+const withMDX = createMDX();
+
+export default withMDX(nextConfig);
