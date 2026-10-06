@@ -173,6 +173,136 @@ export interface Page {
       }
     | {
         heading: string;
+        intro?: string | null;
+        items?:
+          | {
+              /**
+               * Optional: shown beside the item.
+               */
+              icon?:
+                | (
+                    | 'Api'
+                    | 'Automate'
+                    | 'BarKitchen'
+                    | 'Basin'
+                    | 'Bed'
+                    | 'Bike'
+                    | 'Bill'
+                    | 'Bus'
+                    | 'Calendar'
+                    | 'CalendarCheck'
+                    | 'Car'
+                    | 'Cctv'
+                    | 'Check'
+                    | 'Chef'
+                    | 'Cocktail'
+                    | 'Community'
+                    | 'Crowd'
+                    | 'Database'
+                    | 'DealFlow'
+                    | 'Desk'
+                    | 'Dining'
+                    | 'DoorEntry'
+                    | 'Dumbbell'
+                    | 'FeasibilityModel'
+                    | 'FruitBowl'
+                    | 'Groceries'
+                    | 'Guard'
+                    | 'Hack'
+                    | 'HandsHeart'
+                    | 'Handshake'
+                    | 'Help'
+                    | 'Hob'
+                    | 'Icon360'
+                    | 'Info'
+                    | 'IntegrateData'
+                    | 'Integrations'
+                    | 'Lion'
+                    | 'LocationPin'
+                    | 'Lock'
+                    | 'Lounge'
+                    | 'Mail'
+                    | 'ManageMembership'
+                    | 'MeetingTable'
+                    | 'MemberSupport'
+                    | 'Membership'
+                    | 'Microwave'
+                    | 'Outdoor'
+                    | 'Oven'
+                    | 'Padlock'
+                    | 'People'
+                    | 'Plane'
+                    | 'Play'
+                    | 'PrivateOffice'
+                    | 'QuoteMark'
+                    | 'Relationships'
+                    | 'Reporting'
+                    | 'Restaurant'
+                    | 'RestaurantsNearby'
+                    | 'RoomAllocation'
+                    | 'RoomPricing'
+                    | 'Roundel'
+                    | 'Router'
+                    | 'Scales'
+                    | 'Shelves'
+                    | 'SmartHome'
+                    | 'SocialNetwork'
+                    | 'Sofa'
+                    | 'SprayBottle'
+                    | 'Sprout'
+                    | 'Star'
+                    | 'SunCloud'
+                    | 'TapeMeasure'
+                    | 'TeamChat'
+                    | 'TrackMarket'
+                    | 'Train'
+                    | 'WashingMachine'
+                    | 'Workshop'
+                    | 'Wrench'
+                  )
+                | null;
+              title: string;
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'checklist';
+      }
+    | {
+        heading?: string | null;
+        intro?: string | null;
+        cards?:
+          | {
+              title: string;
+              text: string;
+              image: number | Media;
+              /**
+               * Which edge of the photo stays in view when it's cropped (centred if empty).
+               */
+              position?: ('top' | 'bottom' | 'left' | 'right') | null;
+              ctaLabel: string;
+              ctaHref: string;
+              id?: string | null;
+            }[]
+          | null;
+        cardStyle?: ('dark' | 'light') | null;
+        imageShape?: ('wide' | 'tall') | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'linkCards';
+      }
+    | {
+        heading: string;
         /**
          * Leave a blank line between paragraphs.
          */
@@ -200,6 +330,51 @@ export interface Page {
         id?: string | null;
         blockName?: string | null;
         blockType: 'collageSplit';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        quotes?:
+          | {
+              quote: string;
+              publication: string;
+              /**
+               * Optional: the publication's logo, ideally an SVG. Without one, its name is shown.
+               */
+              logo?: (number | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'pressQuotes';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        people?:
+          | {
+              name: string;
+              role: string;
+              photo: number | Media;
+              /**
+               * Which edge of the photo stays in view when it's cropped (centred if empty).
+               */
+              position?: ('top' | 'bottom' | 'left' | 'right') | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'teamGrid';
       }
     | {
         cards?:
@@ -398,6 +573,45 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        checklist?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              items?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        linkCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    image?: T;
+                    position?: T;
+                    ctaLabel?: T;
+                    ctaHref?: T;
+                    id?: T;
+                  };
+              cardStyle?: T;
+              imageShape?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
         collageSplit?:
           | T
           | {
@@ -416,6 +630,41 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     label?: T;
                     href?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        pressQuotes?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              quotes?:
+                | T
+                | {
+                    quote?: T;
+                    publication?: T;
+                    logo?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        teamGrid?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              people?:
+                | T
+                | {
+                    name?: T;
+                    role?: T;
+                    photo?: T;
+                    position?: T;
+                    id?: T;
                   };
               tone?: T;
               id?: T;

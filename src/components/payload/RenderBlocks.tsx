@@ -1,9 +1,14 @@
 import type { ReactNode } from "react";
+import * as icons from "@/components/icons";
+import Checklist from "@/components/sections/Checklist";
 import CollageSplit from "@/components/sections/CollageSplit";
 import Hero from "@/components/sections/Hero";
 import Intro from "@/components/sections/Intro";
+import LinkCards from "@/components/sections/LinkCards";
+import PressQuotes from "@/components/sections/PressQuotes";
 import PromoCards from "@/components/sections/PromoCards";
 import SocialLinks from "@/components/sections/SocialLinks";
+import TeamGrid from "@/components/sections/TeamGrid";
 import { socialLinks } from "@/content/old-oak";
 import { mediaImage, paragraphs } from "@/lib/payload";
 import type { Page } from "@/payload-types";
@@ -41,6 +46,28 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             {asParagraphs(block.body)}
           </Intro>
         );
+      case "checklist":
+        return (
+          <Checklist
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            items={(block.items ?? []).map((item) => ({ icon: item.icon ? icons[item.icon] : undefined, title: item.title, text: item.text }))}
+          />
+        );
+      case "linkCards":
+        return (
+          <LinkCards
+            key={key}
+            heading={block.heading ?? undefined}
+            intro={block.intro ?? undefined}
+            cardStyle={block.cardStyle ?? "dark"}
+            imageShape={block.imageShape ?? "wide"}
+            tone={block.tone ?? "white"}
+            cards={(block.cards ?? []).map((card) => ({ title: card.title, text: card.text, image: mediaImage(card.image, card.position), cta: { label: card.ctaLabel, href: card.ctaHref } }))}
+          />
+        );
       case "collageSplit":
         return (
           <CollageSplit
@@ -53,6 +80,26 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
           >
             {asParagraphs(block.body)}
           </CollageSplit>
+        );
+      case "pressQuotes":
+        return (
+          <PressQuotes
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            quotes={(block.quotes ?? []).map((q) => ({ quote: q.quote, publication: q.publication, logo: mediaImage(q.logo).src || undefined }))}
+          />
+        );
+      case "teamGrid":
+        return (
+          <TeamGrid
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            people={(block.people ?? []).map((person) => ({ name: person.name, role: person.role, image: mediaImage(person.photo, person.position) }))}
+          />
         );
       case "promoCards":
         return (

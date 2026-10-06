@@ -1,25 +1,46 @@
-// Seeds Payload with the Foundation page, as it was built in code, so the proof of concept starts
-// with real content. Safe to rerun: images already uploaded are reused, and the page is replaced.
+// Seeds Payload with the pages moved out of code (Foundation, Mission), as they were built, so the
+// CMS starts with real content. Safe to rerun, including on production: images already uploaded
+// are reused, and a page that already exists is left alone, so edits made in the admin are kept.
 //
 //   npx payload run src/payload/seed.ts
 import path from "node:path";
 import { getPayload } from "payload";
+import * as icons from "@/components/icons";
+import type { CircleImage } from "@/lib/types";
+import { coLivingPress } from "@/content/co-living";
+import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
 import config from "../payload.config";
 
 const payload = await getPayload({ config });
 const publicDir = path.resolve(process.cwd(), "public");
 
-/** Uploads an image from public/ to the Media library (once), and returns its id. */
-async function media(src: string, alt: string): Promise<number> {
+/**
+ * Uploads an image from public/ to the Media library (once), and returns its id. A fine-tuned crop
+ * ("50% 30%") becomes the photo's focal point.
+ */
+async function media(src: string, alt: string, position?: string): Promise<number> {
   const filename = path.basename(src);
   const existing = await payload.find({ collection: "media", where: { filename: { equals: filename } }, limit: 1 });
   if (existing.docs[0]) return existing.docs[0].id;
-  const doc = await payload.create({ collection: "media", data: { alt }, filePath: path.join(publicDir, src) });
+  const focal = position?.match(/^(\d+)% (\d+)%$/);
+  const data = focal ? { alt, focalX: Number(focal[1]), focalY: Number(focal[2]) } : { alt };
+  const doc = await payload.create({ collection: "media", data, filePath: path.join(publicDir, src) });
   return doc.id;
 }
 
+const photo = (image: CircleImage) => media(image.src, image.alt, image.position);
+const iconName = (icon: unknown) => Object.entries(icons).find(([, component]) => component === icon)?.[0] as keyof typeof icons | undefined;
+
+/** Creates a page unless one with this slug exists. */
+async function seedPage(slug: string, title: string, layout: object[]) {
+  const existing = await payload.find({ collection: "pages", where: { slug: { equals: slug } }, limit: 1 });
+  if (existing.docs[0]) return console.log(`/${slug}: already exists, left as it is`);
+  await payload.create({ collection: "pages", data: { title, slug, layout } as never });
+  console.log(`/${slug}: created`);
+}
+
 const f = "/images/foundation";
-const layout = [
+const foundation = [
   {
     blockType: "hero" as const,
     title: "The Collective Foundation",
@@ -84,10 +105,65 @@ const layout = [
   },
 ];
 
-const existing = await payload.find({ collection: "pages", where: { slug: { equals: "foundation" } }, limit: 1 });
-if (existing.docs[0]) await payload.update({ collection: "pages", id: existing.docs[0].id, data: { title: "Foundation", layout } });
-else await payload.create({ collection: "pages", data: { title: "Foundation", slug: "foundation", layout } });
+const mission = [
+  {
+    blockType: "hero",
+    title: "Meet The Collective",
+    subtitle: "Our mission is simple: to build a world that’s more alive, more together and more collaborative.",
+    image: await media("/images/mission/hero-reception.jpg", "A member and one of our team chatting at the front desk"),
+  },
+  {
+    blockType: "intro",
+    heading: "We believe people are most alive when they are together",
+    layout: "stacked",
+    body: "We create better places for people to live, work and play. Our homes and workspaces are designed to inspire and bring people together, unlocking a new lifestyle for the curious and ambitious. We’re fiercely passionate about creating happy, inspired communities who think and live big. Our members live in beautifully designed private spaces and share awesome amenities: think cinemas, gyms, spas, co-working spaces, bars and restaurants.",
+  },
+  {
+    blockType: "checklist",
+    heading: "Our values",
+    tone: "cream",
+    items: missionValues.map((item) => ({ icon: iconName(item.icon), title: item.title, text: item.text })),
+  },
+  {
+    blockType: "linkCards",
+    heading: "What we do",
+    intro: "We create places for people to live, work and play, designed to help people live happier, fuller lives, learning and growing as part of an engaged community.",
+    cardStyle: "dark",
+    cards: await Promise.all(missionProducts.map(async (card) => ({ title: card.title, text: card.text, image: await photo(card.image), ctaLabel: card.cta.label, ctaHref: card.cta.href }))),
+  },
+  {
+    blockType: "collageSplit",
+    heading: "Together, we’ve got this",
+    tone: "cream",
+    body: [
+      "We’re a young team who want to change the world for our generation and beyond. Our culture is rooted in helping one another grow, because getting where we want to be tomorrow comes down to what we do today.",
+      "We are fearless, collaborative and caring, building each other up so we can build great things.",
+    ].join("\n\n"),
+    images: { main: await photo(missionTeamImages.main), top: await photo(missionTeamImages.top), bottom: await photo(missionTeamImages.bottom) },
+  },
+  {
+    blockType: "pressQuotes",
+    heading: "The Collective in the press",
+    quotes: await Promise.all(
+      coLivingPress.map(async (q) => ({ quote: q.quote, publication: q.publication, logo: q.logo ? await media(q.logo, `${q.publication} logo`) : undefined })),
+    ),
+  },
+  {
+    blockType: "teamGrid",
+    heading: "Team leaders",
+    tone: "cream",
+    people: await Promise.all(missionLeaders.map(async (person) => ({ name: person.name, role: person.role, photo: await photo(person.image) }))),
+  },
+  {
+    blockType: "promoCards",
+    cards: await Promise.all(missionPromos.map(async (card) => ({ heading: card.heading, image: await photo(card.image), ctaLabel: card.cta.label, ctaHref: card.cta.href }))),
+  },
+  { blockType: "socialLinks", heading: "Connect with us", intro: "Keep up with what we are up to on social media, and get the chance to get promotions!" },
+];
+
+await seedPage("foundation", "Foundation", foundation);
+await seedPage("mission", "Mission", mission);
 
 const images = await payload.count({ collection: "media" });
-console.log(`Seeded the Foundation page (${images.totalDocs} images in the Media library).`);
+console.log(`${images.totalDocs} images in the Media library.`);
 process.exit(0);

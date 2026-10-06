@@ -22,10 +22,15 @@ export async function getPageSlugs(): Promise<string[]> {
   return docs.map((doc) => doc.slug);
 }
 
-/** An uploaded image as the site's image shape. Its url is the file's public address in R2. */
+/**
+ * An uploaded image as the site's image shape. Its url is the file's public address in R2. A crop
+ * is framed by the section's own position if it has one, otherwise by the focal point set on the
+ * photo in the Media library.
+ */
 export function mediaImage(media: number | Media | null | undefined, position?: string | null): CircleImage {
   if (!media || typeof media === "number") return { src: "", alt: "" };
-  return { src: media.url ?? "", alt: media.alt, blur: media.blur ?? undefined, position: (position ?? undefined) as CircleImage["position"] };
+  const focalPoint = media.focalX != null && media.focalY != null ? `${media.focalX}% ${media.focalY}%` : undefined;
+  return { src: media.url ?? "", alt: media.alt, blur: media.blur ?? undefined, position: position ?? focalPoint };
 }
 
 /** Body text as paragraphs: editors separate them with a blank line. */

@@ -1,4 +1,5 @@
 import type { Block, Field } from "payload";
+import * as icons from "@/components/icons";
 
 // Page blocks: one per section component, with the same content its props take. Pages are a list
 // of these, so editors pick, order and fill in sections while the design stays in code.
@@ -129,4 +130,110 @@ export const SocialLinksBlock: Block = {
   ],
 };
 
-export const pageBlocks = [HeroBlock, IntroBlock, CollageSplitBlock, PromoCardsBlock, SocialLinksBlock];
+// Icons editors can put beside a checklist item: everything in the icon set except interface
+// controls and brand logos, which mean something else on the page
+const notForContent = ["ArrowLeft", "ArrowRight", "Menu", "Close", "ChevronDown", "Download", "Search", "YouTube", "Facebook", "Instagram", "Twitter", "VisaLogo", "MastercardLogo", "AmexLogo"];
+export const checklistIcons = Object.keys(icons).filter((name) => !notForContent.includes(name));
+
+const intro: Field = { name: "intro", type: "textarea" };
+
+export const ChecklistBlock: Block = {
+  slug: "checklist",
+  labels: { singular: "Checklist", plural: "Checklists" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "items",
+      type: "array",
+      minRows: 1,
+      fields: [
+        { name: "icon", type: "select", options: checklistIcons, admin: { description: "Optional: shown beside the item." } },
+        { name: "title", type: "text", required: true },
+        { name: "text", type: "textarea", required: true },
+      ],
+    },
+    tone,
+  ],
+};
+
+export const LinkCardsBlock: Block = {
+  slug: "linkCards",
+  labels: { singular: "Link cards", plural: "Link cards" },
+  fields: [
+    { name: "heading", type: "text" },
+    intro,
+    {
+      name: "cards",
+      type: "array",
+      minRows: 1,
+      fields: [
+        { name: "title", type: "text", required: true },
+        { name: "text", type: "textarea", required: true },
+        image("image"),
+        position,
+        { type: "row", fields: [{ name: "ctaLabel", label: "Button label", type: "text", required: true }, { name: "ctaHref", label: "Button link", type: "text", required: true }] },
+      ],
+    },
+    {
+      type: "row",
+      fields: [
+        { name: "cardStyle", label: "Card colour", type: "select", defaultValue: "dark", options: [{ label: "Dark", value: "dark" }, { label: "Light", value: "light" }] },
+        { name: "imageShape", label: "Photo shape", type: "select", defaultValue: "wide", options: [{ label: "Wide (16:9)", value: "wide" }, { label: "Tall (5:4)", value: "tall" }] },
+      ],
+    },
+    tone,
+  ],
+};
+
+export const PressQuotesBlock: Block = {
+  slug: "pressQuotes",
+  labels: { singular: "Press quotes", plural: "Press quotes" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "quotes",
+      type: "array",
+      minRows: 1,
+      fields: [
+        { name: "quote", type: "textarea", required: true },
+        { name: "publication", type: "text", required: true },
+        { name: "logo", type: "upload", relationTo: "media", admin: { description: "Optional: the publication's logo, ideally an SVG. Without one, its name is shown." } },
+      ],
+    },
+    tone,
+  ],
+};
+
+export const TeamGridBlock: Block = {
+  slug: "teamGrid",
+  labels: { singular: "Team grid", plural: "Team grids" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "people",
+      type: "array",
+      minRows: 1,
+      fields: [
+        { type: "row", fields: [{ name: "name", type: "text", required: true }, { name: "role", type: "text", required: true }] },
+        image("photo"),
+        position,
+      ],
+    },
+    tone,
+  ],
+};
+
+export const pageBlocks = [
+  HeroBlock,
+  IntroBlock,
+  ChecklistBlock,
+  LinkCardsBlock,
+  CollageSplitBlock,
+  PressQuotesBlock,
+  TeamGridBlock,
+  PromoCardsBlock,
+  SocialLinksBlock,
+];
