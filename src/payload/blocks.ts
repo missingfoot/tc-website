@@ -1,5 +1,5 @@
 import type { Block, Field } from "payload";
-import { iconField } from "./fields/shared";
+import { iconField, itemLabel, travelModes } from "./fields/shared";
 
 // Page blocks: one per section component, with the same content its props take. Pages are a list
 // of these, so editors pick, order and fill in sections while the design stays in code.
@@ -41,15 +41,6 @@ const cta: Field = {
     { name: "href", label: "Link", type: "text", admin: { description: "A page (/co-living), a full URL or mailto:…" } },
   ],
 };
-
-/**
- * A list's items start collapsed, each header showing its name (see fields/RowLabels.tsx), or e.g.
- * "Card 03" until it has one.
- */
-const itemLabel = (fallback: string) => ({
-  initCollapsed: true,
-  components: { RowLabel: { path: "/payload/fields/RowLabels#ItemLabel", clientProps: { fallback } } },
-});
 
 // Enquiry forms a button can open instead of linking to a page
 const enquiryKinds = [
@@ -385,6 +376,13 @@ export const GalleryBlock: Block = {
         { name: "name", type: "text", admin: { description: "Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text." } },
       ],
     },
+    {
+      name: "tour",
+      label: "3D tour button",
+      type: "group",
+      admin: { description: "Optional: a “View 3D Tour” button under the photos." },
+      fields: [{ type: "row", fields: [{ name: "label", type: "text", defaultValue: "View 3D Tour" }, { name: "href", label: "Link", type: "text" }] }],
+    },
     { ...tone, defaultValue: "cream" },
   ],
 };
@@ -476,6 +474,70 @@ export const PerkCardsBlock: Block = {
   ],
 };
 
+export const RoomCardsBlock: Block = {
+  slug: "roomCards",
+  labels: { singular: "Room cards", plural: "Room cards" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "rooms",
+      type: "relationship",
+      relationTo: "rooms",
+      hasMany: true,
+      required: true,
+      admin: { description: "Cards for these rooms (/admin → Rooms), in this order. Each links to its own page." },
+    },
+    { name: "ctaLabel", label: "Button label", type: "text", defaultValue: "View Room" },
+    { ...tone, defaultValue: "cream" },
+  ],
+};
+
+export const ReviewsBlock: Block = {
+  slug: "reviews",
+  labels: { singular: "Reviews", plural: "Reviews" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "reviews",
+      type: "array",
+      admin: itemLabel("Review"),
+      minRows: 1,
+      fields: [
+        {
+          type: "row",
+          fields: [
+            { name: "name", type: "text", required: true },
+            { name: "rating", type: "number", required: true, min: 1, max: 5, defaultValue: 5, admin: { description: "Stars, out of 5" } },
+          ],
+        },
+        { name: "photo", type: "upload", relationTo: "media", admin: { description: "Optional: their profile photo. Without one, their initials show." } },
+        { name: "text", type: "textarea", required: true, admin: { description: "Word for word. Leave a blank line between paragraphs." } },
+      ],
+    },
+    tone,
+  ],
+};
+
+export const DirectionsBlock: Block = {
+  slug: "directions",
+  labels: { singular: "Directions", plural: "Directions" },
+  fields: [
+    { name: "heading", type: "text", required: true, defaultValue: "Well connected" },
+    intro,
+    travelModes,
+    {
+      type: "row",
+      fields: [
+        { name: "place", type: "text", required: true, admin: { description: "Names the map for screen readers, e.g. “Old Oak”." } },
+        { name: "mapEmbedUrl", label: "Map embed link", type: "text", required: true, admin: { description: "Google Maps → Share → Embed a map → the src link." } },
+      ],
+    },
+    tone,
+  ],
+};
+
 export const DownloadCardBlock: Block = {
   slug: "downloadCard",
   labels: { singular: "Download card", plural: "Download cards" },
@@ -507,11 +569,14 @@ export const pageBlocks = [
   GalleryBlock,
   FeatureGroupsBlock,
   LocationCardsBlock,
+  RoomCardsBlock,
   LinkCardsBlock,
   CollageSplitBlock,
   TestimonialsBlock,
   PressQuotesBlock,
   TeamGridBlock,
+  ReviewsBlock,
+  DirectionsBlock,
   FaqBlock,
   FaqDirectoryBlock,
   OpenPositionsBlock,

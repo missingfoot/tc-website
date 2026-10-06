@@ -25,7 +25,9 @@ import { bedfordVenues, eventsGallery, oldOakVenues, venues } from "@/content/ev
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
-import { oldOakGallery, oldOakPromos, oldOakTestimonials } from "@/content/old-oak";
+import { oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
+import { oldOakIncluded } from "@/content/included";
+import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakPromos, oldOakReviews, oldOakRoomDetails, oldOakTestimonials } from "@/content/old-oak";
 import { morePressUrl, pressInfo, pressNews, pressQuotes } from "@/content/press";
 import { servicedGallery, servicedIncluded, servicedLocationIncluded, servicedLocationPages, servicedPromos } from "@/content/serviced-living";
 import { workingHowItWorks, workingIncluded, workingLocationPages, workingSpaces } from "@/content/working";
@@ -534,6 +536,111 @@ const coLiving = async () => [
   socialLinks,
 ];
 
+/** Creates a room unless one with this slug exists. */
+async function seedRoom(room: (typeof oldOakRoomDetails)[number]) {
+  const existing = await payload.find({ collection: "rooms", where: { slug: { equals: room.slug } }, limit: 1 });
+  if (existing.docs[0]) return console.log(`room ${room.slug}: already exists, left as it is`);
+  const [first, ...more] = room.photos;
+  await payload.create({
+    collection: "rooms",
+    data: {
+      name: room.name,
+      slug: room.slug,
+      price: room.price,
+      location: room.location,
+      image: await media(first.src ?? first.thumb, first.alt, first.position),
+      features: room.features.map((item) => ({ label: item.label, icon: iconName(item.icon) })),
+      about: room.about.join("\n\n"),
+      photos: await galleryPhotos(more),
+      floorPlan: room.floorPlan ? await photo(room.floorPlan) : undefined,
+      moveIn: room.booking.moveIn,
+      floor: room.booking.floor,
+      periods: room.booking.periods.join("\n"),
+    } as never,
+  });
+  console.log(`room ${room.slug}: created`);
+}
+
+for (const room of oldOakRoomDetails) await seedRoom(room);
+
+const oldOak = async () => [
+  {
+    blockType: "hero",
+    eyebrow: "North London",
+    title: "Old Oak",
+    subtitle: "Live somewhere that's home, and so much more.",
+    image: await media("/images/hero-cover-old-oak.jpg", "The Collective Old Oak lounge"),
+    enquiry: "living",
+  },
+  {
+    blockType: "intro",
+    heading: "Co-living at Old Oak",
+    body: "More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses shared spaces and facilities to create a more fulfilling lifestyle. Home to over 500 people from all walks of life, all our members share a curious mind and a desire to live their life in a more connected way with the people around them.",
+    buttons: "enquiry",
+    enquiry: "living",
+  },
+  {
+    blockType: "gallery",
+    heading: "Explore the spaces",
+    intro: "Co-living is a living experience that's bold, exciting and unique. By combining shared spaces with events and opportunities to connect, collective living provides a platform for you to maximise your potential.",
+    photos: await galleryPhotos(oldOakGallery),
+    // TODO: link target for the 3D tour
+    tour: { label: "View 3D Tour", href: "#" },
+  },
+  {
+    blockType: "collageSplit",
+    heading: "The benefits of co-living",
+    body: [
+      "We know that one of the most daunting things about moving is feeling isolated or alone. Whether you're new to the city, trying to meet new people, starting a business or building your career, co-living at Old Oak helps you to feel part of something bigger. Old Oak is a place fuelled by experiences. Our diverse group of members creates the perfect environment for you to immerse yourself and discover something new every single day.",
+      "Whether it's in your private apartment, or in one of our more quiet shared spaces like the library or spa, Old Oak provides ample space for you to take a bit of much needed time out. The age-old 'work hard, play harder' is realized at Old Oak. With a games room, cinema room, multiple restaurants and bars, and a roof garden, there's more than enough to keep even the most active busy.",
+    ].join("\n\n"),
+    images: { main: await photo(oldOakBenefitsImages.main), top: await photo(oldOakBenefitsImages.top), bottom: await photo(oldOakBenefitsImages.bottom) },
+  },
+  { blockType: "promoCards", cards: await promoCards(oldOakCommunityCards) },
+  {
+    blockType: "roomCards",
+    heading: "Explore the rooms",
+    intro: "Each room in Old Oak has unique co-living feel that is designed to make you feel at home but not keep you in your room where you are encouraged to explore and make connections with other members.",
+    rooms: (await payload.find({ collection: "rooms", sort: "_order", pagination: false, depth: 0 })).docs.map((room) => room.id),
+  },
+  {
+    blockType: "featureGroups",
+    heading: "What’s included",
+    intro: "More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses shared spaces and facilities to create a more fulfilling lifestyle.",
+    groups: featureGroups(oldOakIncluded),
+  },
+  {
+    blockType: "testimonials",
+    heading: "Residents love our spaces",
+    intro: "More than just bricks and mortar, The Collective Old Oak is a vibrant community that uses shared spaces and facilities to create a more fulfilling lifestyle.",
+    tone: "cream",
+    people: await testimonials(oldOakTestimonials),
+  },
+  {
+    blockType: "reviews",
+    heading: "Rated 5 stars",
+    intro: "What residents and guests say about staying with us.",
+    reviews: await Promise.all(
+      oldOakReviews.map(async (review) => ({
+        name: review.name,
+        rating: review.rating,
+        photo: review.photo ? await media(review.photo, review.name) : undefined,
+        text: review.text.join("\n\n"),
+      })),
+    ),
+  },
+  {
+    blockType: "directions",
+    heading: "Well connected",
+    intro: "Situated on the banks of the canal in Willesden Junction, Old Oak is perfectly positioned to access London, with both tube and rail connections close by.",
+    travelModes: oldOakTravelModes.map((mode) => ({ ...mode, steps: mode.steps.join("\n") })),
+    mapEmbedUrl: oldOakMapEmbed,
+    place: "Old Oak",
+  },
+  socialLinks,
+  { blockType: "promoCards", cards: await promoCards(oldOakPromos) },
+];
+
 await seedPage("home", "Home", home);
 await seedPage("foundation", "Foundation", foundation);
 await seedPage("mission", "Mission", mission);
@@ -544,6 +651,7 @@ await seedPage("working", "Working", working, { floatingEnquiry: "working" });
 await seedPage("serviced-living", "Serviced Living", servicedLiving, { floatingEnquiry: "serviced" });
 await seedPage("event-spaces", "Event Spaces", eventSpaces, { floatingEnquiry: "events" });
 await seedPage("co-living", "Co-Living", coLiving);
+await seedPage("old-oak", "Old Oak", oldOak, { floatingEnquiry: "living" });
 
 const images = await payload.count({ collection: "media" });
 console.log(`${images.totalDocs} images in the Media library.`);

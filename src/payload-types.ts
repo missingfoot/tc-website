@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     pages: Page;
     locations: Location;
+    rooms: Room;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -80,6 +81,7 @@ export interface Config {
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
+    rooms: RoomsSelect<false> | RoomsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -324,6 +326,13 @@ export interface Page {
             }[]
           | null;
         /**
+         * Optional: a “View 3D Tour” button under the photos.
+         */
+        tour?: {
+          label?: string | null;
+          href?: string | null;
+        };
+        /**
          * Background colour. Alternate them down the page.
          */
         tone?: ('white' | 'cream') | null;
@@ -451,6 +460,22 @@ export interface Page {
         id?: string | null;
         blockName?: string | null;
         blockType: 'locationCards';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        /**
+         * Cards for these rooms (/admin → Rooms), in this order. Each links to its own page.
+         */
+        rooms: (number | Room)[];
+        ctaLabel?: string | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'roomCards';
       }
     | {
         heading?: string | null;
@@ -582,6 +607,66 @@ export interface Page {
         id?: string | null;
         blockName?: string | null;
         blockType: 'teamGrid';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        reviews?:
+          | {
+              name: string;
+              /**
+               * Stars, out of 5
+               */
+              rating: number;
+              /**
+               * Optional: their profile photo. Without one, their initials show.
+               */
+              photo?: (number | null) | Media;
+              /**
+               * Word for word. Leave a blank line between paragraphs.
+               */
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'reviews';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        travelModes?:
+          | {
+              label: string;
+              icon: 'underground' | 'overground' | 'bus' | 'car';
+              /**
+               * One step per line.
+               */
+              steps: string;
+              mapsUrl: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Names the map for screen readers, e.g. “Old Oak”.
+         */
+        place: string;
+        /**
+         * Google Maps → Share → Embed a map → the src link.
+         */
+        mapEmbedUrl: string;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'directions';
       }
     | {
         heading: string;
@@ -1057,6 +1142,156 @@ export interface Location {
   createdAt: string;
 }
 /**
+ * Old Oak's rooms: their cards, their own pages and their booking.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rooms".
+ */
+export interface Room {
+  id: number;
+  _order?: string | null;
+  name: string;
+  /**
+   * The page's address: /locations/old-oak/rooms/ensuite for “ensuite”.
+   */
+  slug: string;
+  /**
+   * Weekly, e.g. “£245”. The card shows “£245 per week”.
+   */
+  price: string;
+  /**
+   * Shown under the room's name.
+   */
+  location: string;
+  /**
+   * The card's photo, the page's header and the gallery's first photo.
+   */
+  image: number | Media;
+  /**
+   * The card's tiles and the page's key facts (up to 4).
+   */
+  features?:
+    | {
+        label: string;
+        icon:
+          | 'Api'
+          | 'Automate'
+          | 'BarKitchen'
+          | 'Basin'
+          | 'Bed'
+          | 'Bike'
+          | 'Bill'
+          | 'Bus'
+          | 'Calendar'
+          | 'CalendarCheck'
+          | 'Car'
+          | 'Cctv'
+          | 'Check'
+          | 'Chef'
+          | 'Cocktail'
+          | 'Community'
+          | 'Crowd'
+          | 'Database'
+          | 'DealFlow'
+          | 'Desk'
+          | 'Dining'
+          | 'DoorEntry'
+          | 'Dumbbell'
+          | 'FeasibilityModel'
+          | 'FruitBowl'
+          | 'Groceries'
+          | 'Guard'
+          | 'Hack'
+          | 'HandsHeart'
+          | 'Handshake'
+          | 'Help'
+          | 'Hob'
+          | 'Icon360'
+          | 'Info'
+          | 'IntegrateData'
+          | 'Integrations'
+          | 'Lion'
+          | 'LocationPin'
+          | 'Lock'
+          | 'Lounge'
+          | 'Mail'
+          | 'ManageMembership'
+          | 'MeetingTable'
+          | 'MemberSupport'
+          | 'Membership'
+          | 'Microwave'
+          | 'Outdoor'
+          | 'Oven'
+          | 'Padlock'
+          | 'People'
+          | 'Plane'
+          | 'Play'
+          | 'PrivateOffice'
+          | 'QuoteMark'
+          | 'Relationships'
+          | 'Reporting'
+          | 'Restaurant'
+          | 'RestaurantsNearby'
+          | 'RoomAllocation'
+          | 'RoomPricing'
+          | 'Roundel'
+          | 'Router'
+          | 'Scales'
+          | 'Shelves'
+          | 'SmartHome'
+          | 'SocialNetwork'
+          | 'Sofa'
+          | 'SprayBottle'
+          | 'Sprout'
+          | 'Star'
+          | 'SunCloud'
+          | 'TapeMeasure'
+          | 'TeamChat'
+          | 'TrackMarket'
+          | 'Train'
+          | 'WashingMachine'
+          | 'Workshop'
+          | 'Wrench';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Leave a blank line between paragraphs.
+   */
+  about: string;
+  /**
+   * The gallery, after the room's photo.
+   */
+  photos?:
+    | {
+        image: number | Media;
+        /**
+         * Shown with the photo. Leave empty to use the photo's alt text.
+         */
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional: the floor plan drawing. Left out until there is one.
+   */
+  floorPlan?: (number | null) | Media;
+  /**
+   * e.g. “Available now”
+   */
+  moveIn: string;
+  /**
+   * e.g. “17–19”
+   */
+  floor: string;
+  /**
+   * One per line, e.g. “12 months”. The first is picked to start with.
+   */
+  periods: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -1113,6 +1348,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'locations';
         value: number | Location;
+      } | null)
+    | ({
+        relationTo: 'rooms';
+        value: number | Room;
       } | null)
     | ({
         relationTo: 'media';
@@ -1246,6 +1485,12 @@ export interface PagesSelect<T extends boolean = true> {
                     name?: T;
                     id?: T;
                   };
+              tour?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
               tone?: T;
               id?: T;
               blockName?: T;
@@ -1278,6 +1523,17 @@ export interface PagesSelect<T extends boolean = true> {
               heading?: T;
               intro?: T;
               locations?: T;
+              ctaLabel?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        roomCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              rooms?: T;
               ctaLabel?: T;
               tone?: T;
               id?: T;
@@ -1382,6 +1638,44 @@ export interface PagesSelect<T extends boolean = true> {
                     position?: T;
                     id?: T;
                   };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        reviews?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              reviews?:
+                | T
+                | {
+                    name?: T;
+                    rating?: T;
+                    photo?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        directions?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              travelModes?:
+                | T
+                | {
+                    label?: T;
+                    icon?: T;
+                    steps?: T;
+                    mapsUrl?: T;
+                    id?: T;
+                  };
+              place?: T;
+              mapEmbedUrl?: T;
               tone?: T;
               id?: T;
               blockName?: T;
@@ -1592,6 +1886,39 @@ export interface LocationsSelect<T extends boolean = true> {
         mapsUrl?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rooms_select".
+ */
+export interface RoomsSelect<T extends boolean = true> {
+  _order?: T;
+  name?: T;
+  slug?: T;
+  price?: T;
+  location?: T;
+  image?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        id?: T;
+      };
+  about?: T;
+  photos?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        id?: T;
+      };
+  floorPlan?: T;
+  moveIn?: T;
+  floor?: T;
+  periods?: T;
   updatedAt?: T;
   createdAt?: T;
 }

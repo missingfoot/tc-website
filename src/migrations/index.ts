@@ -6,6 +6,7 @@ import * as migration_20261006_214846_locations from './20261006_214846_location
 import * as migration_20261006_215011_gallery_names from './20261006_215011_gallery_names';
 import * as migration_20261006_215228_listing_sections from './20261006_215228_listing_sections';
 import * as migration_20261006_215559_co_living_sections from './20261006_215559_co_living_sections';
+import * as migration_20261006_220612_rooms_and_old_oak from './20261006_220612_rooms_and_old_oak';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20261006_215559_co_living_sections.up,
     down: migration_20261006_215559_co_living_sections.down,
-    name: '20261006_215559_co_living_sections'
+    name: '20261006_215559_co_living_sections',
+  },
+  {
+    up: migration_20261006_220612_rooms_and_old_oak.up,
+    down: migration_20261006_220612_rooms_and_old_oak.down,
+    name: '20261006_220612_rooms_and_old_oak'
   },
 ];

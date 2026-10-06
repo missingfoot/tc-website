@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { Locations } from "./payload/collections/Locations";
 import { Media } from "./payload/collections/Media";
 import { Pages } from "./payload/collections/Pages";
+import { Rooms } from "./payload/collections/Rooms";
 import { Users } from "./payload/collections/Users";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,7 +28,7 @@ export default buildConfig({
     // The brand's logo; its font is in app/(payload)/custom.scss
     components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
   },
-  collections: [Pages, Locations, Media, Users],
+  collections: [Pages, Locations, Rooms, Media, Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",
   typescript: { outputFile: path.resolve(dirname, "payload-types.ts") },

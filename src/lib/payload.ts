@@ -3,9 +3,10 @@ import { getPayload } from "payload";
 import { cache } from "react";
 import * as icons from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
-import type { Location, Media, Page } from "@/payload-types";
-import type { CircleImage, GalleryImage, LocationDetails, Room, TravelMode } from "@/lib/types";
+import type { Location, Media, Page, Room as RoomDoc } from "@/payload-types";
+import type { CircleImage, GalleryImage, LocationDetails, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
+import { roomsPath } from "@/payload/collections/Rooms";
 
 /**
  * Reading Payload content on the server, through Payload's local API (no HTTP round trip: Payload
@@ -97,10 +98,44 @@ export function locationDetails(location: Location): LocationDetails {
     prices: (location.prices ?? []).map(({ label, amount, period }) => ({ label, amount, period })),
     address: location.address ?? undefined,
     directionsIntro: location.directionsIntro,
-    travelModes: (location.travelModes ?? []).map((mode): TravelMode => ({ label: mode.label, icon: mode.icon, steps: lines(mode.steps), mapsUrl: mode.mapsUrl })),
+    travelModes: travelModes(location.travelModes),
   };
 }
 
 /** A location's "What's included" groups (empty if it has none of its own). */
 export const locationIncluded = (location: Location): FeatureGroup[] =>
   (location.included ?? []).map((group) => ({ label: group.label ?? undefined, items: iconItems(group.items) }));
+
+/** Old Oak's rooms, in their admin order. */
+export const getRooms = cache(async (): Promise<RoomDoc[]> => {
+  const { docs } = await (await payload()).find({ collection: "rooms", sort: "_order", limit: 1000, depth: 1 });
+  return docs;
+});
+
+/** One room, by its slug. */
+export const getRoom = cache(async (slug: string): Promise<RoomDoc | null> => (await getRooms()).find((r) => r.slug === slug) ?? null);
+
+/** Ways to get somewhere, with each one's steps (a line each) as a list. */
+export const travelModes = (modes?: { label: string; icon: TravelMode["icon"]; steps: string; mapsUrl: string }[] | null): TravelMode[] =>
+  (modes ?? []).map((mode) => ({ label: mode.label, icon: mode.icon, steps: lines(mode.steps), mapsUrl: mode.mapsUrl }));
+
+/** A room as its card on Old Oak's page, linking to its own. */
+export function roomCard(room: RoomDoc): Room {
+  return { name: room.name, price: `${room.price} per week`, image: mediaImage(room.image), features: iconItems(room.features), href: `${roomsPath}/rooms/${room.slug}` };
+}
+
+/** A room as its own page's (and its booking's) content: its photo first in the gallery. */
+export function roomDetails(room: RoomDoc): RoomDetails {
+  const floorPlan = mediaImage(room.floorPlan);
+  return {
+    slug: room.slug,
+    name: room.name,
+    location: room.location,
+    price: room.price,
+    photos: [galleryImage(room.image), ...(room.photos ?? []).map((photo) => galleryImage(photo.image, photo.name))],
+    features: iconItems(room.features),
+    about: paragraphs(room.about),
+    floorPlan: floorPlan.src ? floorPlan : undefined,
+    booking: { moveIn: room.moveIn, floor: room.floor, periods: lines(room.periods) },
+  };
+}

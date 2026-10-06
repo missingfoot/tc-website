@@ -1,6 +1,7 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import { RenderPage } from "@/components/payload/RenderBlocks";
 import { getPage, getPageSlugs } from "@/lib/payload";
+import { pagePaths } from "@/payload/collections/Pages";
 
 /**
  * Pages built in Payload (/admin → Pages), at /<slug>. Pre-built for every page that exists when the
@@ -8,7 +9,7 @@ import { getPage, getPageSlugs } from "@/lib/payload";
  * Pages collection's hooks). Pages written in code (e.g. /co-living) take priority over this route.
  */
 export async function generateStaticParams() {
-  return (await getPageSlugs()).filter((slug) => slug !== "home").map((slug) => ({ slug }));
+  return (await getPageSlugs()).filter((slug) => !pagePaths[slug]).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[slug]">) {
@@ -18,8 +19,8 @@ export async function generateMetadata({ params }: PageProps<"/[slug]">) {
 
 export default async function PayloadPage({ params }: PageProps<"/[slug]">) {
   const { slug } = await params;
-  // The home page is served at / (app/(frontend)/(site)/page.tsx)
-  if (slug === "home") permanentRedirect("/");
+  // Pages with an address of their own (the home page at /, Old Oak at /locations/old-oak)
+  if (pagePaths[slug]) permanentRedirect(pagePaths[slug]);
   const page = await getPage(slug);
   if (!page) notFound();
   return <RenderPage page={page} />;

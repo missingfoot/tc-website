@@ -2,6 +2,7 @@ import { APIError, type CollectionConfig, type Field } from "payload";
 import sharp from "sharp";
 import { pageBlocks } from "../blocks";
 import { Locations } from "./Locations";
+import { Rooms } from "./Rooms";
 
 /** Whether this data, shaped by these fields, has the photo in one of its image fields. */
 function hasPhoto(fields: Field[], data: Record<string, unknown> | undefined, id: number | string): boolean {
@@ -41,15 +42,17 @@ export const Media: CollectionConfig = {
     // use, with an error that means nothing to an editor. Say where it's used instead.
     beforeDelete: [
       async ({ id, req }) => {
-        const [pages, locations] = await Promise.all([
+        const [pages, locations, rooms] = await Promise.all([
           req.payload.find({ collection: "pages", depth: 0, pagination: false, req }),
           req.payload.find({ collection: "locations", depth: 0, pagination: false, req }),
+          req.payload.find({ collection: "rooms", depth: 0, pagination: false, req }),
         ]);
         const usedOn = [
           ...pages.docs
             .filter((page) => page.layout.some((block) => hasPhoto(pageBlocks.find((b) => b.slug === block.blockType)?.fields ?? [], block, id)))
             .map((page) => `“${page.title}”`),
           ...locations.docs.filter((location) => hasPhoto(Locations.fields, location as unknown as Record<string, unknown>, id)).map((location) => `“${location.name}”`),
+          ...rooms.docs.filter((room) => hasPhoto(Rooms.fields, room as unknown as Record<string, unknown>, id)).map((room) => `the “${room.name}” room`),
         ];
         if (usedOn.length) {
           const list = new Intl.ListFormat("en-GB").format(usedOn);

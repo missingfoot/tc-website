@@ -3,11 +3,18 @@ import { revalidatePath } from "next/cache";
 import { pageBlocks } from "../blocks";
 import { slugField } from "../fields/shared";
 
+/**
+ * Pages served somewhere other than /<slug>, each by its own route (app/(frontend)/(site)/page.tsx
+ * and locations/old-oak/page.tsx). /<slug> redirects to them.
+ */
+export const pagePaths: Record<string, string> = { home: "/", "old-oak": "/locations/old-oak" };
+export const pagePath = (slug: string) => pagePaths[slug] ?? `/${slug}`;
+
 /** Refreshes a page's pre-built HTML after an edit, so the change shows straight away. */
 function refresh(slug?: string | null) {
   if (!slug) return;
   try {
-    revalidatePath(slug === "home" ? "/" : `/${slug}`);
+    revalidatePath(pagePath(slug));
   } catch {
     // Outside Next (e.g. the seed script) there's no page cache to refresh
   }

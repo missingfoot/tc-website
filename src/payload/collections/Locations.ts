@@ -1,6 +1,6 @@
 import type { CollectionConfig, Field } from "payload";
 import { revalidatePath } from "next/cache";
-import { iconField, slugField } from "../fields/shared";
+import { iconField, itemLabel, slugField, travelModes } from "../fields/shared";
 
 /** Where each type of location's listing and pages live. */
 export const locationPaths = { working: "/working", serviced: "/serviced-living", venue: "/event-spaces" } as const;
@@ -17,11 +17,6 @@ function refresh(type?: string | null, slug?: string | null) {
     // Outside Next (e.g. the seed script) there's no page cache to refresh
   }
 }
-
-const itemLabel = (fallback: string) => ({
-  initCollapsed: true,
-  components: { RowLabel: { path: "/payload/fields/RowLabels#ItemLabel", clientProps: { fallback } } },
-});
 
 /** Icon-and-label items, e.g. a card's tiles or a list of facilities. */
 const iconItems = (name: string, label: string, extra: Partial<Field> = {}): Field =>
@@ -112,33 +107,7 @@ export const Locations: CollectionConfig = {
           fields: [
             { name: "address", type: "text", admin: { description: "Street address: drives the map and the “open in Maps” links. Without one, the map is left out." } },
             { name: "directionsIntro", label: "Intro", type: "textarea", required: true },
-            {
-              name: "travelModes",
-              label: "Ways to get there",
-              type: "array",
-              admin: itemLabel("Way"),
-              fields: [
-                {
-                  type: "row",
-                  fields: [
-                    { name: "label", type: "text", required: true },
-                    {
-                      name: "icon",
-                      type: "select",
-                      required: true,
-                      options: [
-                        { label: "Underground", value: "underground" },
-                        { label: "Overground", value: "overground" },
-                        { label: "Bus", value: "bus" },
-                        { label: "Car", value: "car" },
-                      ],
-                    },
-                  ],
-                },
-                { name: "steps", type: "textarea", required: true, admin: { description: "One step per line." } },
-                { name: "mapsUrl", label: "Google Maps link", type: "text", required: true },
-              ],
-            },
+            travelModes,
           ],
         },
       ],

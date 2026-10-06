@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 import ContactButtons from "@/components/enquiry/ContactButtons";
 import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import * as icons from "@/components/icons";
-import { ArrowRight } from "@/components/icons";
+import { ArrowRight, Icon360 } from "@/components/icons";
 import Checklist from "@/components/sections/Checklist";
 import CollageSplit from "@/components/sections/CollageSplit";
+import Directions from "@/components/sections/Directions";
 import DownloadCard from "@/components/sections/DownloadCard";
 import Faq from "@/components/sections/Faq";
 import FaqDirectory from "@/components/sections/FaqDirectory";
@@ -19,6 +20,7 @@ import MediaKit from "@/components/sections/MediaKit";
 import PerkCards from "@/components/sections/PerkCards";
 import PressQuotes from "@/components/sections/PressQuotes";
 import PromoCards from "@/components/sections/PromoCards";
+import Reviews from "@/components/sections/Reviews";
 import RoomCards from "@/components/sections/RoomCards";
 import SocialLinks from "@/components/sections/SocialLinks";
 import TeamGrid from "@/components/sections/TeamGrid";
@@ -28,7 +30,7 @@ import FloatingButton from "@/components/ui/FloatingButton";
 import { jobs } from "@/content/careers";
 import { socialLinks } from "@/content/old-oak";
 import { pressLogos, pressPhotos } from "@/content/press";
-import { galleryImage, iconItems, locationCard, mediaImage, paragraphs } from "@/lib/payload";
+import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes } from "@/lib/payload";
 import type { Page } from "@/payload-types";
 
 type Block = Page["layout"][number];
@@ -37,6 +39,10 @@ const asParagraphs = (text: string): ReactNode => paragraphs(text).map((p) => <p
 const button = (cta?: { label?: string | null; href?: string | null } | null) => (cta?.label && cta.href ? { label: cta.label, href: cta.href } : undefined);
 const faqItems = (items?: { question: string; answer: string; numbered?: boolean | null }[] | null) =>
   (items ?? []).map((item) => ({ question: item.question, answer: paragraphs(item.answer), numbered: item.numbered ?? undefined }));
+
+/** Hyphenated words kept whole ("co-living" never breaks at its hyphen), as the hand-built headings did. */
+const keepHyphenatedWords = (text: string): ReactNode =>
+  text.split(/(\S+-\S+)/).map((part, i) => (i % 2 ? <span key={i} className="whitespace-nowrap">{part}</span> : part));
 
 /** A text link with an arrow under a section, e.g. "Read more press articles". Other sites open in a new tab. */
 function MoreLink({ label, href }: { label: string; href: string }) {
@@ -115,6 +121,14 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             intro={block.intro ?? undefined}
             tone={block.tone ?? "cream"}
             images={(block.photos ?? []).map((photo) => galleryImage(photo.image, photo.name))}
+            footer={
+              block.tour?.label && block.tour.href ? (
+                <Button href={block.tour.href} variant="dark">
+                  <Icon360 />
+                  {block.tour.label}
+                </Button>
+              ) : undefined
+            }
           />
         );
       case "featureGroups":
@@ -138,6 +152,39 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             rooms={block.locations.filter((l) => typeof l === "object").map(locationCard)}
           />
         );
+      case "roomCards":
+        return (
+          <RoomCards
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "cream"}
+            ctaLabel={block.ctaLabel ?? undefined}
+            rooms={block.rooms.filter((r) => typeof r === "object").map(roomCard)}
+          />
+        );
+      case "reviews":
+        return (
+          <Reviews
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            reviews={(block.reviews ?? []).map((review) => ({ name: review.name, rating: review.rating, photo: mediaImage(review.photo).src || undefined, text: paragraphs(review.text) }))}
+          />
+        );
+      case "directions":
+        return (
+          <Directions
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            modes={travelModes(block.travelModes)}
+            mapEmbedUrl={block.mapEmbedUrl}
+            place={block.place}
+          />
+        );
       case "linkCards":
         return (
           <LinkCards
@@ -156,7 +203,7 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
         return (
           <CollageSplit
             key={key}
-            heading={block.heading}
+            heading={keepHyphenatedWords(block.heading)}
             tone={block.tone ?? "white"}
             side={block.side ?? "left"}
             cta={button(block.cta)}

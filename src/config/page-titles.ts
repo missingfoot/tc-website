@@ -1,21 +1,20 @@
 import { jobs } from "@/content/careers";
 import { blogCategories, postSlugs } from "@/lib/blog";
 import { cache } from "react";
-import { oldOakRoomDetails } from "@/content/old-oak";
-import { getLocations } from "@/lib/payload";
+import { getLocations, getRooms } from "@/lib/payload";
 
 /**
  * Short page titles shown in the middle of the mobile top bar, by path. Detail pages take
- * theirs from the same data that builds them (the CMS's Locations for working spaces, serviced
- * living and venues), so new rooms, venues, locations and jobs get one automatically. Server only
+ * theirs from the same data that builds them (the CMS's Rooms, and its Locations for working
+ * spaces, serviced living and venues), so new rooms, venues, locations and jobs get one automatically. Server only
  * (it reads the content): Nav passes it down to PageTitle.
  */
 export const getPageTitles = cache(async (): Promise<Record<string, string>> => {
-  const [working, serviced, venues] = await Promise.all([getLocations("working"), getLocations("serviced"), getLocations("venue")]);
+  const [rooms, working, serviced, venues] = await Promise.all([getRooms(), getLocations("working"), getLocations("serviced"), getLocations("venue")]);
   return {
     "/": "The Collective",
     "/locations/old-oak": "Old Oak",
-    ...Object.fromEntries(oldOakRoomDetails.map((room) => [`/locations/old-oak/rooms/${room.slug}`, room.name])),
+    ...Object.fromEntries(rooms.map((room) => [`/locations/old-oak/rooms/${room.slug}`, room.name])),
     "/co-living": "Co-Living",
     "/working": "Working",
     ...Object.fromEntries(working.map((place) => [`/working/${place.slug}`, place.name])),

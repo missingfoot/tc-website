@@ -14,24 +14,26 @@ import RoomBooking from "@/components/ui/RoomBooking";
 import Section from "@/components/ui/Section";
 import VideoButton from "@/components/ui/VideoButton";
 import { coLivingAbout } from "@/content/co-living";
-import { oldOakAbout, oldOakPromos, oldOakRoomDetails, oldOakRoomIncluded } from "@/content/old-oak";
+import { oldOakAbout, oldOakPromos, oldOakRoomIncluded } from "@/content/old-oak";
+import { getRoom, getRooms, roomDetails } from "@/lib/payload";
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
-export function generateStaticParams() {
-  return oldOakRoomDetails.map(({ slug }) => ({ slug }));
+// Rooms are in the CMS (/admin → Rooms)
+export async function generateStaticParams() {
+  return (await getRooms()).map(({ slug }) => ({ slug }));
 }
 
 // Unknown slugs 404 via notFound(). (Not `dynamicParams = false`: on Netlify that 404s the prebuilt pages too.)
-function findRoom(slug: string) {
-  const room = oldOakRoomDetails.find((r) => r.slug === slug);
+async function findRoom(slug: string) {
+  const room = await getRoom(slug);
   if (!room) notFound();
-  return room;
+  return roomDetails(room);
 }
 
 export async function generateMetadata({ params }: PageProps<"/locations/old-oak/rooms/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  return { title: `${findRoom(slug).name} · Old Oak` };
+  return { title: `${(await findRoom(slug)).name} · Old Oak` };
 }
 
 
@@ -64,12 +66,12 @@ function Paragraphs({ items }: { items: string[] }) {
  */
 export default async function OldOakRoom({ params }: PageProps<"/locations/old-oak/rooms/[slug]">) {
   const { slug } = await params;
-  const room = findRoom(slug);
+  const room = await findRoom(slug);
   const apply = { label: "Apply now", href: `/locations/old-oak/rooms/${room.slug}/apply` };
 
   return (
     <>
-      <Hero image={room.photos[0].src!} imageAlt={room.photos[0].alt} wash={false} />
+      <Hero image={room.photos[0].src!} imageAlt={room.photos[0].alt} imagePreview={room.photos[0].blur} wash={false} />
 
       <Section raised>
         <Container className="grid gap-12 lg:grid-cols-[1fr_22.5rem] lg:gap-x-16 xl:gap-x-24">

@@ -1,8 +1,9 @@
 # Payload CMS proof of concept
 
 The site with [Payload](https://payloadcms.com) built in: an admin at `/admin` where pages are put
-together from the site's own sections. Home (`/`, the page with the slug `home`), Foundation, Mission,
-Careers, Press and FAQ are served from Payload; every other page is still written in code.
+together from the site's own sections. Home, Old Oak, Co-Living, Working, Serviced Living, Event Spaces,
+Mission, Foundation, Careers, Press and FAQ are served from Payload, along with every location, venue
+and room page. The rest (blog, Labs, legal pages, referrals, account) are still written in code.
 
 ## Try it
 
@@ -28,8 +29,9 @@ npm run dev                            # then open http://localhost:3000/admin
 | Payload config (collections, database) | `src/payload.config.ts` |
 | Database migrations | `src/migrations/` |
 | Page sections editors can add | `src/payload/blocks.ts`, one per section component |
-| Pages, Locations and Media collections | `src/payload/collections/` |
+| Pages, Locations, Rooms and Media collections | `src/payload/collections/` |
 | Location pages (`/working/…`, `/serviced-living/…`, `/event-spaces/…`) | their `[slug]` routes, reading Locations |
+| Room pages and their apply pages (`/locations/old-oak/rooms/…`) | their `[slug]` routes, reading Rooms |
 | Blocks → section components | `src/components/payload/RenderBlocks.tsx` |
 | Payload pages at `/<slug>` | `src/app/(frontend)/(site)/[slug]/page.tsx` |
 | Admin and API routes (generated) | `src/app/(payload)/` |
@@ -51,6 +53,9 @@ npm run dev                            # then open http://localhost:3000/admin
   card and its own page come from the same record, so a price or photo changes in one place. Drag
   to reorder them in the list. What every page of a type shares (e.g. the standard "What's
   included" for working spaces, the promos) is in its `[slug]` route.
+- **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.
+- **Pages at their own address**: `home` is served at `/` and `old-oak` at `/locations/old-oak`
+  (`pagePaths` in the Pages collection); `/home` and `/old-oak` redirect there.
 - **Some sections keep part of their content in code**: Open positions lists the job pages
   (`content/careers.ts`), and Media kit's downloads are `content/press.ts`; editors set their headings.
 - **Moving a page from code into Payload**: add any missing section types, add the page to
