@@ -70,6 +70,7 @@ export const HeroBlock: Block = {
     image("image"),
     { ...position, name: "imagePosition", label: "Image position" },
     { ...cta, label: "Button (with an arrow)", admin: { description: "Optional: links to a page. Leave both empty for no button." } },
+    { name: "enquiry", label: "Or a button that opens", type: "select", options: enquiryKinds, admin: { description: "Optional: an enquiry form's button, in place of the button above." } },
     {
       name: "video",
       label: "Video button (with a play icon)",
@@ -105,9 +106,11 @@ export const IntroBlock: Block = {
         { label: "The button below, light", value: "light" },
         { label: "The button below, dark", value: "dark" },
         { label: "Call us, email us and apply", value: "contact" },
+        { label: "An enquiry form's button", value: "enquiry" },
       ],
     },
-    { ...cta, admin: { ...cta.admin, condition: (_, block) => block?.buttons !== "contact" } },
+    { ...cta, admin: { ...cta.admin, condition: (_, block) => block?.buttons !== "contact" && block?.buttons !== "enquiry" } },
+    { name: "enquiry", label: "The button opens", type: "select", options: enquiryKinds, admin: { condition: (_, block) => block?.buttons === "enquiry" } },
     tone,
   ],
 };
@@ -348,6 +351,88 @@ export const MediaKitBlock: Block = {
   ],
 };
 
+export const GalleryBlock: Block = {
+  slug: "gallery",
+  labels: { singular: "Gallery", plural: "Galleries" },
+  fields: [
+    { name: "heading", type: "text" },
+    intro,
+    {
+      name: "photos",
+      type: "array",
+      admin: itemLabel("Photo"),
+      minRows: 1,
+      fields: [
+        image("image"),
+        { name: "name", type: "text", admin: { description: "Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text." } },
+      ],
+    },
+    { ...tone, defaultValue: "cream" },
+  ],
+};
+
+export const FeatureGroupsBlock: Block = {
+  slug: "featureGroups",
+  labels: { singular: "Feature groups", plural: "Feature groups" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "groups",
+      type: "array",
+      admin: itemLabel("Group"),
+      minRows: 1,
+      fields: [
+        { name: "label", type: "text", admin: { description: "Optional: a small label above the group." } },
+        {
+          name: "items",
+          type: "array",
+          admin: itemLabel("Item"),
+          fields: [{ type: "row", fields: [{ name: "label", type: "text", required: true }, iconField("", true)] }],
+        },
+      ],
+    },
+    tone,
+  ],
+};
+
+export const LocationCardsBlock: Block = {
+  slug: "locationCards",
+  labels: { singular: "Location cards", plural: "Location cards" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "locations",
+      type: "relationship",
+      relationTo: "locations",
+      hasMany: true,
+      required: true,
+      admin: { description: "Cards for these locations (/admin → Locations), in this order. Each links to its own page." },
+    },
+    { name: "ctaLabel", label: "Button label", type: "text", defaultValue: "More info" },
+    { ...tone, defaultValue: "cream" },
+  ],
+};
+
+export const DownloadCardBlock: Block = {
+  slug: "downloadCard",
+  labels: { singular: "Download card", plural: "Download cards" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    { name: "intro", type: "textarea", required: true },
+    {
+      type: "row",
+      fields: [
+        { name: "fileLabel", label: "Button label", type: "text", required: true },
+        { name: "fileHref", label: "File", type: "text", required: true, admin: { description: "Its address, e.g. /downloads/brochure.pdf" } },
+      ],
+    },
+    image("image"),
+    tone,
+  ],
+};
+
 /** A section's header shows its type and heading (see fields/RowLabels.tsx), not "Untitled". */
 const withHeading = (block: Block): Block => ({
   ...block,
@@ -358,6 +443,9 @@ export const pageBlocks = [
   HeroBlock,
   IntroBlock,
   ChecklistBlock,
+  GalleryBlock,
+  FeatureGroupsBlock,
+  LocationCardsBlock,
   LinkCardsBlock,
   CollageSplitBlock,
   TestimonialsBlock,
@@ -367,6 +455,7 @@ export const pageBlocks = [
   FaqDirectoryBlock,
   OpenPositionsBlock,
   MediaKitBlock,
+  DownloadCardBlock,
   PromoCardsBlock,
   SocialLinksBlock,
 ].map(withHeading);

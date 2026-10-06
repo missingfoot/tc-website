@@ -26,6 +26,18 @@ export const Pages: CollectionConfig = {
     { name: "title", type: "text", required: true, admin: { description: "The browser tab title, and the page's name here." } },
     slugField("The page's address: /foundation for “foundation”. Lowercase letters, numbers and hyphens."),
     // Sections start collapsed, so a page reads as a list of its sections (headers show each one's heading)
+    {
+      name: "floatingEnquiry",
+      label: "Floating enquiry button",
+      type: "select",
+      options: [
+        { label: "Co-living", value: "living" },
+        { label: "Working", value: "working" },
+        { label: "Serviced living", value: "serviced" },
+        { label: "Events", value: "events" },
+      ],
+      admin: { position: "sidebar", description: "Optional: an enquiry button that stays on screen on mobile, opening this form." },
+    },
     { name: "layout", label: "Sections", type: "blocks", blocks: pageBlocks, required: true, admin: { initCollapsed: true } },
   ],
   hooks: {

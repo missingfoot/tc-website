@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import RenderBlocks from "@/components/payload/RenderBlocks";
+import { RenderPage } from "@/components/payload/RenderBlocks";
 import { getPage } from "@/lib/payload";
 
 /**
@@ -9,5 +9,5 @@ import { getPage } from "@/lib/payload";
 export default async function Home() {
   const page = await getPage("home");
   if (!page) notFound();
-  return <RenderBlocks blocks={page.layout} />;
+  return <RenderPage page={page} />;
 }

@@ -1,5 +1,5 @@
 import { notFound, permanentRedirect } from "next/navigation";
-import RenderBlocks from "@/components/payload/RenderBlocks";
+import { RenderPage } from "@/components/payload/RenderBlocks";
 import { getPage, getPageSlugs } from "@/lib/payload";
 
 /**
@@ -22,5 +22,5 @@ export default async function PayloadPage({ params }: PageProps<"/[slug]">) {
   if (slug === "home") permanentRedirect("/");
   const page = await getPage(slug);
   if (!page) notFound();
-  return <RenderBlocks blocks={page.layout} />;
+  return <RenderPage page={page} />;
 }

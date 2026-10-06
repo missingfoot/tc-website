@@ -6,18 +6,18 @@
 import path from "node:path";
 import { getPayload } from "payload";
 import * as icons from "@/components/icons";
-import type { CircleImage, LinkCard, LocationDetails, PressQuote, PromoCard } from "@/lib/types";
+import type { CircleImage, GalleryImage, LinkCard, LocationDetails, PressQuote, PromoCard, Room } from "@/lib/types";
 import type { FaqItem } from "@/components/ui/FaqAccordion";
 import { careersBenefits } from "@/content/careers";
 import { coLivingPress } from "@/content/co-living";
-import { venues } from "@/content/events";
+import { bedfordVenues, eventsGallery, oldOakVenues, venues } from "@/content/events";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
 import { oldOakPromos, oldOakTestimonials } from "@/content/old-oak";
 import { morePressUrl, pressInfo, pressNews, pressQuotes } from "@/content/press";
-import { servicedLocationIncluded, servicedLocationPages } from "@/content/serviced-living";
-import { workingLocationPages } from "@/content/working";
+import { servicedGallery, servicedIncluded, servicedLocationIncluded, servicedLocationPages, servicedPromos } from "@/content/serviced-living";
+import { workingHowItWorks, workingIncluded, workingLocationPages, workingSpaces } from "@/content/working";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import config from "../payload.config";
 
@@ -62,11 +62,20 @@ const faqItems = (items: FaqItem[]) =>
   items.map((item) => ({ question: item.question, answer: [item.answer].flat().join("\n\n"), numbered: item.numbered ?? false }));
 const socialLinks = { blockType: "socialLinks", heading: "Connect with us", intro: "Keep up with what we are up to on social media, and get the chance to get promotions!" };
 
+const galleryPhotos = (images: GalleryImage[]) => Promise.all(images.map(async (g) => ({ image: await media(g.src ?? g.thumb, g.alt, g.position), name: g.alt })));
+const featureGroups = (groups: FeatureGroup[]) => groups.map((group) => ({ label: group.label, items: group.items.map((item) => ({ label: item.label, icon: iconName(item.icon) })) }));
+
+/** The seeded locations behind these cards (their links end in each location's slug), in order. */
+async function locationIds(type: "working" | "serviced" | "venue", cards: Room[]) {
+  const { docs } = await payload.find({ collection: "locations", where: { type: { equals: type } }, pagination: false, depth: 0 });
+  return cards.map((card) => docs.find((doc) => card.href.endsWith(`/${doc.slug}`))!.id);
+}
+
 /** Creates a page unless one with this slug exists (its layout, and so its uploads, only then). */
-async function seedPage(slug: string, title: string, layout: () => Promise<object[]>) {
+async function seedPage(slug: string, title: string, layout: () => Promise<object[]>, settings: object = {}) {
   const existing = await payload.find({ collection: "pages", where: { slug: { equals: slug } }, limit: 1 });
   if (existing.docs[0]) return console.log(`/${slug}: already exists, left as it is`);
-  await payload.create({ collection: "pages", data: { title, slug, layout: await layout() } as never });
+  await payload.create({ collection: "pages", data: { title, slug, layout: await layout(), ...settings } as never });
   console.log(`/${slug}: created`);
 }
 
@@ -316,12 +325,140 @@ for (const location of workingLocationPages) await seedLocation("working", locat
 for (const location of servicedLocationPages) await seedLocation("serviced", location, servicedLocationIncluded[location.slug]);
 for (const venue of venues) await seedLocation("venue", venue, venue.venueFacilities);
 
+const working = async () => [
+  {
+    blockType: "hero",
+    title: "The future of work.",
+    subtitle: "Changing the way we view work. Get collaborative and communal with our beautiful and productive working spaces.",
+    image: await media("/images/working/hero.jpg", "Members working at long tables in The Den"),
+    enquiry: "working",
+  },
+  {
+    blockType: "intro",
+    heading: "Work. Connect. Create.",
+    body: [
+      "When we built The Den we wanted to make the perfect environment for the next generation of creators to turn their ideas into reality.",
+      "Our aim is to help every person that enters our space succeed, by providing the space, services, community and support needed to let them focus on the work they love.",
+      "We are building London’s leading creative community, so make yourself at home.",
+    ].join("\n\n"),
+    buttons: "enquiry",
+    enquiry: "working",
+  },
+  {
+    blockType: "gallery",
+    heading: "Explore the spaces",
+    intro: "By combining shared spaces with events and opportunities to connect, our workspaces give you a platform to do your best work and maximise your potential.",
+    photos: await galleryPhotos(workingSpaces),
+  },
+  { blockType: "checklist", heading: "How it works", items: workingHowItWorks.map((item) => ({ icon: iconName(item.icon), title: item.title, text: item.text })) },
+  {
+    blockType: "locationCards",
+    heading: "Our Locations",
+    intro: "Each location has its own unique feel, designed to help you do your best work while encouraging you to explore and make connections with other members.",
+    locations: await locationIds("working", workingLocationPages.map((l) => ({ href: `/working/${l.slug}` }) as Room)),
+    ctaLabel: "More info",
+  },
+  {
+    blockType: "featureGroups",
+    heading: "What’s included",
+    intro: "All of our locations come with these features as standard, as well as all of their own unique offerings.",
+    groups: featureGroups(workingIncluded),
+  },
+  socialLinks,
+  { blockType: "promoCards", cards: await promoCards(oldOakPromos) },
+];
+
+const servicedLiving = async () => [
+  {
+    blockType: "hero",
+    title: "Live life without the hassle",
+    subtitle: "Beautiful serviced apartments, right in the heart of London’s most iconic locations.",
+    image: await media("/images/serviced-living/notting-hill/01-studio.jpg", "A bright Notting Hill studio with a dining table by the window"),
+    enquiry: "serviced",
+  },
+  {
+    blockType: "intro",
+    heading: "Serviced living at The Collective",
+    body: [
+      "Serviced living isn’t new, but the way we do it is. Living in your own space shouldn’t mean settling for less than a unique living experience.",
+      "Our serviced living houses offer all-inclusive private rooms and apartments in some of London’s most iconic locations, each with shared spaces like a kitchen or garden, so you get the sense of community at the heart of everything we do.",
+      "Every room includes one all-inclusive bill, weekly cleaning, linen changes and a concierge service, to make life as easy as possible.",
+    ].join("\n\n"),
+    buttons: "enquiry",
+    enquiry: "serviced",
+  },
+  {
+    blockType: "gallery",
+    heading: "Look inside",
+    intro: "Serviced living to the highest standards: beautifully furnished, modern private rooms right in the heart of London, with equally beautiful shared spaces.",
+    photos: await galleryPhotos(servicedGallery),
+  },
+  { blockType: "featureGroups", heading: "What’s included", intro: "Every room comes with these as standard, so you can get on with living.", groups: featureGroups(servicedIncluded) },
+  {
+    blockType: "locationCards",
+    heading: "Locations",
+    intro: "Each house has its own character and neighbourhood, with everything you need included in one weekly price.",
+    locations: await locationIds("serviced", servicedLocationPages.map((l) => ({ href: `/serviced-living/${l.slug}` }) as Room)),
+    ctaLabel: "More info",
+  },
+  { blockType: "promoCards", cards: await promoCards(servicedPromos) },
+  socialLinks,
+];
+
+const eventSpaces = async () => [
+  {
+    blockType: "hero",
+    title: "Bring people together",
+    subtitle: "Inspiring venues in central and west London, for events your guests won’t forget.",
+    image: await media("/images/event-spaces/the-exchange/01-lounge.jpg", "The Exchange at Old Oak, set up for an event"),
+    enquiry: "events",
+  },
+  {
+    blockType: "intro",
+    heading: "Discover our event spaces",
+    body: [
+      "Nothing brings people together like an event, and you can’t hold an event without the perfect space. That’s why we’ve created inspiring venues designed for sharing ideas and experiences.",
+      "Each is unique: from photo shoots, panel discussions and networking to birthdays, supper clubs, conferences and film screenings. With sound systems, lighting and projection, plus bar and catering, your event will leave a lasting impression.",
+    ].join("\n\n"),
+    buttons: "enquiry",
+    enquiry: "events",
+  },
+  {
+    blockType: "locationCards",
+    heading: "Bedford Square",
+    intro: "Four spaces in a Georgian townhouse in Bloomsbury, a short walk from Tottenham Court Road.",
+    locations: await locationIds("venue", bedfordVenues),
+    ctaLabel: "See the space",
+  },
+  { blockType: "gallery", heading: "Look inside", tone: "white", photos: await galleryPhotos(eventsGallery) },
+  {
+    blockType: "locationCards",
+    heading: "Old Oak",
+    intro: "Three spaces in our co-living building on the canal at Willesden Junction, from a 200-guest venue to a private dining room.",
+    locations: await locationIds("venue", oldOakVenues),
+    ctaLabel: "See the space",
+  },
+  {
+    blockType: "downloadCard",
+    heading: "Download our brochure",
+    intro: "Every venue in one place: floor plans, capacities for each layout, facilities and how to get there. Handy to share with your team.",
+    fileLabel: "Download brochure",
+    fileHref: "/downloads/the-collective-event-spaces.pdf",
+    image: await media("/images/event-spaces/the-gallery/01-dinner.jpg", "The Gallery laid for dinner"),
+  },
+  socialLinks,
+  { blockType: "promoCards", cards: await promoCards(servicedPromos) },
+];
+
 await seedPage("home", "Home", home);
 await seedPage("foundation", "Foundation", foundation);
 await seedPage("mission", "Mission", mission);
 await seedPage("careers", "Careers", careers);
 await seedPage("press", "Press", press);
 await seedPage("faq", "FAQ", faq);
+await seedPage("working", "Working", working, { floatingEnquiry: "working" });
+await seedPage("serviced-living", "Serviced Living", servicedLiving, { floatingEnquiry: "serviced" });
+await seedPage("event-spaces", "Event Spaces", eventSpaces, { floatingEnquiry: "events" });
 
 const images = await payload.count({ collection: "media" });
 console.log(`${images.totalDocs} images in the Media library.`);

@@ -135,6 +135,10 @@ export interface Page {
    * The page's address: /foundation for “foundation”. Lowercase letters, numbers and hyphens.
    */
   slug: string;
+  /**
+   * Optional: an enquiry button that stays on screen on mobile, opening this form.
+   */
+  floatingEnquiry?: ('living' | 'working' | 'serviced' | 'events') | null;
   layout: (
     | {
         /**
@@ -159,6 +163,10 @@ export interface Page {
           href?: string | null;
         };
         /**
+         * Optional: an enquiry form's button, in place of the button above.
+         */
+        enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+        /**
          * Optional: opens this video over the page. Used instead of the button above.
          */
         video?: {
@@ -179,7 +187,7 @@ export interface Page {
          */
         body: string;
         layout?: ('split' | 'stacked') | null;
-        buttons?: ('light' | 'dark' | 'contact') | null;
+        buttons?: ('light' | 'dark' | 'contact' | 'enquiry') | null;
         /**
          * Optional: leave both empty for no button.
          */
@@ -190,6 +198,7 @@ export interface Page {
            */
           href?: string | null;
         };
+        enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
         /**
          * Background colour. Alternate them down the page.
          */
@@ -300,6 +309,148 @@ export interface Page {
         id?: string | null;
         blockName?: string | null;
         blockType: 'checklist';
+      }
+    | {
+        heading?: string | null;
+        intro?: string | null;
+        photos?:
+          | {
+              image: number | Media;
+              /**
+               * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
+               */
+              name?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'gallery';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        groups?:
+          | {
+              /**
+               * Optional: a small label above the group.
+               */
+              label?: string | null;
+              items?:
+                | {
+                    label: string;
+                    icon:
+                      | 'Api'
+                      | 'Automate'
+                      | 'BarKitchen'
+                      | 'Basin'
+                      | 'Bed'
+                      | 'Bike'
+                      | 'Bill'
+                      | 'Bus'
+                      | 'Calendar'
+                      | 'CalendarCheck'
+                      | 'Car'
+                      | 'Cctv'
+                      | 'Check'
+                      | 'Chef'
+                      | 'Cocktail'
+                      | 'Community'
+                      | 'Crowd'
+                      | 'Database'
+                      | 'DealFlow'
+                      | 'Desk'
+                      | 'Dining'
+                      | 'DoorEntry'
+                      | 'Dumbbell'
+                      | 'FeasibilityModel'
+                      | 'FruitBowl'
+                      | 'Groceries'
+                      | 'Guard'
+                      | 'Hack'
+                      | 'HandsHeart'
+                      | 'Handshake'
+                      | 'Help'
+                      | 'Hob'
+                      | 'Icon360'
+                      | 'Info'
+                      | 'IntegrateData'
+                      | 'Integrations'
+                      | 'Lion'
+                      | 'LocationPin'
+                      | 'Lock'
+                      | 'Lounge'
+                      | 'Mail'
+                      | 'ManageMembership'
+                      | 'MeetingTable'
+                      | 'MemberSupport'
+                      | 'Membership'
+                      | 'Microwave'
+                      | 'Outdoor'
+                      | 'Oven'
+                      | 'Padlock'
+                      | 'People'
+                      | 'Plane'
+                      | 'Play'
+                      | 'PrivateOffice'
+                      | 'QuoteMark'
+                      | 'Relationships'
+                      | 'Reporting'
+                      | 'Restaurant'
+                      | 'RestaurantsNearby'
+                      | 'RoomAllocation'
+                      | 'RoomPricing'
+                      | 'Roundel'
+                      | 'Router'
+                      | 'Scales'
+                      | 'Shelves'
+                      | 'SmartHome'
+                      | 'SocialNetwork'
+                      | 'Sofa'
+                      | 'SprayBottle'
+                      | 'Sprout'
+                      | 'Star'
+                      | 'SunCloud'
+                      | 'TapeMeasure'
+                      | 'TeamChat'
+                      | 'TrackMarket'
+                      | 'Train'
+                      | 'WashingMachine'
+                      | 'Workshop'
+                      | 'Wrench';
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'featureGroups';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        /**
+         * Cards for these locations (/admin → Locations), in this order. Each links to its own page.
+         */
+        locations: (number | Location)[];
+        ctaLabel?: string | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationCards';
       }
     | {
         heading?: string | null;
@@ -506,6 +657,23 @@ export interface Page {
         id?: string | null;
         blockName?: string | null;
         blockType: 'mediaKit';
+      }
+    | {
+        heading: string;
+        intro: string;
+        fileLabel: string;
+        /**
+         * Its address, e.g. /downloads/brochure.pdf
+         */
+        fileHref: string;
+        image: number | Media;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'downloadCard';
       }
     | {
         cards?:
@@ -936,6 +1104,7 @@ export interface PayloadMigration {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  floatingEnquiry?: T;
   layout?:
     | T
     | {
@@ -953,6 +1122,7 @@ export interface PagesSelect<T extends boolean = true> {
                     label?: T;
                     href?: T;
                   };
+              enquiry?: T;
               video?:
                 | T
                 | {
@@ -975,6 +1145,7 @@ export interface PagesSelect<T extends boolean = true> {
                     label?: T;
                     href?: T;
                   };
+              enquiry?: T;
               tone?: T;
               id?: T;
               blockName?: T;
@@ -992,6 +1163,55 @@ export interface PagesSelect<T extends boolean = true> {
                     text?: T;
                     id?: T;
                   };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              photos?:
+                | T
+                | {
+                    image?: T;
+                    name?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureGroups?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              groups?:
+                | T
+                | {
+                    label?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        locationCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              locations?: T;
+              ctaLabel?: T;
               tone?: T;
               id?: T;
               blockName?: T;
@@ -1150,6 +1370,18 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               heading?: T;
               intro?: T;
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        downloadCard?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              fileLabel?: T;
+              fileHref?: T;
+              image?: T;
               tone?: T;
               id?: T;
               blockName?: T;

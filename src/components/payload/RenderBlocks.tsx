@@ -1,11 +1,15 @@
 import type { ReactNode } from "react";
 import ContactButtons from "@/components/enquiry/ContactButtons";
+import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import * as icons from "@/components/icons";
 import { ArrowRight } from "@/components/icons";
 import Checklist from "@/components/sections/Checklist";
 import CollageSplit from "@/components/sections/CollageSplit";
+import DownloadCard from "@/components/sections/DownloadCard";
 import Faq from "@/components/sections/Faq";
 import FaqDirectory from "@/components/sections/FaqDirectory";
+import FeatureGroups from "@/components/sections/FeatureGroups";
+import Gallery from "@/components/sections/Gallery";
 import Hero from "@/components/sections/Hero";
 import Intro from "@/components/sections/Intro";
 import JobList from "@/components/sections/JobList";
@@ -13,14 +17,16 @@ import LinkCards from "@/components/sections/LinkCards";
 import MediaKit from "@/components/sections/MediaKit";
 import PressQuotes from "@/components/sections/PressQuotes";
 import PromoCards from "@/components/sections/PromoCards";
+import RoomCards from "@/components/sections/RoomCards";
 import SocialLinks from "@/components/sections/SocialLinks";
 import TeamGrid from "@/components/sections/TeamGrid";
 import Testimonials from "@/components/sections/Testimonials";
 import Button from "@/components/ui/Button";
+import FloatingButton from "@/components/ui/FloatingButton";
 import { jobs } from "@/content/careers";
 import { socialLinks } from "@/content/old-oak";
 import { pressLogos, pressPhotos } from "@/content/press";
-import { mediaImage, paragraphs } from "@/lib/payload";
+import { galleryImage, iconItems, locationCard, mediaImage, paragraphs } from "@/lib/payload";
 import type { Page } from "@/payload-types";
 
 type Block = Page["layout"][number];
@@ -59,6 +65,7 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             title={block.title}
             subtitle={block.subtitle ?? undefined}
             cta={button(block.cta)}
+            action={block.enquiry ? <EnquiryButton kind={block.enquiry} variant="light" /> : undefined}
             video={block.video?.label && block.video.url ? { label: block.video.label, url: block.video.url } : undefined}
             image={image.src}
             imageAlt={image.alt}
@@ -75,7 +82,15 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             layout={block.layout ?? "split"}
             tone={block.tone ?? "white"}
             raised={raised}
-            action={block.buttons === "contact" ? <ContactButtons /> : <IntroButton cta={button(block.cta)} dark={block.buttons === "dark"} />}
+            action={
+              block.buttons === "contact" ? (
+                <ContactButtons />
+              ) : block.buttons === "enquiry" && block.enquiry ? (
+                <EnquiryButton kind={block.enquiry} variant="light" />
+              ) : (
+                <IntroButton cta={button(block.cta)} dark={block.buttons === "dark"} />
+              )
+            }
           >
             {asParagraphs(block.body)}
           </Intro>
@@ -88,6 +103,37 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             intro={block.intro ?? undefined}
             tone={block.tone ?? "white"}
             items={(block.items ?? []).map((item) => ({ icon: item.icon ? icons[item.icon] : undefined, title: item.title, text: item.text }))}
+          />
+        );
+      case "gallery":
+        return (
+          <Gallery
+            key={key}
+            heading={block.heading ?? undefined}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "cream"}
+            images={(block.photos ?? []).map((photo) => galleryImage(photo.image, photo.name))}
+          />
+        );
+      case "featureGroups":
+        return (
+          <FeatureGroups
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            groups={(block.groups ?? []).map((group) => ({ label: group.label ?? undefined, items: iconItems(group.items) }))}
+          />
+        );
+      case "locationCards":
+        return (
+          <RoomCards
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "cream"}
+            ctaLabel={block.ctaLabel ?? undefined}
+            rooms={block.locations.filter((l) => typeof l === "object").map(locationCard)}
           />
         );
       case "linkCards":
@@ -155,6 +201,17 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
         return <JobList key={key} id="open-positions" heading={block.heading} tone={block.tone ?? "white"} jobs={jobs} />;
       case "mediaKit":
         return <MediaKit key={key} heading={block.heading} intro={block.intro ?? undefined} tone={block.tone ?? "cream"} logos={pressLogos} photoGroups={pressPhotos} />;
+      case "downloadCard":
+        return (
+          <DownloadCard
+            key={key}
+            heading={block.heading}
+            intro={block.intro}
+            tone={block.tone ?? "white"}
+            file={{ href: block.fileHref, label: block.fileLabel }}
+            image={mediaImage(block.image)}
+          />
+        );
       case "promoCards":
         return (
           <PromoCards
@@ -182,5 +239,19 @@ function IntroButton({ cta, dark }: { cta?: { label: string; href: string }; dar
     <Button href={cta.href} variant={dark ? "dark" : "light"} arrow>
       {cta.label}
     </Button>
+  );
+}
+
+/** A Payload page: its sections, and its floating enquiry button if it has one. */
+export function RenderPage({ page }: { page: Page }) {
+  return (
+    <>
+      <RenderBlocks blocks={page.layout} />
+      {page.floatingEnquiry && (
+        <FloatingButton>
+          <EnquiryButton kind={page.floatingEnquiry} />
+        </FloatingButton>
+      )}
+    </>
   );
 }

@@ -53,7 +53,8 @@ export const getLocations = cache(async (type: LocationType): Promise<Location[]
 export const getLocation = cache(async (type: LocationType, slug: string): Promise<Location | null> => (await getLocations(type)).find((l) => l.slug === slug) ?? null);
 
 const icon = (name: string) => icons[name as keyof typeof icons];
-const iconItems = (items?: { label: string; icon: string }[] | null) => (items ?? []).map((item) => ({ icon: icon(item.icon), label: item.label }));
+/** Icon-and-label items, with each icon's name swapped for its component. */
+export const iconItems = (items?: { label: string; icon: string }[] | null) => (items ?? []).map((item) => ({ icon: icon(item.icon), label: item.label }));
 const lines = (text: string) =>
   text
     .split("\n")
@@ -64,7 +65,7 @@ const lines = (text: string) =>
  * A gallery photo: the same upload serves the thumbnail and the full size, resized by next/image.
  * Its name (shown with it) is its own, or the upload's alt text.
  */
-function galleryImage(media: number | Media, name?: string | null): GalleryImage {
+export function galleryImage(media: number | Media, name?: string | null): GalleryImage {
   const image = mediaImage(media);
   return { src: image.src, thumb: image.src, alt: name || image.alt, position: image.position, blur: image.blur };
 }
