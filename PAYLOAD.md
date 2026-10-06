@@ -52,13 +52,18 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Locations** (working spaces, serviced living houses, event venues) are a collection: each one's
   card and its own page come from the same record, so a price or photo changes in one place. Drag
   to reorder them in the list. What every page of a type shares (e.g. the standard "What's
-  included" for working spaces, the promos) is in its `[slug]` route.
+  included" for working spaces, the promos) is the Location pages global.
 - **Navigation** (/admin → Navigation) holds the menu (mobile, and the desktop bar's More dropdown),
   the desktop bar and the footer, each in its own order with a Show switch per link. While it's
   empty the site falls back to `config/navigation.ts`, which is also what the seed fills it from.
 - **Contact details** (/admin → Contact details): the phone, email and address, used by the
   footer, the Call us/Email us buttons, the careers pages, Social links' email and the account
   page. The tel: link is worked out from the number as shown. Falls back to `config/site.ts`.
+- **Social links** (/admin → Social links): the icons and button in every "Connect with us"
+  section; the email icon uses Contact details. Falls back to `content/old-oak.ts`.
+- **Location pages** (/admin → Location pages): what every working space's, house's, venue's and
+  room's page shares (standard "What's included", intros, the 3D tour button, About the building,
+  promo cards). Falls back to `content/location-pages.ts`.
 - **Link fields** pick from the site's pages (by page, location, room or other page) or take a
   typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
 - **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.

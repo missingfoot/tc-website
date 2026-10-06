@@ -28,7 +28,6 @@ import Testimonials from "@/components/sections/Testimonials";
 import Button from "@/components/ui/Button";
 import FloatingButton from "@/components/ui/FloatingButton";
 import { jobs } from "@/content/careers";
-import { socialLinks } from "@/content/old-oak";
 import { pressLogos, pressPhotos } from "@/content/press";
 import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes } from "@/lib/payload";
 import type { Page } from "@/payload-types";
@@ -328,7 +327,7 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
           />
         );
       case "socialLinks":
-        return <SocialLinks key={key} heading={block.heading} intro={block.intro ?? undefined} links={socialLinks} cta={{ label: "Sign up for a newsletter", href: "#" }} />;
+        return <SocialLinks key={key} heading={block.heading} intro={block.intro ?? undefined} />;
       default:
         return null;
     }

@@ -12,7 +12,9 @@ import { Rooms } from "./payload/collections/Rooms";
 import { Users } from "./payload/collections/Users";
 import { siteLinks } from "./payload/endpoints/siteLinks";
 import { ContactDetails } from "./payload/globals/ContactDetails";
+import { LocationPages } from "./payload/globals/LocationPages";
 import { Navigation } from "./payload/globals/Navigation";
+import { SocialLinksGlobal } from "./payload/globals/SocialLinks";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,7 +34,7 @@ export default buildConfig({
     components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
   },
   collections: [Pages, Locations, Rooms, Media, Users],
-  globals: [Navigation, ContactDetails],
+  globals: [Navigation, ContactDetails, SocialLinksGlobal, LocationPages],
   endpoints: [siteLinks],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",

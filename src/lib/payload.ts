@@ -5,8 +5,11 @@ import * as icons from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import { footerNav, mainNav, mobileNav, type MobileNavGroup, type NavLink } from "@/config/navigation";
 import { site } from "@/config/site";
+import type { SocialLink } from "@/components/sections/SocialLinks";
+import { socialLinks } from "@/content/old-oak";
+import { locationPagesDefaults } from "@/content/location-pages";
 import type { Location, Media, Page, Room as RoomDoc } from "@/payload-types";
-import type { CircleImage, GalleryImage, LocationDetails, Room, RoomDetails, TravelMode } from "@/lib/types";
+import type { CircleImage, Cta, GalleryImage, LocationDetails, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
 import { roomsPath } from "@/payload/collections/Rooms";
 
@@ -188,5 +191,64 @@ export const getContact = cache(async () => {
     phoneLink: telLink(phone),
     email: contact.email || site.email,
     address: contact.address ? lines(contact.address) : site.address,
+  };
+});
+
+/**
+ * The social accounts and button for "Connect with us" (/admin → Social links), without hidden
+ * accounts; email goes to the Contact details address. Falls back to the ones in
+ * content/old-oak.ts while it's not set up.
+ */
+export const getSocialLinks = cache(async (): Promise<{ links: SocialLink[]; button?: Cta }> => {
+  const [social, contact] = await Promise.all([(await payload()).findGlobal({ slug: "socialLinks", depth: 0 }), getContact()]);
+  const accounts = shown(social.accounts);
+  const links: SocialLink[] = accounts.length
+    ? accounts.map((a) => ({ platform: a.platform, label: a.label, href: a.platform === "email" ? `mailto:${contact.email}` : (a.href ?? "#") }))
+    : socialLinks.map((l) => (l.platform === "email" ? { ...l, href: `mailto:${contact.email}` } : l));
+  const button = accounts.length
+    ? social.newsletter?.label && social.newsletter.href
+      ? { label: social.newsletter.label, href: social.newsletter.href }
+      : undefined
+    : { label: "Sign up for a newsletter", href: "#" };
+  return { links, button };
+});
+
+type PromoCardData = { heading: string; image: number | Media; position?: string | null; ctaLabel: string; ctaHref: string; enquiry?: PromoCard["cta"]["enquiry"] | null };
+
+/** Promo cards from the CMS as the section's cards. */
+export const promoCards = (cards?: PromoCardData[] | null): PromoCard[] =>
+  (cards ?? []).map((card) => ({ heading: card.heading, image: mediaImage(card.image, card.position), cta: { label: card.ctaLabel, href: card.ctaHref, enquiry: card.enquiry ?? undefined } }));
+
+const featureGroups = (groups?: { label?: string | null; items?: { label: string; icon: string }[] | null }[] | null): FeatureGroup[] =>
+  (groups ?? []).map((group) => ({ label: group.label ?? undefined, items: iconItems(group.items) }));
+
+/**
+ * What every page of a type shares (/admin → Location pages): working spaces, serviced living,
+ * venues and Old Oak rooms. Each tab falls back to content/location-pages.ts while it's not set up.
+ */
+export const getLocationPages = cache(async () => {
+  const shared = await (await payload()).findGlobal({ slug: "locationPages", depth: 1 });
+  const d = locationPagesDefaults;
+  const { working, serviced, venues, rooms } = shared;
+  return {
+    working: working?.includedIntro
+      ? {
+          includedIntro: working.includedIntro,
+          included: featureGroups(working.included),
+          pricingIntro: working.pricingIntro,
+          tour: working.tour?.label && working.tour.href ? { label: working.tour.label, href: working.tour.href } : undefined,
+          promos: promoCards(working.promos),
+        }
+      : d.working,
+    serviced: serviced?.includedIntro ? { includedIntro: serviced.includedIntro, pricingIntro: serviced.pricingIntro, promos: promoCards(serviced.promos) } : d.serviced,
+    venues: venues?.includedIntro ? { includedHeading: venues.includedHeading, includedIntro: venues.includedIntro, promos: promoCards(venues.promos) } : d.venues,
+    rooms: rooms?.about?.heading
+      ? {
+          included: iconItems(rooms.included),
+          about: { heading: rooms.about.heading, text: paragraphs(rooms.about.text), poster: mediaImage(rooms.about.poster), video: rooms.about.video },
+          coLivingAbout: paragraphs(rooms.coLivingAbout),
+          promos: promoCards(rooms.promos),
+        }
+      : d.rooms,
   };
 });

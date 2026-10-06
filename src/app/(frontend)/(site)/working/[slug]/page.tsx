@@ -3,11 +3,9 @@ import { notFound } from "next/navigation";
 import LocationDetail from "@/components/sections/LocationDetail";
 import Button from "@/components/ui/Button";
 import { Icon360 } from "@/components/icons";
-import { workingLocationIncluded } from "@/content/working";
-import { oldOakPromos } from "@/content/old-oak";
-import { getLocation, getLocations, locationDetails, locationIncluded } from "@/lib/payload";
+import { getLocation, getLocationPages, getLocations, locationDetails, locationIncluded } from "@/lib/payload";
 
-// Working spaces are in the CMS (/admin → Locations); what every working space's page shares is here.
+// Working spaces are in the CMS (/admin → Locations); what every working space's page shares is too (/admin → Location pages).
 
 export async function generateStaticParams() {
   return (await getLocations("working")).map(({ slug }) => ({ slug }));
@@ -25,27 +23,29 @@ export async function generateMetadata({ params }: PageProps<"/working/[slug]">)
   return { title: (await findLocation(slug)).name };
 }
 
-// TODO: link target for the 3D tour
 export default async function WorkingLocation({ params }: PageProps<"/working/[slug]">) {
   const { slug } = await params;
   const location = await findLocation(slug);
+  const { working: shared } = await getLocationPages();
   const own = locationIncluded(location);
   return (
     <LocationDetail
       location={locationDetails(location)}
       enquiry="working"
       included={{
-        intro: "All of our locations come with these features as standard, as well as all of their own unique offerings.",
+        intro: shared.includedIntro,
         // A working space without its own list shows the standard one
-        groups: own.length ? own : workingLocationIncluded,
+        groups: own.length ? own : shared.included,
       }}
-      pricingIntro="Simple monthly memberships, with everything above included."
-      promos={oldOakPromos}
+      pricingIntro={shared.pricingIntro}
+      promos={shared.promos}
       galleryFooter={
-        <Button href="#" variant="dark">
-          <Icon360 />
-          View 3D Tour
-        </Button>
+        shared.tour && (
+          <Button href={shared.tour.href} variant="dark">
+            <Icon360 />
+            {shared.tour.label}
+          </Button>
+        )
       }
     />
   );

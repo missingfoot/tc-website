@@ -11,7 +11,6 @@ import PromoCards from "@/components/sections/PromoCards";
 import FloatingButton from "@/components/ui/FloatingButton";
 import EnquiryButton from "@/components/enquiry/EnquiryButton";
 import { mapEmbedUrl } from "@/content/directions";
-import { socialLinks } from "@/content/old-oak";
 
 type LocationDetailProps = {
   location: LocationDetails;
@@ -70,8 +69,6 @@ export default function LocationDetail({ location, enquiry, included, pricingInt
       <SocialLinks
         heading="Connect with us"
         intro="Keep up with what we are up to on social media, and get the chance to get promotions!"
-        links={socialLinks}
-        cta={{ label: "Sign up for a newsletter", href: "#" }}
       />
 
       <PromoCards cards={promos} />

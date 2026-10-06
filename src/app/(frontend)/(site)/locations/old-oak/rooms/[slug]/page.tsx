@@ -13,9 +13,7 @@ import FeatureList from "@/components/ui/FeatureList";
 import RoomBooking from "@/components/ui/RoomBooking";
 import Section from "@/components/ui/Section";
 import VideoButton from "@/components/ui/VideoButton";
-import { coLivingAbout } from "@/content/co-living";
-import { oldOakAbout, oldOakPromos, oldOakRoomIncluded } from "@/content/old-oak";
-import { getRoom, getRooms, roomDetails } from "@/lib/payload";
+import { getLocationPages, getRoom, getRooms, roomDetails } from "@/lib/payload";
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
@@ -67,6 +65,7 @@ function Paragraphs({ items }: { items: string[] }) {
 export default async function OldOakRoom({ params }: PageProps<"/locations/old-oak/rooms/[slug]">) {
   const { slug } = await params;
   const room = await findRoom(slug);
+  const { rooms: shared } = await getLocationPages();
   const apply = { label: "Apply now", href: `/locations/old-oak/rooms/${room.slug}/apply` };
 
   return (
@@ -101,21 +100,21 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
             )}
 
             <Block heading="What’s included">
-              <FeatureList items={oldOakRoomIncluded} twoColumn />
+              <FeatureList items={shared.included} twoColumn />
             </Block>
 
-            <Block heading={oldOakAbout.heading}>
-              <Paragraphs items={oldOakAbout.text} />
+            <Block heading={shared.about.heading}>
+              <Paragraphs items={shared.about.text} />
               <div className="relative mt-8 aspect-[7/4] overflow-hidden rounded-2xl bg-ink/10">
-                <Photo src={oldOakAbout.poster.src} alt={oldOakAbout.poster.alt} sizes={sizes2x(["(min-width: 1024px)", "45rem"], [null, "100vw"])} className="object-cover" />
+                <Photo src={shared.about.poster.src} alt={shared.about.poster.alt} preview={shared.about.poster.blur} sizes={sizes2x(["(min-width: 1024px)", "45rem"], [null, "100vw"])} className="object-cover" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <VideoButton label="Play video" video={oldOakAbout.video} variant="white" />
+                  <VideoButton label="Play video" video={shared.about.video} variant="white" />
                 </div>
               </div>
             </Block>
 
             <Block heading="About Co-living">
-              <Paragraphs items={coLivingAbout} />
+              <Paragraphs items={shared.coLivingAbout} />
             </Block>
           </div>
         </Container>
@@ -123,7 +122,7 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
 
       <Gallery heading="Explore the room" images={room.photos} />
 
-      <PromoCards cards={oldOakPromos} />
+      <PromoCards cards={shared.promos} />
 
       <StickyBar title={room.name} subtitle={`From ${room.price} pw`} hideWhenVisible="#booking">
         <Button href={apply.href} variant="dark">

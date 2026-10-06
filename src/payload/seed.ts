@@ -25,12 +25,13 @@ import {
 import { bedfordVenues, eventsGallery, oldOakVenues, venues } from "@/content/events";
 import { footerNav, mainNav, mobileNav } from "@/config/navigation";
 import { site } from "@/config/site";
+import { locationPagesDefaults } from "@/content/location-pages";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
 import { oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
 import { oldOakIncluded } from "@/content/included";
-import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakPromos, oldOakReviews, oldOakRoomDetails, oldOakTestimonials } from "@/content/old-oak";
+import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakPromos, oldOakReviews, oldOakRoomDetails, oldOakTestimonials, socialLinks as socialAccounts } from "@/content/old-oak";
 import { morePressUrl, pressInfo, pressNews, pressQuotes } from "@/content/press";
 import { servicedGallery, servicedIncluded, servicedLocationIncluded, servicedLocationPages, servicedPromos } from "@/content/serviced-living";
 import { workingHowItWorks, workingIncluded, workingLocationPages, workingSpaces } from "@/content/working";
@@ -690,6 +691,49 @@ if (contact.phone) console.log("contact details: already set, left as they are")
 else {
   await payload.updateGlobal({ slug: "contactDetails", data: { phone: site.phone, email: site.email, address: site.address.join("\n") } });
   console.log("contact details: created");
+}
+
+// Social links, from content/old-oak.ts, unless they've been set up in the admin already
+const social = await payload.findGlobal({ slug: "socialLinks", depth: 0 });
+if (social.accounts?.length) console.log("social links: already set up, left as they are");
+else {
+  await payload.updateGlobal({
+    slug: "socialLinks",
+    data: {
+      accounts: socialAccounts.map((a) => ({ platform: a.platform, label: a.label, href: a.platform === "email" ? undefined : a.href, show: true })),
+      newsletter: { label: "Sign up for a newsletter", href: "#" },
+    },
+  });
+  console.log("social links: created");
+}
+
+// What location and room pages share, from content/location-pages.ts, unless it's set up already
+const shared = await payload.findGlobal({ slug: "locationPages", depth: 0 });
+if (shared.working?.includedIntro) console.log("location pages: already set up, left as they are");
+else {
+  const d = locationPagesDefaults;
+  const { about } = d.rooms;
+  await payload.updateGlobal({
+    slug: "locationPages",
+    data: {
+      working: {
+        includedIntro: d.working.includedIntro,
+        included: featureGroups(d.working.included),
+        pricingIntro: d.working.pricingIntro,
+        tour: d.working.tour,
+        promos: await promoCards(d.working.promos),
+      },
+      serviced: { includedIntro: d.serviced.includedIntro, pricingIntro: d.serviced.pricingIntro, promos: await promoCards(d.serviced.promos) },
+      venues: { includedHeading: d.venues.includedHeading, includedIntro: d.venues.includedIntro, promos: await promoCards(d.venues.promos) },
+      rooms: {
+        included: d.rooms.included.map((item) => ({ label: item.label, icon: iconName(item.icon) })),
+        about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },
+        coLivingAbout: d.rooms.coLivingAbout.join("\n\n"),
+        promos: await promoCards(d.rooms.promos),
+      },
+    } as never,
+  });
+  console.log("location pages: created");
 }
 
 process.exit(0);

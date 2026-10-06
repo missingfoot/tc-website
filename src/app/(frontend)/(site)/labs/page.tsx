@@ -6,7 +6,6 @@ import PromoCards from "@/components/sections/PromoCards";
 import SocialLinks from "@/components/sections/SocialLinks";
 import { acquire, colab, mobileApp, research } from "@/content/labs";
 import { liveWorkPromos } from "@/content/promos";
-import { socialLinks } from "@/content/old-oak";
 
 export const metadata = { title: "Labs" };
 
@@ -46,8 +45,6 @@ export default function Labs() {
       <SocialLinks
         heading="Connect with us"
         intro="Keep up with what we are up to on social media, and get the chance to get promotions!"
-        links={socialLinks}
-        cta={{ label: "Sign up for a newsletter", href: "#" }}
       />
 
       <PromoCards cards={liveWorkPromos} />

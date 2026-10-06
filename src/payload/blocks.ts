@@ -56,6 +56,40 @@ const enquiryKinds = [
   { label: "Waitlist", value: "waitlist" },
 ];
 
+/** Promo cards (photo, heading, button): a section of its own, and the location pages' (Location pages global). */
+export const promoCardsField: Field = {
+  name: "cards",
+  type: "array",
+  admin: itemLabel("Card"),
+  minRows: 1,
+  maxRows: 3,
+  fields: [
+    { name: "heading", type: "text", required: true },
+    image("image"),
+    position,
+    { name: "ctaLabel", label: "Button label", type: "text", required: true },
+    { name: "ctaHref", label: "Button link", type: "text", required: true, admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
+    { name: "enquiry", label: "Button opens", type: "select", options: enquiryKinds, admin: { isClearable: true, description: "Optional: an enquiry form instead of the link (which then isn't used)." } },
+  ],
+};
+
+/** Groups of icon-and-label features: a section of its own, and the location pages' standard lists. */
+export const featureGroupsField: Field = {
+  name: "groups",
+  type: "array",
+  admin: itemLabel("Group"),
+  minRows: 1,
+  fields: [
+    { name: "label", type: "text", admin: { description: "Optional: a small label above the group." } },
+    {
+      name: "items",
+      type: "array",
+      admin: itemLabel("Item"),
+      fields: [{ type: "row", fields: [{ name: "label", type: "text", required: true }, iconField("", true)] }],
+    },
+  ],
+};
+
 export const HeroBlock: Block = {
   slug: "hero",
   labels: { singular: "Hero", plural: "Heroes" },
@@ -182,21 +216,7 @@ export const PromoCardsBlock: Block = {
   slug: "promoCards",
   labels: { singular: "Promo cards", plural: "Promo cards" },
   fields: [
-    {
-      name: "cards",
-      type: "array",
-      admin: itemLabel("Card"),
-      minRows: 1,
-      maxRows: 3,
-      fields: [
-        { name: "heading", type: "text", required: true },
-        image("image"),
-        position,
-        { name: "ctaLabel", label: "Button label", type: "text", required: true },
-        { name: "ctaHref", label: "Button link", type: "text", required: true, admin: { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } } },
-        { name: "enquiry", label: "Button opens", type: "select", options: enquiryKinds, admin: { isClearable: true, description: "Optional: an enquiry form instead of the link (which then isn't used)." } },
-      ],
-    },
+    promoCardsField,
     {
       name: "mobileShape",
       label: "Photo shape on mobile",
@@ -445,21 +465,7 @@ export const FeatureGroupsBlock: Block = {
   fields: [
     { name: "heading", type: "text", required: true },
     intro,
-    {
-      name: "groups",
-      type: "array",
-      admin: itemLabel("Group"),
-      minRows: 1,
-      fields: [
-        { name: "label", type: "text", admin: { description: "Optional: a small label above the group." } },
-        {
-          name: "items",
-          type: "array",
-          admin: itemLabel("Item"),
-          fields: [{ type: "row", fields: [{ name: "label", type: "text", required: true }, iconField("", true)] }],
-        },
-      ],
-    },
+    featureGroupsField,
     tone,
   ],
 };

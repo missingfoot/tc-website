@@ -96,10 +96,14 @@ export interface Config {
   globals: {
     navigation: Navigation;
     contactDetails: ContactDetail;
+    socialLinks: SocialLink;
+    locationPages: LocationPage;
   };
   globalsSelect: {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     contactDetails: ContactDetailsSelect<false> | ContactDetailsSelect<true>;
+    socialLinks: SocialLinksSelect<false> | SocialLinksSelect<true>;
+    locationPages: LocationPagesSelect<false> | LocationPagesSelect<true>;
   };
   locale: null;
   widgets: {
@@ -2123,6 +2127,355 @@ export interface ContactDetail {
   createdAt?: string | null;
 }
 /**
+ * The icons and button in every “Connect with us” section. Drag to reorder; untick Show to hide one. Changes show everywhere as soon as you save.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "socialLinks".
+ */
+export interface SocialLink {
+  id: number;
+  accounts?:
+    | {
+        /**
+         * Its icon. Email goes to the address in Contact details.
+         */
+        platform: 'youtube' | 'twitter' | 'facebook' | 'instagram' | 'email';
+        /**
+         * The account's address, e.g. https://www.instagram.com/…
+         */
+        href?: string | null;
+        /**
+         * Read out by screen readers (the icon has no text), e.g. “The Collective on Instagram”.
+         */
+        label: string;
+        /**
+         * Untick to hide it without deleting it.
+         */
+        show?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional: the button under the icons, e.g. a newsletter sign-up. Leave the link empty for no button.
+   */
+  newsletter?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * What every page of a type shares: each working space's, house's, venue's or room's own content is in Locations and Rooms; the parts they all have in common are here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locationPages".
+ */
+export interface LocationPage {
+  id: number;
+  working: {
+    includedIntro: string;
+    /**
+     * Shown on a working space's page unless it has its own list (Locations → its Page tab).
+     */
+    included?:
+      | {
+          /**
+           * Optional: a small label above the group.
+           */
+          label?: string | null;
+          items?:
+            | {
+                label: string;
+                icon:
+                  | 'Api'
+                  | 'Automate'
+                  | 'BarKitchen'
+                  | 'Basin'
+                  | 'Bed'
+                  | 'Bike'
+                  | 'Bill'
+                  | 'Bus'
+                  | 'Calendar'
+                  | 'CalendarCheck'
+                  | 'Car'
+                  | 'Cctv'
+                  | 'Check'
+                  | 'Chef'
+                  | 'Cocktail'
+                  | 'Community'
+                  | 'Crowd'
+                  | 'Database'
+                  | 'DealFlow'
+                  | 'Desk'
+                  | 'Dining'
+                  | 'DoorEntry'
+                  | 'Dumbbell'
+                  | 'FeasibilityModel'
+                  | 'FruitBowl'
+                  | 'Groceries'
+                  | 'Guard'
+                  | 'Hack'
+                  | 'HandsHeart'
+                  | 'Handshake'
+                  | 'Help'
+                  | 'Hob'
+                  | 'Icon360'
+                  | 'Info'
+                  | 'IntegrateData'
+                  | 'Integrations'
+                  | 'Lion'
+                  | 'LocationPin'
+                  | 'Lock'
+                  | 'Lounge'
+                  | 'Mail'
+                  | 'ManageMembership'
+                  | 'MeetingTable'
+                  | 'MemberSupport'
+                  | 'Membership'
+                  | 'Microwave'
+                  | 'Outdoor'
+                  | 'Oven'
+                  | 'Padlock'
+                  | 'People'
+                  | 'Plane'
+                  | 'Play'
+                  | 'PrivateOffice'
+                  | 'QuoteMark'
+                  | 'Relationships'
+                  | 'Reporting'
+                  | 'Restaurant'
+                  | 'RestaurantsNearby'
+                  | 'RoomAllocation'
+                  | 'RoomPricing'
+                  | 'Roundel'
+                  | 'Router'
+                  | 'Scales'
+                  | 'Shelves'
+                  | 'SmartHome'
+                  | 'SocialNetwork'
+                  | 'Sofa'
+                  | 'SprayBottle'
+                  | 'Sprout'
+                  | 'Star'
+                  | 'SunCloud'
+                  | 'TapeMeasure'
+                  | 'TeamChat'
+                  | 'TrackMarket'
+                  | 'Train'
+                  | 'WashingMachine'
+                  | 'Workshop'
+                  | 'Wrench';
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    pricingIntro: string;
+    /**
+     * Under the gallery. Leave the link empty for no button.
+     */
+    tour?: {
+      label?: string | null;
+      href?: string | null;
+    };
+    /**
+     * The cards at the bottom of every page of this type.
+     */
+    promos?:
+      | {
+          heading: string;
+          image: number | Media;
+          /**
+           * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+           */
+          position?: ('top' | 'bottom' | 'left' | 'right') | null;
+          ctaLabel: string;
+          ctaHref: string;
+          /**
+           * Optional: an enquiry form instead of the link (which then isn't used).
+           */
+          enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  serviced: {
+    includedIntro: string;
+    pricingIntro: string;
+    /**
+     * The cards at the bottom of every page of this type.
+     */
+    promos?:
+      | {
+          heading: string;
+          image: number | Media;
+          /**
+           * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+           */
+          position?: ('top' | 'bottom' | 'left' | 'right') | null;
+          ctaLabel: string;
+          ctaHref: string;
+          /**
+           * Optional: an enquiry form instead of the link (which then isn't used).
+           */
+          enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  venues: {
+    includedHeading: string;
+    includedIntro: string;
+    /**
+     * The cards at the bottom of every page of this type.
+     */
+    promos?:
+      | {
+          heading: string;
+          image: number | Media;
+          /**
+           * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+           */
+          position?: ('top' | 'bottom' | 'left' | 'right') | null;
+          ctaLabel: string;
+          ctaHref: string;
+          /**
+           * Optional: an enquiry form instead of the link (which then isn't used).
+           */
+          enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  rooms: {
+    included?:
+      | {
+          label: string;
+          icon:
+            | 'Api'
+            | 'Automate'
+            | 'BarKitchen'
+            | 'Basin'
+            | 'Bed'
+            | 'Bike'
+            | 'Bill'
+            | 'Bus'
+            | 'Calendar'
+            | 'CalendarCheck'
+            | 'Car'
+            | 'Cctv'
+            | 'Check'
+            | 'Chef'
+            | 'Cocktail'
+            | 'Community'
+            | 'Crowd'
+            | 'Database'
+            | 'DealFlow'
+            | 'Desk'
+            | 'Dining'
+            | 'DoorEntry'
+            | 'Dumbbell'
+            | 'FeasibilityModel'
+            | 'FruitBowl'
+            | 'Groceries'
+            | 'Guard'
+            | 'Hack'
+            | 'HandsHeart'
+            | 'Handshake'
+            | 'Help'
+            | 'Hob'
+            | 'Icon360'
+            | 'Info'
+            | 'IntegrateData'
+            | 'Integrations'
+            | 'Lion'
+            | 'LocationPin'
+            | 'Lock'
+            | 'Lounge'
+            | 'Mail'
+            | 'ManageMembership'
+            | 'MeetingTable'
+            | 'MemberSupport'
+            | 'Membership'
+            | 'Microwave'
+            | 'Outdoor'
+            | 'Oven'
+            | 'Padlock'
+            | 'People'
+            | 'Plane'
+            | 'Play'
+            | 'PrivateOffice'
+            | 'QuoteMark'
+            | 'Relationships'
+            | 'Reporting'
+            | 'Restaurant'
+            | 'RestaurantsNearby'
+            | 'RoomAllocation'
+            | 'RoomPricing'
+            | 'Roundel'
+            | 'Router'
+            | 'Scales'
+            | 'Shelves'
+            | 'SmartHome'
+            | 'SocialNetwork'
+            | 'Sofa'
+            | 'SprayBottle'
+            | 'Sprout'
+            | 'Star'
+            | 'SunCloud'
+            | 'TapeMeasure'
+            | 'TeamChat'
+            | 'TrackMarket'
+            | 'Train'
+            | 'WashingMachine'
+            | 'Workshop'
+            | 'Wrench';
+          id?: string | null;
+        }[]
+      | null;
+    about: {
+      heading: string;
+      /**
+       * Leave a blank line between paragraphs.
+       */
+      text: string;
+      poster: number | Media;
+      /**
+       * YouTube, Vimeo or an .mp4, played over the poster.
+       */
+      video: string;
+    };
+    /**
+     * Leave a blank line between paragraphs.
+     */
+    coLivingAbout: string;
+    /**
+     * The cards at the bottom of every page of this type.
+     */
+    promos?:
+      | {
+          heading: string;
+          image: number | Media;
+          /**
+           * Which edge of the photo stays in view when it's cropped. Clear it (×) to centre it again.
+           */
+          position?: ('top' | 'bottom' | 'left' | 'right') | null;
+          ctaLabel: string;
+          ctaHref: string;
+          /**
+           * Optional: an enquiry form instead of the link (which then isn't used).
+           */
+          enquiry?: ('living' | 'working' | 'serviced' | 'events' | 'waitlist') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation_select".
  */
@@ -2193,6 +2546,140 @@ export interface ContactDetailsSelect<T extends boolean = true> {
   phone?: T;
   email?: T;
   address?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "socialLinks_select".
+ */
+export interface SocialLinksSelect<T extends boolean = true> {
+  accounts?:
+    | T
+    | {
+        platform?: T;
+        href?: T;
+        label?: T;
+        show?: T;
+        id?: T;
+      };
+  newsletter?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locationPages_select".
+ */
+export interface LocationPagesSelect<T extends boolean = true> {
+  working?:
+    | T
+    | {
+        includedIntro?: T;
+        included?:
+          | T
+          | {
+              label?: T;
+              items?:
+                | T
+                | {
+                    label?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        pricingIntro?: T;
+        tour?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+        promos?:
+          | T
+          | {
+              heading?: T;
+              image?: T;
+              position?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              enquiry?: T;
+              id?: T;
+            };
+      };
+  serviced?:
+    | T
+    | {
+        includedIntro?: T;
+        pricingIntro?: T;
+        promos?:
+          | T
+          | {
+              heading?: T;
+              image?: T;
+              position?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              enquiry?: T;
+              id?: T;
+            };
+      };
+  venues?:
+    | T
+    | {
+        includedHeading?: T;
+        includedIntro?: T;
+        promos?:
+          | T
+          | {
+              heading?: T;
+              image?: T;
+              position?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              enquiry?: T;
+              id?: T;
+            };
+      };
+  rooms?:
+    | T
+    | {
+        included?:
+          | T
+          | {
+              label?: T;
+              icon?: T;
+              id?: T;
+            };
+        about?:
+          | T
+          | {
+              heading?: T;
+              text?: T;
+              poster?: T;
+              video?: T;
+            };
+        coLivingAbout?: T;
+        promos?:
+          | T
+          | {
+              heading?: T;
+              image?: T;
+              position?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              enquiry?: T;
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
