@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import { Check } from "@/components/icons";
 import Container from "@/components/ui/Container";
 import Photo from "@/components/ui/Photo";
@@ -10,7 +11,8 @@ import { text } from "@/lib/styles";
 export type Product = {
   name: string;
   summary: string;
-  features: string[];
+  /** Each feature with an icon that illustrates it (a tick if left out). */
+  features: { text: string; icon?: ComponentType<{ className?: string }> }[];
   /** Shown whole (never cropped), so give its pixel size. Portrait shots (e.g. a phone) display narrower. */
   screenshot: {
     src: string;
@@ -31,7 +33,7 @@ type ProductShowcaseProps = {
 };
 
 /**
- * One product: its screenshot beside its name, summary and a checklist of features. The screenshot
+ * One product: its screenshot beside its name, summary and a list of features, each with an icon. The screenshot
  * floats on a soft shadow and leans towards the mouse.
  */
 export default function ProductShowcase({ product, side = "left", tone = "white" }: ProductShowcaseProps) {
@@ -60,10 +62,10 @@ export default function ProductShowcase({ product, side = "left", tone = "white"
           <div className="max-w-lg">
             <h2 className={text.sectionHeading}>{product.name}</h2>
             <p className={`mt-4 ${text.body}`}>{product.summary}</p>
-            <ul className="mt-6 flex flex-col gap-3">
-              {product.features.map((feature) => (
-                <li key={feature} className={`flex gap-3 ${text.body}`}>
-                  <Check className="mt-0.5 shrink-0 text-ink" />
+            <ul className="mt-6 flex flex-col gap-4">
+              {product.features.map(({ text: feature, icon: FeatureIcon = Check }) => (
+                <li key={feature} className={`flex gap-4 ${text.body}`}>
+                  <FeatureIcon className="mt-0.5 shrink-0" />
                   {feature}
                 </li>
               ))}

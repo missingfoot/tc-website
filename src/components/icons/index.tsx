@@ -953,3 +953,245 @@ export function AmexLogo({ className }: { className?: string }) {
     </CardLogo>
   );
 }
+
+// Labs product features (Acquire, Colab and the mobile app)
+
+/** Tracking market activity (a trend line on a chart). */
+export function TrackMarket(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 14.5L9 9.5L12 12L15 14.5L21 9.5" strokeLinecap="butt" />
+      <path d="M3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5Z" />
+      <path d="M15 3V8" />
+      <path d="M15 19V21" />
+    </Icon>
+  );
+}
+
+/** Integrating data (a cog feeding three points). */
+export function IntegrateData(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 19V15" />
+      <path d="M18.5 12L21 14.5L21 17V16.6347" />
+      <path d="M5.5 12L2.99999 14.5L2.99999 17V16.6347" />
+      <path d="M3 21C4.10457 21 5 20.1046 5 19C5 17.8954 4.10457 17 3 17C1.89543 17 1 17.8954 1 19C1 20.1046 1.89543 21 3 21Z" />
+      <path d="M12 23C13.1046 23 14 22.1046 14 21C14 19.8954 13.1046 19 12 19C10.8954 19 10 19.8954 10 21C10 22.1046 10.8954 23 12 23Z" />
+      <path d="M21 21C22.1046 21 23 20.1046 23 19C23 17.8954 22.1046 17 21 17C19.8954 17 19 17.8954 19 19C19 20.1046 19.8954 21 21 21Z" />
+      <path d="M12 9.75C14.0711 9.75 15.75 8.07107 15.75 6C15.75 3.92893 14.0711 2.25 12 2.25C9.92893 2.25 8.25 3.92893 8.25 6C8.25 8.07107 9.92893 9.75 12 9.75Z" />
+      <path d="M11.449 2.29L11.813 1H12.188L12.551 2.29" strokeLinecap="butt" />
+      <path d="M14.234 2.98703L15.403 2.33203L15.668 2.59703L15.013 3.76603" strokeLinecap="butt" />
+      <path d="M15.71 5.44897L17 5.81197V6.18697L15.71 6.55097" strokeLinecap="butt" />
+      <path d="M15.013 8.23401L15.668 9.40301L15.403 9.66801L14.234 9.01301" strokeLinecap="butt" />
+      <path d="M12.551 9.70996L12.188 11H11.813L11.449 9.70996" strokeLinecap="butt" />
+      <path d="M9.76603 9.01301L8.59703 9.66801L8.33203 9.40301L8.98703 8.23401" strokeLinecap="butt" />
+      <path d="M8.29 6.55097L7 6.18797V5.81297L8.29 5.44897" strokeLinecap="butt" />
+      <path d="M8.98703 3.76603L8.33203 2.59703L8.59703 2.33203L9.76603 2.98703" strokeLinecap="butt" />
+    </Icon>
+  );
+}
+
+/** Deal flow (a document with a house). */
+export function DealFlow(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M20 9L20 4C20 2.89543 19.1046 2 18 2L6 2C4.89543 2 4 2.89543 4 4L4 20C4 21.1046 4.89543 22 6 22L8 22" />
+      <path d="M17 22V19" />
+      <path d="M22 14.8V16.4V20.5C22 21.3284 21.3284 22 20.5 22L13.5 22C12.6716 22 12 21.3284 12 20.5V16.4V14.8L17 12L22 14.8Z" />
+      <path d="M8 11H9" />
+      <path d="M8 7.02L12 7.02" />
+      <path d="M16 7.02L16.01 7.02" />
+    </Icon>
+  );
+}
+
+/** Automated workflows (a robot arm over two boxes). */
+export function Automate(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 12L6 15" />
+      <path d="M11 12L1 12L1 19.5C1 20.3284 1.67157 21 2.5 21L9.5 21C10.3284 21 11 20.3284 11 19.5L11 12Z" />
+      <path d="M18 12L18 15" />
+      <path d="M23 12L13 12L13 19.5C13 20.3284 13.6716 21 14.5 21L21.5 21C22.3284 21 23 20.3284 23 19.5L23 12Z" />
+      <path d="M18 3L18 1" />
+      <path d="M20.5 8L21 5.5L18 3L15 5.5L15.5 8" />
+    </Icon>
+  );
+}
+
+/** Relationship management (an org chart). */
+export function Relationships(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 22C5.10457 22 6 21.1046 6 20C6 18.8954 5.10457 18 4 18C2.89543 18 2 18.8954 2 20C2 21.1046 2.89543 22 4 22Z" />
+      <path d="M12 6C13.1046 6 14 5.10457 14 4C14 2.89543 13.1046 2 12 2C10.8954 2 10 2.89543 10 4C10 5.10457 10.8954 6 12 6Z" />
+      <path d="M12 22C13.1046 22 14 21.1046 14 20C14 18.8954 13.1046 18 12 18C10.8954 18 10 18.8954 10 20C10 21.1046 10.8954 22 12 22Z" />
+      <path d="M20 22C21.1046 22 22 21.1046 22 20C22 18.8954 21.1046 18 20 18C18.8954 18 18 18.8954 18 20C18 21.1046 18.8954 22 20 22Z" />
+      <path d="M20 14V12H4V14" />
+      <path d="M12 10V14" />
+    </Icon>
+  );
+}
+
+/** Feasibility modelling (a site plan on a scroll). */
+export function FeasibilityModel(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 9V13" />
+      <path d="M18 5L4 5C2.89543 5 2 5.89543 2 7L2 19C2 20.1046 2.89543 21 4 21L12 21" />
+      <path d="M18 2L20 2C21.1046 2 22 2.89543 22 4L22 18.5" strokeLinecap="butt" />
+      <path d="M18 2L18 16L19.5 16C20.8807 16 22 17.1193 22 18.5V18.5C22 19.8807 20.8807 21 19.5 21L12 21" />
+      <path d="M6 17V9H14V17H10" />
+    </Icon>
+  );
+}
+
+/** An API (a cog connected to three points). */
+export function Api(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2 11V9.92865L4.41983 8.96086C4.5991 8.29448 4.86051 7.66381 5.19763 7.08028L4.17199 4.68688L5.68688 3.17199L8.08028 4.19763C8.66452 3.86051 9.29448 3.59839 9.96086 3.41983L10.9286 1H13.0714L14.0391 3.41983C14.7055 3.5991 15.3362 3.86051 15.9197 4.19763L18.3131 3.17199L19.828 4.68688L18.8024 7.08028C19.1395 7.66452 19.4016 8.29448 19.5802 8.96086L22 9.92865V11" />
+      <path d="M12 19V15.0001" strokeLinecap="butt" />
+      <path d="M15 13L20 15L20 18" strokeLinecap="butt" />
+      <path d="M9 13L4 15L4 18" strokeLinecap="butt" />
+      <path d="M12 23C13.1046 23 14 22.1046 14 21C14 19.8954 13.1046 19 12 19C10.8954 19 10 19.8954 10 21C10 22.1046 10.8954 23 12 23Z" />
+      <path d="M20 22C21.1046 22 22 21.1046 22 20C22 18.8954 21.1046 18 20 18C18.8954 18 18 18.8954 18 20C18 21.1046 18.8954 22 20 22Z" />
+      <path d="M4 22C2.89543 22 2 21.1046 2 20C2 18.8954 2.89543 18 4 18C5.10457 18 6 18.8954 6 20C6 21.1046 5.10457 22 4 22Z" />
+      <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" />
+    </Icon>
+  );
+}
+
+/** Third-party integrations (a plug and socket). */
+export function Integrations(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2 22L4 20" />
+      <path d="M10 10L7.5 12.5L7.72472 12.2753" />
+      <path d="M14 14L11.5 16.5L11.7247 16.2753" />
+      <path d="M5.72485 10.5916L4 12.3149C2.98089 13.334 2.40836 14.7162 2.40836 16.1574C2.40836 17.5987 2.98089 18.9809 4 20C5.01911 21.0191 6.40132 21.5916 7.84255 21.5916C9.28379 21.5916 10.666 21.0191 11.6851 20L13.4084 18.2759L5.72485 10.5916Z" />
+      <path d="M22.0007 1.99927L20 4" />
+      <path d="M18.2751 13.4085L20 11.6852C21.0191 10.6661 21.5916 9.28391 21.5916 7.84267C21.5916 6.40144 21.0191 5.01923 20 4.00012C18.9809 2.98101 17.5987 2.40849 16.1574 2.40849C14.7162 2.40849 13.334 2.98101 12.3149 4.00012L10.5916 5.72498L18.2751 13.4085Z" />
+    </Icon>
+  );
+}
+
+/** Room allocation (a person under a roof). */
+export function RoomAllocation(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <polyline points="2 7 12 2 22 7" />
+      <circle cx="12" cy="9.5" r="2.5" />
+      <path d="m12,15c-3.314,0-6,2.686-6,6h12c0-3.314-2.686-6-6-6Z" />
+    </Icon>
+  );
+}
+
+/** Reporting (two trend lines). */
+export function Reporting(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2 14L17.2727 21L22 12" />
+      <path d="M2.0001 22L8.50006 10.3306L12.0449 11.9689L15.5897 13.6073L22.0001 2" />
+    </Icon>
+  );
+}
+
+/** Dynamic room pricing (a house with a rising price line). */
+export function RoomPricing(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M1 11L12 2L23 11" strokeLinecap="butt" />
+      <path d="M4 14V20C4 21.1046 4.89543 22 6 22H8.5" />
+      <path d="M11.5 19L13.5 17L17.5 21L22.5 16L22.1939 16.3061" />
+      <path d="M22.5 16H21L21.5 17L22.5 17.5V16Z" />
+    </Icon>
+  );
+}
+
+/** Managing a membership (two toggle switches). */
+export function ManageMembership(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m17,22H7c-2.209,0-4-1.791-4-4h0c0-2.209,1.791-4,4-4h10" strokeLinecap="butt" />
+      <circle cx="17" cy="18" r="4" />
+      <path d="m7,2h10c2.209,0,4,1.791,4,4h0c0,2.209-1.791,4-4,4H7" strokeLinecap="butt" />
+      <circle cx="7" cy="6" r="4" />
+    </Icon>
+  );
+}
+
+/** Member support (two people and a speech bubble). */
+export function MemberSupport(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m20,1h-8c-.552,0-1,.448-1,1v7.5l3-2.5h6c.552,0,1-.448,1-1V2c0-.552-.448-1-1-1Z" />
+      <path d="m5.5,18h0c-2.485,0-4.5,2.015-4.5,4.5v.5h9v-.5c0-2.485-2.015-4.5-4.5-4.5Z" />
+      <circle cx="5.5" cy="12.5" r="2.5" />
+      <path d="m18.5,18h0c-2.485,0-4.5,2.015-4.5,4.5v.5h9v-.5c0-2.485-2.015-4.5-4.5-4.5Z" />
+      <circle cx="18.5" cy="12.5" r="2.5" />
+    </Icon>
+  );
+}
+
+/** Location-based services (a map pin). */
+export function LocationPin(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 7.59403C5 13.2778 12 18 12 18C12 18 19 13.2778 19 7.59403C19 3.39004 15.4122 1 12 1C8.58782 1 5 3.39004 5 7.59403Z" />
+      <path d="M12 10C13.1046 10 14 9.10457 14 8C14 6.89543 13.1046 6 12 6C10.8954 6 10 6.89543 10 8C10 9.10457 10.8954 10 12 10Z" />
+      <path d="M19.8125 15.9075C21.1814 16.5492 22 17.3633 22 18.2491C22 20.3206 17.5228 22 12 22C6.47715 22 2 20.3206 2 18.2491C2 17.3633 2.81857 16.5492 4.18745 15.9075" />
+    </Icon>
+  );
+}
+
+/** Data collection (a database). */
+export function Database(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m3,5v14c0,1.7,4,3,9,3s9-1.3,9-3V5" strokeLinecap="butt" />
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="m21,12c0,1.7-4,3-9,3s-9-1.3-9-3" />
+    </Icon>
+  );
+}
+
+/** A social network (three connected people). */
+export function SocialNetwork(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m4.062,14c-.041-.328-.062-.661-.062-1,0-1.864.637-3.579,1.706-4.939" />
+      <path d="m15,5.582c2.01.814,3.613,2.42,4.424,4.431" />
+      <path d="m16.963,19.275c-1.364,1.08-3.088,1.725-4.963,1.725-.407,0-.806-.03-1.196-.089" />
+      <circle cx="12" cy="5" r="3" />
+      <circle cx="4.999" cy="16.999" r="3" />
+      <circle cx="19.001" cy="17.001" r="3" />
+    </Icon>
+  );
+}
+
+/** Hacking (a hooded figure at a laptop). */
+export function Hack(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m8,12c-1.238-1.377-1.947-3.149-2-5,0-2,4-6,6-6s6,4,6,6c-.053,1.851-.762,3.623-2,5" />
+      <path d="m10.891,5.74l-1.891,1.26c0,3,2,4,3,4s3-1,3-4l-1.891-1.26c-.672-.448-1.546-.448-2.218,0Z" fill="currentColor" stroke="none" />
+      <rect x="6" y="15" width="12" height="8" />
+      <path d="m6.753,10.185l-3.253,2.439c-.326.244-.571.582-.7.968l-1.409,4.235c-.24.719-.053,1.511.483,2.047l1.126,1.126" strokeLinecap="butt" />
+      <path d="m17.247,10.186l3.253,2.438c.326.244.571.582.7.968l1.411,4.235c.24.719.053,1.511-.483,2.047l-1.128,1.126" strokeLinecap="butt" />
+      <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}
+
+/** Smart home technology (a house with a wifi signal). */
+export function SmartHome(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M1.5 10.5L12 2L22.5 10.5" />
+      <path d="M4 13V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V13" />
+      <path d="M8.46447 14.5355C10.4171 12.5829 13.5829 12.5829 15.5355 14.5355" />
+      <path d="M11.2929 17.2929C11.6904 16.8954 12.2777 16.8635 12.7071 17.2929L12 18L11.2929 17.2929Z" />
+    </Icon>
+  );
+}
