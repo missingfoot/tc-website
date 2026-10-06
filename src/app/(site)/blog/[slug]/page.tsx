@@ -69,7 +69,7 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
 
             {post.cover && (
               <div className="mx-auto mt-10 max-w-5xl lg:mt-12">
-                <BlogImage src={post.cover} alt="" />
+                <BlogImage src={post.cover} alt="" aboveFold wide />
               </div>
             )}
 
