@@ -7,9 +7,6 @@ import { curvedMask } from "@/components/sections/Hero";
 type LabsHeroProps = {
   title: string;
   subtitle: string;
-  /** Shorter versions for phones (below lg), where the full text covers too much of the hero */
-  shortTitle?: string;
-  shortSubtitle?: string;
   cta: { label: string; href: string };
 };
 
@@ -42,7 +39,7 @@ const TRAIL_PATH = "M -900 560 Q -560 560 0 0";
  * then hovers. Text is centred on desktop and left-aligned below lg (site rule). Animations are off
  * for people who prefer reduced motion.
  */
-export default function LabsHero({ title, subtitle, shortTitle = title, shortSubtitle = subtitle, cta }: LabsHeroProps) {
+export default function LabsHero({ title, subtitle, cta }: LabsHeroProps) {
   return (
     <div className="@container">
       <section className={`relative h-130 w-full overflow-hidden bg-[#3b3ccf] lg:h-160 ${curvedMask}`}>
@@ -155,14 +152,8 @@ export default function LabsHero({ title, subtitle, shortTitle = title, shortSub
         </div>
 
         <Container className="relative flex h-full flex-col items-start justify-end pb-18 text-left text-white lg:items-center lg:justify-center lg:pt-40 lg:pb-0 lg:text-center">
-          <h1 className="max-w-sm text-5xl font-bold leading-heading tracking-tight lg:max-w-4xl lg:text-7xl">
-            <span className="lg:hidden">{shortTitle}</span>
-            <span className="max-lg:hidden">{title}</span>
-          </h1>
-          <p className="mt-4 max-w-xl text-lg font-medium leading-snug text-balance lg:mt-6 lg:max-w-2xl lg:text-xl">
-            <span className="lg:hidden">{shortSubtitle}</span>
-            <span className="max-lg:hidden">{subtitle}</span>
-          </p>
+          <h1 className="max-w-sm text-5xl font-bold leading-heading tracking-tight lg:max-w-4xl lg:text-7xl">{title}</h1>
+          <p className="mt-4 max-w-xl text-lg font-medium leading-snug text-balance lg:mt-6 lg:max-w-2xl lg:text-xl">{subtitle}</p>
           <Button href={cta.href} variant="white" className="mt-8">
             {cta.label}
           </Button>

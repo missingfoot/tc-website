@@ -13,10 +13,8 @@ export default function Labs() {
   return (
     <>
       <LabsHero
-        title="The Collective Innovation Labs"
-        subtitle="We invest heavily in research and development of new technologies and software platforms to develop tools that can support our ventures and to help scale to other cities around the world."
-        shortTitle="Innovation Labs"
-        shortSubtitle="We build new technology and software that supports our ventures and helps them scale to cities around the world."
+        title="Innovation Labs"
+        subtitle="We build new technology and software that supports our ventures and helps them scale to cities around the world."
         cta={{ label: "See our projects", href: "#products" }}
       />
 
