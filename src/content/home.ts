@@ -5,13 +5,13 @@ const home = "/images/home";
 export const homeMainLinks: LinkCard[] = [
   {
     title: "Co-Living",
-    text: "Starting with London, our focus is on creating ground-breaking spaces and the greatest possible experiences within them. We’re redefining the way people can choose to live, work and play.",
+    text: "Co-living is a new way to rent in cities. Combining private ensuites with beautiful shared spaces and a programme of inspiring events, all included in one monthly bill, we help our members get the most out of city living.",
     image: { src: "/images/old-oak/promos/friends-chatting.jpg", alt: "Two residents laughing together in the lounge" },
     cta: { label: "Explore Co-Living", href: "/co-living" },
   },
   {
     title: "Working",
-    text: "Starting with London, our focus is on creating ground-breaking spaces and the greatest possible experiences within them. We’re redefining the way people can choose to live, work and play.",
+    text: "It’s all about the environment when you’re working on your next big thing. Whether it’s a collaboration or a solo endeavour, our workspaces are designed to enable your best work.",
     // TODO: only a 354px copy exists, so it's soft; swap for a larger original
     image: { src: `${home}/working.jpg`, alt: "Members working at long tables in the workspace" },
     cta: { label: "Explore Working", href: "/working" },

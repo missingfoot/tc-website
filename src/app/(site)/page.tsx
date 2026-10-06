@@ -20,8 +20,10 @@ export default function Home() {
       />
 
       <Intro raised layout="stacked" heading="We're unlocking the world's greatest cities for the creative and ambitious" cta={{ label: "Read more", href: "/mission" }}>
-        Starting with London, our focus is on creating ground-breaking spaces and the greatest possible experiences
-        within them. By doing this, we’re redefining the way people can choose to live, work and play.
+        Our mission is simple: we want to build a world that’s more alive, more together and more collaborative. Our
+        buildings are so much more than just bricks and mortar: they redefine the way people choose to live, work and
+        play by providing unique shared environments that unlock inspiration and make every single day extraordinary. We
+        create places where you can meet new people, try new things, and learn something new every day.
       </Intro>
 
       <LinkCards cards={homeMainLinks} cardStyle="dark" />
