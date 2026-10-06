@@ -82,6 +82,8 @@ for (const [, percent, x = 0, y = 0, rotate = 0] of frames) {
   const length = info.width * Math.abs(dx) + info.height * Math.abs(dy);
   let edge = length / 2 + (Number(x) + origin.x - info.width / 2) * dx + (Number(y) + origin.y - info.height / 2) * dy;
   if (percent === "100") edge += 200; // fully revealed at rest, including the glow just past the tip
-  console.log(`  ${percent}% { --trail-angle: ${angle.toFixed(1)}deg; --trail-edge: ${Math.round(edge)}px; }`);
+  // Once landed, this masked copy hides and an unmasked copy takes over for the hover
+  const rest = percent === "100" ? " visibility: hidden;" : "";
+  console.log(`  ${percent}% { --trail-angle: ${angle.toFixed(1)}deg; --trail-edge: ${Math.round(edge)}px;${rest} }`);
 }
 console.log("}");

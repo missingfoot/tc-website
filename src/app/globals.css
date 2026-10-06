@@ -58,7 +58,9 @@ body {
 /* The trail is a pre-rendered image (scripts/labs-trail.mjs), revealed behind the rocket by a soft
    mask edge that sits at the rocket and faces its direction of travel. These keyframes are
    generated from rocket-launch by that script, so rerun it if the flight changes. Registered so
-   they animate smoothly; the initial values show the whole trail (reduced motion). */
+   they animate smoothly. The masked copy never moves and hides once the rocket lands, when an
+   unmasked copy appears (rocket-landed) to hover with the rocket: Safari can lose a masked
+   element that moves in its own layer, and took the rocket with it. */
 @property --trail-angle {
   syntax: "<angle>";
   inherits: false;
@@ -90,7 +92,11 @@ body {
   85% { --trail-angle: 45.2deg; --trail-edge: 1122px; }
   90% { --trail-angle: 45.1deg; --trail-edge: 1130px; }
   95% { --trail-angle: 45.0deg; --trail-edge: 1134px; }
-  100% { --trail-angle: 45.0deg; --trail-edge: 1336px; }
+  100% { --trail-angle: 45.0deg; --trail-edge: 1336px; visibility: hidden; }
+}
+/* Shows an element once the rocket lands (run with step-end) */
+@keyframes rocket-landed {
+  to { visibility: visible; }
 }
 @keyframes rocket-hover {
   0%, 100% { transform: translate(0, 0); }

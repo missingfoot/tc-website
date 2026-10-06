@@ -10,6 +10,10 @@ type LabsHeroProps = {
   cta: { label: string; href: string };
 };
 
+// The rocket's light trail, pre-rendered by scripts/labs-trail.mjs (which prints its size and position)
+const trail = { src: "/images/labs/rocket-trail.webp", width: 1003, height: 767, unoptimized: true, priority: true };
+const trailPosition = "absolute top-[calc(50%+12px-96px)] left-[calc(50%-935px)] max-w-none";
+
 /**
  * The Labs page header from the original design: a blue-to-magenta gradient full of twinkling
  * stars, with a rocket that curves in from the bottom left, drawing a light trail behind it,
@@ -34,19 +38,21 @@ export default function LabsHero({ title, subtitle, cta }: LabsHeroProps) {
             image (scripts/labs-trail.mjs, which also gives its size and position: its curve ends
             12px below the rocket's centre so it meets the flame). A soft mask edge travels with
             the rocket to reveal it; the rocket covers the trail's tip, so it shows from the flame.
-            Both hover together once the rocket has landed. */}
+            Once landed, an identical unmasked copy takes over and hovers in step with the rocket:
+            a masked element moving in its own layer made both disappear on iPhones. */}
         <div aria-hidden="true" className="absolute top-[22%] left-[66%] size-28 max-lg:scale-60 lg:top-[15%] lg:left-[63%]">
-          <div className="size-full motion-safe:animate-[rocket-hover_4s_ease-in-out_1.8s_infinite]">
-            <Image
-              src="/images/labs/rocket-trail.webp"
-              alt=""
-              width={1003}
-              height={767}
-              unoptimized
-              priority
-              className="absolute top-[calc(50%+12px-96px)] left-[calc(50%-935px)] max-w-none [mask-image:linear-gradient(var(--trail-angle),#000_calc(var(--trail-edge)-40px),transparent_calc(var(--trail-edge)+40px))] motion-safe:animate-[rocket-trail_1.8s_linear_both]"
-            />
-            <div className="relative size-full motion-safe:animate-[rocket-launch_1.8s_linear_both]">
+          <Image
+            {...trail}
+            alt=""
+            className={`${trailPosition} [mask-image:linear-gradient(var(--trail-angle),#000_calc(var(--trail-edge)-40px),transparent_calc(var(--trail-edge)+40px))] motion-safe:animate-[rocket-trail_1.8s_linear_both] motion-reduce:hidden`}
+          />
+          <Image
+            {...trail}
+            alt=""
+            className={`${trailPosition} invisible motion-safe:animate-[rocket-landed_1.8s_step-end_both,rocket-hover_4s_ease-in-out_1.8s_infinite] motion-reduce:visible`}
+          />
+          <div className="relative size-full motion-safe:animate-[rocket-hover_4s_ease-in-out_1.8s_infinite]">
+            <div className="size-full motion-safe:animate-[rocket-launch_1.8s_linear_both]">
               <Image src="/images/labs/rocket.png" alt="" width={268} height={268} priority className="size-full" />
             </div>
           </div>
