@@ -67,7 +67,7 @@ const locations = mobileNav[0].items.find((item) => item.label === "Locations")?
 export const mainNav: NavLink[] = [
   { label: "Co-Living", href: "/co-living" },
   { label: "Locations", href: "/locations", menu: [{ items: locations }] },
-  { label: "Mission", href: "/mission" },
+  // Mission isn't here: it's under More (The Collective), in the footer, and the home page links to it
   { label: "Working", href: "/working" },
   { label: "More", href: "#", menu: mobileNav.filter((group) => group.label) },
 ];

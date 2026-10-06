@@ -1,22 +1,24 @@
 import Link from "next/link";
-import Hero from "@/components/sections/Hero";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import { blogCategories, getPosts, toCard, type BlogCategory } from "@/lib/blog";
+import { text } from "@/lib/styles";
 import PostGrid from "./PostGrid";
 
-const home = "/images/home";
-// Each listing's header: the blog's own, or a category's
-const headers: Record<BlogCategory | "all", { title: string; subtitle: string; image: string }> = {
-  all: { title: "The Collective blog", subtitle: "Stories from our community, life in London, and news from The Collective.", image: `${home}/news.jpg` },
-  news: { title: "News", subtitle: "The latest from The Collective: our buildings, projects and the company.", image: `${home}/news.jpg` },
-  community: { title: "Community", subtitle: "Meet our members and hear what living and working with us is really like.", image: `${home}/community.jpg` },
-  innovation: { title: "Innovation", subtitle: "The technology and ideas we’re working on to make shared living better.", image: `${home}/innovation.jpg` },
-  "city-living": { title: "City Living", subtitle: "Tips, guides and inspiration for making the most of London.", image: `${home}/city-life.jpg` },
-  "watch-and-listen": { title: "Watch & Listen", subtitle: "Playlists, performances and films from our community.", image: `${home}/community.jpg` },
+// Each listing's title and line: the blog's own, or a category's
+const headers: Record<BlogCategory | "all", { title: string; subtitle: string }> = {
+  all: { title: "The Collective blog", subtitle: "Stories from our community, life in London, and news from The Collective." },
+  news: { title: "News", subtitle: "The latest from The Collective: our buildings, projects and the company." },
+  community: { title: "Community", subtitle: "Meet our members and hear what living and working with us is really like." },
+  innovation: { title: "Innovation", subtitle: "The technology and ideas we’re working on to make shared living better." },
+  "city-living": { title: "City Living", subtitle: "Tips, guides and inspiration for making the most of London." },
+  "watch-and-listen": { title: "Watch & Listen", subtitle: "Playlists, performances and films from our community." },
 };
 
-/** The blog's listing, all posts or one category's: a header, category links, then post cards. */
+/**
+ * The blog's listing, all posts or one category's: a title, category links, then post cards. No
+ * photo hero, so the posts start high on the page.
+ */
 export default async function BlogIndex({ category }: { category?: BlogCategory }) {
   const posts = (await getPosts()).filter((p) => !category || p.category === category);
   const header = headers[category ?? "all"];
@@ -24,10 +26,13 @@ export default async function BlogIndex({ category }: { category?: BlogCategory 
 
   return (
     <>
-      <Hero image={header.image} title={header.title} subtitle={header.subtitle} />
-      <Section raised>
+      {/* Dark band behind the site nav, which is white and transparent at the top of the page */}
+      <div aria-hidden="true" className="h-24 bg-ink" />
+      <Section>
         <Container>
-          <nav aria-label="Blog categories">
+          <h1 className="text-4xl font-bold leading-heading text-ink lg:text-5xl">{header.title}</h1>
+          <p className={`mt-3 max-w-2xl ${text.body}`}>{header.subtitle}</p>
+          <nav aria-label="Blog categories" className="mt-8">
             <ul className="flex flex-wrap gap-2">
               {links.map((link) => (
                 <li key={link.href}>
