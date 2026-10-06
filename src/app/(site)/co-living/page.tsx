@@ -39,7 +39,7 @@ export default function CoLiving() {
 
       <FeatureGroups heading="What’s included" groups={coLivingIncluded} />
 
-      <LinkCards heading="Locations" cards={coLivingLocations} cardStyle="dark" />
+      <LinkCards heading="Locations" cards={coLivingLocations} cardStyle="dark" imageShape="tall" />
 
       <Testimonials heading="See what our members say" testimonials={oldOakTestimonials} />
 

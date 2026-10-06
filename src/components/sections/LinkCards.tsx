@@ -15,6 +15,8 @@ type LinkCardsProps = {
   cards: LinkCard[];
   /** "dark": ink cards with a cream button. "light": cream cards with a dark button. */
   cardStyle?: "dark" | "light";
+  /** Photo shape: "wide" 16:9 (default) or "tall" 5:4, e.g. for places worth a bigger look. */
+  imageShape?: "wide" | "tall";
   /** Under the cards, e.g. a "more" link. */
   footer?: ReactNode;
   /** Overlap the block above with rounded corners on mobile (use directly under the Hero). */
@@ -27,7 +29,7 @@ const cardStyles = {
 };
 
 /** Optional heading, then cards with a photo, title, text and a button. Two columns on desktop (three for three cards). */
-export default function LinkCards({ heading, intro, cards, cardStyle = "dark", footer, raised = false, tone = "white" }: LinkCardsProps) {
+export default function LinkCards({ heading, intro, cards, cardStyle = "dark", imageShape = "wide", footer, raised = false, tone = "white" }: LinkCardsProps) {
   const t = cardStyles[cardStyle];
   // Three cards sit in a row on desktop, with smaller titles to fit the narrower columns
   const three = cards.length === 3;
@@ -39,7 +41,7 @@ export default function LinkCards({ heading, intro, cards, cardStyle = "dark", f
           {cards.map((card) => (
             <li key={card.title}>
               <article className={`flex h-full flex-col overflow-hidden rounded-2xl ${t.card}`}>
-                <div className="relative aspect-[16/9]">
+                <div className={`relative ${imageShape === "tall" ? "aspect-5/4" : "aspect-video"}`}>
                   <Photo
                     src={card.image.src}
                     alt={card.image.alt}

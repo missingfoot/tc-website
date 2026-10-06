@@ -32,14 +32,14 @@ export const coLivingIncluded: FeatureGroup[] = [
 export const coLivingLocations: LinkCard[] = [
   {
     title: "Old Oak",
-    text: "NW10 · Starting at £245 per week",
+    text: "North London, NW10 · Starting at £245 per week",
     image: { src: `${img}/old-oak-exterior.jpg`, alt: "The Collective Old Oak building" },
     cta: { label: "Explore Old Oak", href: "/locations/old-oak" },
   },
   {
     title: "Canary Wharf",
-    text: "E14 · Starting at £245 per week",
-    image: { src: `${img}/canary-wharf.jpg`, alt: "The Collective Canary Wharf tower", position: "center 30%" },
+    text: "East London, E14 · Starting at £245 per week",
+    image: { src: `${img}/canary-wharf.jpg`, alt: "The Collective Canary Wharf tower", position: "bottom" },
     cta: { label: "Explore Canary Wharf", href: "/locations/canary-wharf" },
   },
 ];
