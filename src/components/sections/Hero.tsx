@@ -36,7 +36,7 @@ type HeroProps = {
 // bottom edge. Its radius grows with the page width (cqw, from the @container wrapper):
 // exactly 5000px at 1440px as in the Figma, and smaller on narrower screens so the curve
 // stays visible.
-const curvedMask = "[--mask-r:max(429cqw-1178px,120cqw)] lg:[clip-path:circle(var(--mask-r)_at_50%_calc(100%-var(--mask-r)))]";
+export const curvedMask = "[--mask-r:max(429cqw-1178px,120cqw)] lg:[clip-path:circle(var(--mask-r)_at_50%_calc(100%-var(--mask-r)))]";
 
 export default function Hero({ image, imageAlt = "", imagePosition, eyebrow, title, subtitle, cta, action, video, curved = true, wash = true, parallax = 0.4 }: HeroProps) {
   // Photo only (no title): a shorter banner

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { mainNav, type NavLink } from "@/config/navigation";
+import { pageTitles } from "@/config/page-titles";
 import Container from "@/components/ui/Container";
 import AccountButton from "./AccountButton";
 import Logo from "./Logo";
@@ -38,7 +39,7 @@ export default function Nav({ links = mainNav, children, logoLinksHome = false }
         ) : (
           <>
             <Logo />
-            <PageTitle />
+            <PageTitle titles={pageTitles} />
 
             <nav aria-label="Main">
               <ul className="hidden items-center gap-10 text-base font-medium leading-5 lg:flex">

@@ -12,6 +12,8 @@
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   /* Line height for large headings (titles, section headings) */
   --leading-heading: 1.1;
+  /* Labs hero's bright stars: glows stacked like a lightsaber, each wider and fainter */
+  --shadow-star-glow: 0 0 2px 1px #fff, 0 0 6px 2px rgb(255 255 255 / 0.5), 0 0 14px 4px rgb(255 255 255 / 0.2);
   --font-sans: var(--font-circular), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -26,6 +28,49 @@
 body {
   background: #ffffff;
   color: var(--color-ink);
+}
+
+/* Labs hero: stars twinkle; the rocket flies in from the bottom left along one smooth curve
+   (LabsHero's TRAIL_PATH: heading right at the start, up-right at 45° at the end, which is the
+   rocket's resting angle). Points are sampled by distance along the curve with the
+   cubic-bezier(0.4,0,0.2,1) easing baked in, so the trail drawn with that same easing stays
+   level with the rocket; each point is rotated to face along the curve. */
+/* Each star sets its own range: --dim (default 0.15) to --lit (default 0.9) */
+@keyframes twinkle {
+  0%, 100% { opacity: var(--dim, 0.15); }
+  50% { opacity: var(--lit, 0.9); }
+}
+@keyframes rocket-launch {
+  0% { transform: translate(-900px, 560px) rotate(45.0deg) scale(0.20); opacity: 0; }
+  5% { transform: translate(-894px, 560px) rotate(44.1deg) scale(0.20); }
+  10% { transform: translate(-872px, 559px) rotate(41.3deg) scale(0.22); opacity: 1; }
+  15% { transform: translate(-829px, 554px) rotate(36.1deg) scale(0.25); }
+  20% { transform: translate(-757px, 538px) rotate(28.9deg) scale(0.31); }
+  25% { transform: translate(-653px, 500px) rotate(21.0deg) scale(0.39); }
+  30% { transform: translate(-528px, 434px) rotate(14.1deg) scale(0.49); }
+  35% { transform: translate(-408px, 355px) rotate(9.4deg) scale(0.60); }
+  40% { transform: translate(-310px, 281px) rotate(6.4deg) scale(0.69); }
+  45% { transform: translate(-234px, 218px) rotate(4.5deg) scale(0.76); }
+  50% { transform: translate(-176px, 167px) rotate(3.2deg) scale(0.82); }
+  55% { transform: translate(-131px, 126px) rotate(2.3deg) scale(0.87); }
+  60% { transform: translate(-96px, 94px) rotate(1.6deg) scale(0.90); }
+  65% { transform: translate(-69px, 68px) rotate(1.1deg) scale(0.93); }
+  70% { transform: translate(-48px, 47px) rotate(0.8deg) scale(0.95); }
+  75% { transform: translate(-31px, 31px) rotate(0.5deg) scale(0.97); }
+  80% { transform: translate(-19px, 19px) rotate(0.3deg) scale(0.98); }
+  85% { transform: translate(-10px, 10px) rotate(0.2deg) scale(0.99); }
+  90% { transform: translate(-4px, 4px) rotate(0.1deg); }
+  95% { transform: translate(-1px, 1px) rotate(0.0deg); }
+  100% { transform: none; opacity: 1; }
+}
+/* The trail draws along the curve behind the rocket (the path has pathLength="1") */
+@keyframes rocket-trail {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes rocket-hover {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, -9px); }
 }
 
 /* Bubble drift for the circle collage (CircleCollage): a small loop with a gentle breath */

@@ -11,7 +11,7 @@ export type MobileNavGroup = {
   items: MobileNavItem[];
 };
 
-// TODO: Labs and Blog don’t exist yet
+// TODO: Blog doesn’t exist yet
 export const mobileNav: MobileNavGroup[] = [
   {
     items: [
@@ -74,35 +74,22 @@ export const mainNav: NavLink[] = [
   { label: "More", href: "#", menu: mobileNav.filter((group) => group.label) },
 ];
 
-/** Short page titles shown in the middle of the mobile top bar, by path. */
-export const pageTitles: Record<string, string> = {
-  "/": "The Collective",
-  "/locations/old-oak": "Old Oak",
-  "/locations/old-oak/rooms/ensuite": "Ensuite",
-  "/locations/old-oak/rooms/studio": "Studio",
-  "/locations/old-oak/rooms/one-bed-flat": "One Bed Flat",
-  "/co-living": "Co-Living",
-  "/working": "Working",
-  "/mission": "Mission",
-  "/foundation": "Foundation",
-  "/faq": "FAQ",
-  "/careers": "Careers",
-  "/press": "Press",
-  "/refer-a-friend": "Refer a friend",
-  "/refer-a-friend/terms": "Referral terms",
-  "/event-spaces": "Event Spaces",
-  "/event-spaces/the-den": "The Den",
-  "/event-spaces/the-terrace": "The Terrace",
-  "/event-spaces/the-boardroom": "The Boardroom",
-  "/event-spaces/the-blackroom": "The Blackroom",
-  "/event-spaces/the-exchange": "The Exchange",
-  "/event-spaces/the-gallery": "The Gallery",
-  "/event-spaces/the-private-dining-room": "Private Dining Room",
-  "/serviced-living": "Serviced Living",
-  "/serviced-living/acton": "Acton",
-  "/serviced-living/notting-hill": "Notting Hill",
-  "/working/bedford-square": "Bedford Square",
-  "/working/old-oak": "Old Oak",
-  "/working/kings-cross": "Kings Cross",
-  "/working/doughnut-factory": "The Doughnut Factory",
-};
+const menuGroup = (label: string) => mobileNav.find((group) => group.label === label)?.items ?? [];
+
+/**
+ * Footer link columns. Unlike the menu, the footer has nothing else above it, so every page is
+ * listed here, products included. The Collective and Initiatives reuse the menu's groups.
+ */
+export const footerNav: MobileNavGroup[] = [
+  { label: "The Collective", items: menuGroup("The Collective") },
+  {
+    label: "Our Products",
+    items: [
+      { label: "Co-living", href: "/co-living" },
+      { label: "Serviced living", href: "/serviced-living" },
+      { label: "Working", href: "/working" },
+      { label: "Event Spaces", href: "/event-spaces" },
+    ],
+  },
+  { label: "Initiatives", items: menuGroup("Initiatives") },
+];

@@ -5,7 +5,8 @@ import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
 import { site } from "@/config/site";
 import { acceleratorBubbles, moonshotsBubbles } from "@/content/foundation";
-import { oldOakPromos, socialLinks } from "@/content/old-oak";
+import { socialLinks } from "@/content/old-oak";
+import { liveWorkPromos } from "@/content/promos";
 
 export const metadata = { title: "Foundation" };
 
@@ -72,7 +73,7 @@ export default function Foundation() {
         cta={{ label: "Sign up for a newsletter", href: "#" }}
       />
 
-      <PromoCards cards={oldOakPromos} />
+      <PromoCards cards={liveWorkPromos} />
     </>
   );
 }

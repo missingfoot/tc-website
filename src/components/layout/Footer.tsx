@@ -1,11 +1,8 @@
 import Link from "next/link";
-import { mobileNav } from "@/config/navigation";
+import { footerNav } from "@/config/navigation";
 import { site } from "@/config/site";
 import Container from "@/components/ui/Container";
 import { LogoMark } from "./Logo";
-
-// The labelled groups from the mobile menu (The Collective, More Products, Initiatives)
-const linkGroups = mobileNav.filter((group) => group.label);
 
 const underlined = "border-b border-white/20 pb-0.5 transition-colors hover:border-white";
 
@@ -22,7 +19,7 @@ export default function Footer() {
             <Link href="/" aria-label={`${site.name} home`} className="mx-auto text-ink lg:mx-0 lg:self-start">
               <LogoMark variant="icon" />
             </Link>
-            {linkGroups.map((group) => (
+            {footerNav.map((group) => (
               <nav key={group.label} aria-label={group.label}>
                 <h2 className="text-sm font-bold text-stone">{group.label}</h2>
                 <ul className="mt-6 flex flex-col gap-5">
