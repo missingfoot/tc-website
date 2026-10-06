@@ -5,7 +5,9 @@ import { withPayload } from "@payloadcms/next/withPayload";
 const nextConfig: NextConfig = {
   // The app has two root layouts (the site's and Payload's admin), so unknown URLs get their 404
   // from app/global-not-found.tsx
-  experimental: { globalNotFound: true },
+  // No Turbopack build cache: it records the environment the build read, secrets included, and
+  // Netlify keeps it between builds (its secrets scan fails the deploy on it).
+  experimental: { globalNotFound: true, turbopackFileSystemCacheForBuild: false },
   // Let phones on the local network use the dev server (live reload, dev assets), e.g. testing
   // on an iPhone at http://192.168.1.x:3000. Dev only; has no effect on production builds.
   allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
