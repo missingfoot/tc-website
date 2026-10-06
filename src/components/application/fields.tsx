@@ -48,12 +48,12 @@ export function RadioGroup({ legend, name, options, defaultValue }: { legend: st
   );
 }
 
-/** Label / value rows, e.g. a finished step's answers or the summary card's facts. */
-export function Details({ rows, split = false }: { rows: [ReactNode, ReactNode][]; split?: boolean }) {
+/** Label / value rows, e.g. a finished step's answers or the summary card's facts. `lines` puts a subtle rule between rows. */
+export function Details({ rows, split = false, lines = false }: { rows: [ReactNode, ReactNode][]; split?: boolean; lines?: boolean }) {
   return (
-    <dl className="flex flex-col gap-2 text-base">
+    <dl className={`flex flex-col text-base ${lines ? "divide-y divide-ink/10" : "gap-2"}`}>
       {rows.map(([label, value], i) => (
-        <div key={i} className={split ? "flex justify-between gap-4" : "grid grid-cols-[9rem_1fr] gap-4"}>
+        <div key={i} className={`${split ? "flex justify-between gap-4" : "grid grid-cols-[9rem_1fr] gap-4"} ${lines ? "py-3 first:pt-0 last:pb-0" : ""}`}>
           <dt className="flex items-center gap-1.5 text-stone">{label}</dt>
           <dd className={`min-w-0 break-words text-ink ${split ? "text-right" : ""}`}>{value}</dd>
         </div>

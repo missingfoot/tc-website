@@ -16,7 +16,8 @@ const long = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", y
 // Short months for the check-in / check-out box, which is only half the width on phones
 const short = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
-type Deduction = { amount: number; reason: string };
+// `detail` (e.g. the friend's email) is left out on phones, where long ones crowd the row
+type Deduction = { amount: number; reason: string; detail?: string };
 type Payment = { date: Date; amount: number; paid: boolean; deductions: Deduction[] };
 
 /**
@@ -36,7 +37,7 @@ function rentSchedule(checkIn: Date, checkOut: Date, monthly: number, referrals:
   for (const r of referrals) {
     const target = r.status === "paid" ? lastPaid : r.status === "moved-in" ? nextDue : undefined;
     if (!target || !r.reward) continue;
-    target.deductions.push({ amount: r.reward, reason: `Referral reward: ${r.email}` });
+    target.deductions.push({ amount: r.reward, reason: "Referral reward", detail: r.email });
     target.amount -= r.reward;
   }
   return payments.reverse();
@@ -61,8 +62,12 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
   }
 
   const checkIn = new Date(m.checkIn);
-  const { checkOut, renewBy } = renewalDates(m);
-  const schedule = rentSchedule(checkIn, checkOut, m.monthlyPrice, account.referrals);
+  const { checkOut: currentCheckOut, renewBy } = renewalDates(m);
+  // Once they've asked to renew, they check out at the end of the new term instead
+  const checkOut = m.renewal.requested ? new Date(m.renewal.requested.end) : currentCheckOut;
+  checkOut.setHours(10, 0, 0, 0);
+  // TODO: once a renewal is confirmed, add the new term's payments (at its price) to the schedule
+  const schedule = rentSchedule(checkIn, currentCheckOut, m.monthlyPrice, account.referrals);
   // Latest first, so the payments due are at the top; the last one made follows them
   const lastPaidIndex = schedule.findIndex((p) => p.paid);
   // By default: the next two payments due and the last one made
@@ -165,8 +170,11 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
                 </span>
               </div>
               {p.deductions.map((d) => (
-                <p key={d.reason} className="mt-1 flex justify-between gap-4 text-sm text-stone">
-                  <span className="min-w-0 truncate">{d.reason}</span>
+                <p key={`${d.reason}-${d.detail}`} className="mt-1 flex justify-between gap-4 text-sm text-stone">
+                  <span className="min-w-0 truncate">
+                    {d.reason}
+                    {d.detail && <span className="max-sm:hidden">: {d.detail}</span>}
+                  </span>
                   <span className="shrink-0 font-medium text-sage">−{formatMoney(d.amount)}</span>
                 </p>
               ))}

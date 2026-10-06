@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type ComponentType, type FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import Photo from "@/components/ui/Photo";
+import { sizes2x } from "@/lib/images";
 import Select from "@/components/ui/Select";
 import Checkbox from "@/components/ui/Checkbox";
 import InfoBox from "@/components/ui/InfoBox";
@@ -66,13 +67,14 @@ function Fact({ icon: FactIcon, label, value }: { icon: ComponentType<{ classNam
   );
 }
 
-/** A membership plan's details beside the room's photo (stacked on mobile). */
+/** A membership plan's details beside the room's photo (details only on mobile, where the photo just pushed them down). */
 function PlanCard({ heading, m, plan }: { heading: string; m: Membership; plan: { months: number; start: Date; end: Date; monthlyPrice: number } }) {
   return (
     <AccountCard heading={heading}>
       <div className="grid gap-6 md:grid-cols-[1fr_14rem]">
         <Details
           split
+          lines
           rows={[
             ["Room type", m.roomType],
             ["Membership", `${plan.months} months`],
@@ -81,8 +83,8 @@ function PlanCard({ heading, m, plan }: { heading: string; m: Membership; plan: 
             ["Monthly licence fee", formatMoney(plan.monthlyPrice)],
           ]}
         />
-        <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-ink/10 max-md:row-start-1">
-          <Photo src={m.photo.src} alt={m.photo.alt} sizes="(min-resolution: 2dppx) 14rem, 28rem" className="object-cover" />
+        <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-ink/10 max-md:hidden">
+          <Photo src={m.photo.src} alt={m.photo.alt} sizes={sizes2x([null, "14rem"])} className="object-cover" />
         </div>
       </div>
     </AccountCard>

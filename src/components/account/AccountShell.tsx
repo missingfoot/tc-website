@@ -39,7 +39,8 @@ export default function AccountShell({ children }: { children: ReactNode }) {
   return (
     // grid-cols-1 (minmax(0, 1fr)) and min-w-0: the scrolling tab bar mustn't widen the page on mobile
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
-      <div className="min-w-0">
+      {/* Desktop: the sidebar stays in view (below the header) while the tab's content scrolls */}
+      <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
         <h1 className="text-3xl font-bold leading-heading text-ink">Hi {account.name}</h1>
         <p className={`mt-1 truncate ${text.label}`}>{account.email}</p>
 

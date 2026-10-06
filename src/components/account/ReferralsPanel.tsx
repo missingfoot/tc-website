@@ -95,15 +95,16 @@ function ShareLink({ code }: { code: string }) {
   return (
     <AccountCard heading="Your link" intro="It’s unique to you, so we know who to thank. Your friend uses it when they book.">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-        <div className="flex flex-1 gap-2">
+        {/* Mobile: the link and the button each get a full-width row, so more of the link shows */}
+        <div className="flex flex-1 flex-col gap-2 lg:flex-row">
           <input
             readOnly
             value={link}
             aria-label="Your referral link"
             onFocus={(e) => e.currentTarget.select()}
-            className={`${field} min-w-0 flex-1 bg-cream/40`}
+            className={`${field} w-full min-w-0 bg-cream/40 lg:flex-1`}
           />
-          <Button variant="dark" onClick={copy} className="shrink-0">
+          <Button variant="dark" onClick={copy} className="w-full shrink-0 justify-center lg:w-auto">
             {copied ? <Check /> : null}
             {copied ? "Copied" : "Copy"}
           </Button>

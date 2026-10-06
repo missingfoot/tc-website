@@ -40,7 +40,7 @@ export default function EmailChips({ emails, onChange, id }: EmailChipsProps) {
         <span key={email} className="inline-flex items-center gap-1 rounded-full bg-cream py-1 pr-1 pl-3 text-sm text-ink">
           {email}
           <button type="button" onClick={() => onChange(emails.filter((e) => e !== email))} aria-label={`Remove ${email}`} className="flex size-6 items-center justify-center rounded-full hover:bg-cream-dark">
-            <Close />
+            <Close className="size-3.5" strokeWidth={2.5} />
           </button>
         </span>
       ))}
