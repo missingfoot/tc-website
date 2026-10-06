@@ -1,9 +1,10 @@
 import LabsHero from "@/components/sections/LabsHero";
 import Intro from "@/components/sections/Intro";
 import ProductShowcase from "@/components/sections/ProductShowcase";
+import ResearchSection from "@/components/sections/ResearchSection";
 import PromoCards from "@/components/sections/PromoCards";
 import SocialLinks from "@/components/sections/SocialLinks";
-import { acquire, colab, mobileApp } from "@/content/labs";
+import { acquire, colab, mobileApp, research } from "@/content/labs";
 import { liveWorkPromos } from "@/content/promos";
 import { socialLinks } from "@/content/old-oak";
 
@@ -39,6 +40,8 @@ export default function Labs() {
       </div>
       <ProductShowcase product={colab} side="right" />
       <ProductShowcase tone="cream" product={mobileApp} />
+
+      <ResearchSection {...research} cta={{ label: "Read more on our blog", href: "/blog" }} />
 
       <SocialLinks
         heading="Connect with us"
