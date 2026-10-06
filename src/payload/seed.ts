@@ -9,12 +9,23 @@ import * as icons from "@/components/icons";
 import type { CircleImage, GalleryImage, LinkCard, LocationDetails, PressQuote, PromoCard, Room } from "@/lib/types";
 import type { FaqItem } from "@/components/ui/FaqAccordion";
 import { careersBenefits } from "@/content/careers";
-import { coLivingPress } from "@/content/co-living";
+import {
+  coLivingCommunity,
+  coLivingFaq,
+  coLivingGrowImages,
+  coLivingIncluded,
+  coLivingInstagram,
+  coLivingLocations,
+  coLivingPerks,
+  coLivingPress,
+  coLivingPromos,
+  coLivingVideo,
+} from "@/content/co-living";
 import { bedfordVenues, eventsGallery, oldOakVenues, venues } from "@/content/events";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
-import { oldOakPromos, oldOakTestimonials } from "@/content/old-oak";
+import { oldOakGallery, oldOakPromos, oldOakTestimonials } from "@/content/old-oak";
 import { morePressUrl, pressInfo, pressNews, pressQuotes } from "@/content/press";
 import { servicedGallery, servicedIncluded, servicedLocationIncluded, servicedLocationPages, servicedPromos } from "@/content/serviced-living";
 import { workingHowItWorks, workingIncluded, workingLocationPages, workingSpaces } from "@/content/working";
@@ -54,6 +65,7 @@ const iconName = (icon: unknown) => Object.entries(icons).find(([, component]) =
 // Content-file shapes as block data
 const linkCards = (cards: LinkCard[]) =>
   Promise.all(cards.map(async (card) => ({ title: card.title, text: card.text, image: await photo(card.image), ctaLabel: card.cta.label, ctaHref: card.cta.href })));
+const testimonials = (people: typeof oldOakTestimonials) => Promise.all(people.map(async (t) => ({ name: t.name, photo: await photo(t.image), video: t.video })));
 const promoCards = (cards: PromoCard[]) =>
   Promise.all(cards.map(async (card) => ({ heading: card.heading, image: await photo(card.image), ctaLabel: card.cta.label, ctaHref: card.cta.href, enquiry: card.cta.enquiry })));
 const pressQuoteItems = (quotes: PressQuote[]) =>
@@ -219,7 +231,7 @@ const home = async () => [
     blockType: "testimonials",
     heading: "Residents love our spaces",
     tone: "cream",
-    people: await Promise.all(oldOakTestimonials.map(async (t) => ({ name: t.name, photo: await photo(t.image), video: t.video }))),
+    people: await testimonials(oldOakTestimonials),
   },
   { blockType: "pressQuotes", heading: "The Collective in the Press", quotes: await pressQuoteItems(homePress) },
   { blockType: "linkCards", heading: "What’s New", cardStyle: "light", cards: await linkCards(homeWhatsNew) },
@@ -450,6 +462,78 @@ const eventSpaces = async () => [
   { blockType: "promoCards", cards: await promoCards(servicedPromos) },
 ];
 
+const coLiving = async () => [
+  {
+    blockType: "hero",
+    title: "A new way to rent",
+    subtitle: "Combining private ensuites with beautiful shared spaces and a host of inspiring events, all included in one monthly bill.",
+    image: await media("/images/old-oak/promos/friends-chatting.jpg", "Two residents laughing together in the lounge"),
+    video: { label: "Watch video", url: coLivingVideo },
+  },
+  {
+    blockType: "intro",
+    heading: "What is co-living?",
+    layout: "stacked",
+    body: "Co-living is a way of living in cities that is focused on community and convenience. Live as part of a community, sharing wonderfully designed spaces and inspiring events, with the comfort of being able to retreat to your own fully furnished private apartment at the end of the day. Everything you need to make the most of city life is included in one bill, so you can do the living, and leave the rest to us.",
+    cta: { label: "Read more", href: "#faq" },
+  },
+  { blockType: "featureGroups", heading: "What’s included", groups: featureGroups(coLivingIncluded) },
+  { blockType: "linkCards", heading: "Locations", cardStyle: "dark", imageShape: "tall", cards: await linkCards(coLivingLocations) },
+  { blockType: "testimonials", heading: "See what our members say", tone: "cream", people: await testimonials(oldOakTestimonials) },
+  {
+    blockType: "gallery",
+    tone: "white",
+    heading: "Community",
+    intro: "Our spaces are nothing without people, and it’s our members that make it a home. You will have endless opportunities to start new and interesting conversations, share ideas and experiences with like-minded individuals, leave your mark and help to build this amazing community.",
+    photos: await galleryPhotos(coLivingCommunity),
+  },
+  {
+    blockType: "gallery",
+    heading: "Shared spaces",
+    intro: "We create beautifully designed spaces that bring people together. Co-living provides the opportunity to do something different every day – whether it’s an exercise class, live music night or life drawing, there’s always a way to have fun and connect with other members.",
+    photos: await galleryPhotos(oldOakGallery),
+  },
+  {
+    blockType: "collageSplit",
+    heading: "Learn. Develop. Grow.",
+    body: [
+      "Be a part of something bigger. From workshops and courses to gigs and guest speakers, there’s a way to engage with the community every day of the week.",
+      "Create a new club, host a dinner party or plan an event. Share your skills and create an unforgettable experience for the community.",
+    ].join("\n\n"),
+    images: { main: await photo(coLivingGrowImages.main), top: await photo(coLivingGrowImages.top), bottom: await photo(coLivingGrowImages.bottom) },
+  },
+  {
+    blockType: "imageCarousel",
+    heading: "A look inside",
+    photos: await Promise.all(coLivingInstagram.map(async (image) => ({ image: await photo(image) }))),
+    footer: { text: "See the latest from our community by following us on Instagram", linkLabel: "@thecollective_living", linkHref: "https://www.instagram.com/thecollective_living/" },
+  },
+  {
+    blockType: "perkCards",
+    heading: "The little extras",
+    intro: "We’ve partnered with a few great brands to help make life that little bit easier. Our members have access to a range of exclusive discounts and offers, from the likes of:",
+    perks: await Promise.all(
+      coLivingPerks.map(async (perk) => ({
+        name: perk.name,
+        text: perk.text,
+        image: await media(perk.image, perk.name),
+        logo: perk.logo ? await media(perk.logo, `${perk.name} logo`) : undefined,
+      })),
+    ),
+  },
+  {
+    blockType: "faq",
+    heading: "Want to know more?",
+    items: faqItems(coLivingFaq),
+    outro: "Co-living is designed to be the perfect platform for life in the city, focusing on creating beautiful spaces and the greatest possible experiences within them.",
+    cta: { label: "Apply now", href: "/apply" },
+    anchor: "faq",
+  },
+  { blockType: "pressQuotes", heading: "In the press", quotes: await pressQuoteItems(coLivingPress) },
+  { blockType: "promoCards", mobileShape: "tall", cards: await promoCards(coLivingPromos) },
+  socialLinks,
+];
+
 await seedPage("home", "Home", home);
 await seedPage("foundation", "Foundation", foundation);
 await seedPage("mission", "Mission", mission);
@@ -459,6 +543,7 @@ await seedPage("faq", "FAQ", faq);
 await seedPage("working", "Working", working, { floatingEnquiry: "working" });
 await seedPage("serviced-living", "Serviced Living", servicedLiving, { floatingEnquiry: "serviced" });
 await seedPage("event-spaces", "Event Spaces", eventSpaces, { floatingEnquiry: "events" });
+await seedPage("co-living", "Co-Living", coLiving);
 
 const images = await payload.count({ collection: "media" });
 console.log(`${images.totalDocs} images in the Media library.`);

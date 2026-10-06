@@ -5,6 +5,7 @@ import * as migration_20261006_213423_more_pages from './20261006_213423_more_pa
 import * as migration_20261006_214846_locations from './20261006_214846_locations';
 import * as migration_20261006_215011_gallery_names from './20261006_215011_gallery_names';
 import * as migration_20261006_215228_listing_sections from './20261006_215228_listing_sections';
+import * as migration_20261006_215559_co_living_sections from './20261006_215559_co_living_sections';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20261006_215228_listing_sections.up,
     down: migration_20261006_215228_listing_sections.down,
-    name: '20261006_215228_listing_sections'
+    name: '20261006_215228_listing_sections',
+  },
+  {
+    up: migration_20261006_215559_co_living_sections.up,
+    down: migration_20261006_215559_co_living_sections.down,
+    name: '20261006_215559_co_living_sections'
   },
 ];

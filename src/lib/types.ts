@@ -120,6 +120,8 @@ export type Perk = {
   name: string;
   text: string;
   image: string;
+  /** Blurred preview of `image` while it loads, for one not in blur-placeholders.json (e.g. a CMS upload). */
+  imageBlur?: string;
   logo?: string;
 };
 

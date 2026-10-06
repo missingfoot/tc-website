@@ -161,6 +161,16 @@ export const PromoCardsBlock: Block = {
         { name: "enquiry", label: "Button opens", type: "select", options: enquiryKinds, admin: { description: "Optional: an enquiry form instead of the link (which then isn't used)." } },
       ],
     },
+    {
+      name: "mobileShape",
+      label: "Photo shape on mobile",
+      type: "select",
+      defaultValue: "short",
+      options: [
+        { label: "Short (4:3)", value: "short" },
+        { label: "Tall (4:5)", value: "tall" },
+      ],
+    },
     tone,
   ],
 };
@@ -314,7 +324,15 @@ export const TestimonialsBlock: Block = {
 export const FaqBlock: Block = {
   slug: "faq",
   labels: { singular: "FAQ", plural: "FAQs" },
-  fields: [{ name: "heading", type: "text", required: true }, intro, faqItems, tone],
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    faqItems,
+    { name: "outro", type: "textarea", admin: { description: "Optional: a closing line under the questions." } },
+    { ...cta, admin: { description: "Optional: a button under the questions." } },
+    { name: "anchor", type: "text", admin: { description: "Optional: link straight here with #anchor, e.g. “faq” for a “Read more” button linking to #faq." } },
+    tone,
+  ],
 };
 
 export const FaqDirectoryBlock: Block = {
@@ -415,6 +433,49 @@ export const LocationCardsBlock: Block = {
   ],
 };
 
+export const ImageCarouselBlock: Block = {
+  slug: "imageCarousel",
+  labels: { singular: "Image carousel", plural: "Image carousels" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    { name: "photos", type: "array", admin: itemLabel("Photo"), minRows: 1, fields: [image("image")] },
+    {
+      name: "footer",
+      label: "Line underneath",
+      type: "group",
+      admin: { description: "Optional: text ending in a link, e.g. “…following us on Instagram @thecollective_living”." },
+      fields: [
+        { name: "text", type: "text" },
+        { type: "row", fields: [{ name: "linkLabel", label: "Link text", type: "text" }, { name: "linkHref", label: "Link", type: "text" }] },
+      ],
+    },
+    tone,
+  ],
+};
+
+export const PerkCardsBlock: Block = {
+  slug: "perkCards",
+  labels: { singular: "Perk cards", plural: "Perk cards" },
+  fields: [
+    { name: "heading", type: "text", required: true },
+    intro,
+    {
+      name: "perks",
+      type: "array",
+      admin: itemLabel("Perk"),
+      minRows: 1,
+      fields: [
+        { name: "name", type: "text", required: true },
+        { name: "text", type: "textarea", required: true },
+        image("image"),
+        { name: "logo", type: "upload", relationTo: "media", admin: { description: "Optional: the partner's logo, shown on the photo." } },
+      ],
+    },
+    { ...tone, defaultValue: "cream" },
+  ],
+};
+
 export const DownloadCardBlock: Block = {
   slug: "downloadCard",
   labels: { singular: "Download card", plural: "Download cards" },
@@ -455,6 +516,8 @@ export const pageBlocks = [
   FaqDirectoryBlock,
   OpenPositionsBlock,
   MediaKitBlock,
+  ImageCarouselBlock,
+  PerkCardsBlock,
   DownloadCardBlock,
   PromoCardsBlock,
   SocialLinksBlock,

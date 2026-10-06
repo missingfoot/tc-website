@@ -598,6 +598,24 @@ export interface Page {
             }[]
           | null;
         /**
+         * Optional: a closing line under the questions.
+         */
+        outro?: string | null;
+        /**
+         * Optional: a button under the questions.
+         */
+        cta?: {
+          label?: string | null;
+          /**
+           * A page (/co-living), a full URL or mailto:…
+           */
+          href?: string | null;
+        };
+        /**
+         * Optional: link straight here with #anchor, e.g. “faq” for a “Read more” button linking to #faq.
+         */
+        anchor?: string | null;
+        /**
          * Background colour. Alternate them down the page.
          */
         tone?: ('white' | 'cream') | null;
@@ -660,6 +678,54 @@ export interface Page {
       }
     | {
         heading: string;
+        intro?: string | null;
+        photos?:
+          | {
+              image: number | Media;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional: text ending in a link, e.g. “…following us on Instagram @thecollective_living”.
+         */
+        footer?: {
+          text?: string | null;
+          linkLabel?: string | null;
+          linkHref?: string | null;
+        };
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageCarousel';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        perks?:
+          | {
+              name: string;
+              text: string;
+              image: number | Media;
+              /**
+               * Optional: the partner's logo, shown on the photo.
+               */
+              logo?: (number | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Background colour. Alternate them down the page.
+         */
+        tone?: ('white' | 'cream') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'perkCards';
+      }
+    | {
+        heading: string;
         intro: string;
         fileLabel: string;
         /**
@@ -693,6 +759,7 @@ export interface Page {
               id?: string | null;
             }[]
           | null;
+        mobileShape?: ('short' | 'tall') | null;
         /**
          * Background colour. Alternate them down the page.
          */
@@ -1332,6 +1399,14 @@ export interface PagesSelect<T extends boolean = true> {
                     numbered?: T;
                     id?: T;
                   };
+              outro?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              anchor?: T;
               tone?: T;
               id?: T;
               blockName?: T;
@@ -1374,6 +1449,46 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        imageCarousel?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              photos?:
+                | T
+                | {
+                    image?: T;
+                    id?: T;
+                  };
+              footer?:
+                | T
+                | {
+                    text?: T;
+                    linkLabel?: T;
+                    linkHref?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
+        perkCards?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              perks?:
+                | T
+                | {
+                    name?: T;
+                    text?: T;
+                    image?: T;
+                    logo?: T;
+                    id?: T;
+                  };
+              tone?: T;
+              id?: T;
+              blockName?: T;
+            };
         downloadCard?:
           | T
           | {
@@ -1400,6 +1515,7 @@ export interface PagesSelect<T extends boolean = true> {
                     enquiry?: T;
                     id?: T;
                   };
+              mobileShape?: T;
               tone?: T;
               id?: T;
               blockName?: T;

@@ -11,10 +11,12 @@ import FaqDirectory from "@/components/sections/FaqDirectory";
 import FeatureGroups from "@/components/sections/FeatureGroups";
 import Gallery from "@/components/sections/Gallery";
 import Hero from "@/components/sections/Hero";
+import ImageCarousel from "@/components/sections/ImageCarousel";
 import Intro from "@/components/sections/Intro";
 import JobList from "@/components/sections/JobList";
 import LinkCards from "@/components/sections/LinkCards";
 import MediaKit from "@/components/sections/MediaKit";
+import PerkCards from "@/components/sections/PerkCards";
 import PressQuotes from "@/components/sections/PressQuotes";
 import PromoCards from "@/components/sections/PromoCards";
 import RoomCards from "@/components/sections/RoomCards";
@@ -193,8 +195,62 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
             testimonials={(block.people ?? []).map((person) => ({ name: person.name, image: mediaImage(person.photo), video: person.video ?? undefined }))}
           />
         );
-      case "faq":
-        return <Faq key={key} heading={block.heading} intro={block.intro ?? undefined} tone={block.tone ?? "white"} items={faqItems(block.items)} />;
+      case "faq": {
+        const faq = (
+          <Faq
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            items={faqItems(block.items)}
+            outro={block.outro ?? undefined}
+            cta={button(block.cta)}
+          />
+        );
+        // An anchor to link straight to it, clear of the sticky header
+        return block.anchor ? (
+          <div key={key} id={block.anchor} className="scroll-mt-24">
+            {faq}
+          </div>
+        ) : (
+          faq
+        );
+      }
+      case "imageCarousel":
+        return (
+          <ImageCarousel
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "white"}
+            images={(block.photos ?? []).map((photo) => mediaImage(photo.image))}
+            footer={
+              block.footer?.text || block.footer?.linkLabel ? (
+                <>
+                  {block.footer.text}{" "}
+                  {block.footer.linkLabel && block.footer.linkHref && (
+                    <a href={block.footer.linkHref} target="_blank" rel="noopener noreferrer" className="font-medium text-ink underline underline-offset-4">
+                      {block.footer.linkLabel}
+                    </a>
+                  )}
+                </>
+              ) : undefined
+            }
+          />
+        );
+      case "perkCards":
+        return (
+          <PerkCards
+            key={key}
+            heading={block.heading}
+            intro={block.intro ?? undefined}
+            tone={block.tone ?? "cream"}
+            perks={(block.perks ?? []).map((perk) => {
+              const photo = mediaImage(perk.image);
+              return { name: perk.name, text: perk.text, image: photo.src, imageBlur: photo.blur, logo: mediaImage(perk.logo).src || undefined };
+            })}
+          />
+        );
       case "faqDirectory":
         return <FaqDirectory key={key} raised={raised} tone={block.tone ?? "white"} topics={(block.topics ?? []).map((t) => ({ topic: t.topic, items: faqItems(t.items) }))} />;
       case "openPositions":
@@ -217,6 +273,7 @@ export default function RenderBlocks({ blocks }: { blocks: Block[] }) {
           <PromoCards
             key={key}
             tone={block.tone ?? "white"}
+            mobileShape={block.mobileShape ?? "short"}
             cards={(block.cards ?? []).map((card) => ({
               heading: card.heading,
               image: mediaImage(card.image, card.position),
