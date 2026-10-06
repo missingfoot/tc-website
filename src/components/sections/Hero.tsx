@@ -46,6 +46,7 @@ export default function Hero({ image, imageAlt = "", eyebrow, title, subtitle, c
           src={image}
           alt={imageAlt}
           sizes={sizes2x([null, "100vw"])}
+          loading="eager"
           fetchPriority="high"
           quality={90}
           speed={parallax}
