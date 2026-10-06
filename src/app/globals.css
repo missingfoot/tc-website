@@ -12,8 +12,6 @@
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   /* Line height for large headings (titles, section headings) */
   --leading-heading: 1.1;
-  /* Labs hero's bright stars: glows stacked like a lightsaber, each wider and fainter */
-  --shadow-star-glow: 0 0 2px 1px #fff, 0 0 6px 2px rgb(255 255 255 / 0.5), 0 0 14px 4px rgb(255 255 255 / 0.2);
   --font-sans: var(--font-circular), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -30,16 +28,10 @@ body {
   color: var(--color-ink);
 }
 
-/* Labs hero: stars twinkle; the rocket flies in from the bottom left along one smooth curve
-   (LabsHero's TRAIL_PATH: heading right at the start, up-right at 45° at the end, which is the
-   rocket's resting angle). Points are sampled by distance along the curve with the
-   cubic-bezier(0.4,0,0.2,1) easing baked in, so the trail drawn with that same easing stays
-   level with the rocket; each point is rotated to face along the curve. */
-/* Each star sets its own range: --dim (default 0.15) to --lit (default 0.9) */
-@keyframes twinkle {
-  0%, 100% { opacity: var(--dim, 0.15); }
-  50% { opacity: var(--lit, 0.9); }
-}
+/* Labs hero: the rocket flies in from the bottom left along one smooth curve (heading right at
+   the start, up-right at 45° at the end, which is the rocket's resting angle). Points are sampled
+   by distance along the curve with the cubic-bezier(0.4,0,0.2,1) easing baked in; each point is
+   rotated to face along the curve. The stars are drawn on a canvas (StarField). */
 @keyframes rocket-launch {
   0% { transform: translate(-900px, 560px) rotate(45.0deg) scale(0.20); opacity: 0; }
   5% { transform: translate(-894px, 560px) rotate(44.1deg) scale(0.20); }
@@ -63,10 +55,42 @@ body {
   95% { transform: translate(-1px, 1px) rotate(0.0deg); }
   100% { transform: none; opacity: 1; }
 }
-/* The trail draws along the curve behind the rocket (the path has pathLength="1") */
+/* The trail is a pre-rendered image (scripts/labs-trail.mjs), revealed behind the rocket by a soft
+   mask edge that sits at the rocket and faces its direction of travel. These keyframes are
+   generated from rocket-launch by that script, so rerun it if the flight changes. Registered so
+   they animate smoothly; the initial values show the whole trail (reduced motion). */
+@property --trail-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 45deg;
+}
+@property --trail-edge {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 2000px;
+}
 @keyframes rocket-trail {
-  from { stroke-dashoffset: 1; }
-  to { stroke-dashoffset: 0; }
+  0% { --trail-angle: 90.0deg; --trail-edge: 35px; }
+  5% { --trail-angle: 89.1deg; --trail-edge: 43px; }
+  10% { --trail-angle: 86.3deg; --trail-edge: 70px; }
+  15% { --trail-angle: 81.1deg; --trail-edge: 123px; }
+  20% { --trail-angle: 73.9deg; --trail-edge: 208px; }
+  25% { --trail-angle: 66.0deg; --trail-edge: 327px; }
+  30% { --trail-angle: 59.1deg; --trail-edge: 471px; }
+  35% { --trail-angle: 54.4deg; --trail-edge: 612px; }
+  40% { --trail-angle: 51.4deg; --trail-edge: 732px; }
+  45% { --trail-angle: 49.5deg; --trail-edge: 827px; }
+  50% { --trail-angle: 48.2deg; --trail-edge: 902px; }
+  55% { --trail-angle: 47.3deg; --trail-edge: 960px; }
+  60% { --trail-angle: 46.6deg; --trail-edge: 1006px; }
+  65% { --trail-angle: 46.1deg; --trail-edge: 1042px; }
+  70% { --trail-angle: 45.8deg; --trail-edge: 1071px; }
+  75% { --trail-angle: 45.5deg; --trail-edge: 1093px; }
+  80% { --trail-angle: 45.3deg; --trail-edge: 1110px; }
+  85% { --trail-angle: 45.2deg; --trail-edge: 1122px; }
+  90% { --trail-angle: 45.1deg; --trail-edge: 1130px; }
+  95% { --trail-angle: 45.0deg; --trail-edge: 1134px; }
+  100% { --trail-angle: 45.0deg; --trail-edge: 1336px; }
 }
 @keyframes rocket-hover {
   0%, 100% { transform: translate(0, 0); }
