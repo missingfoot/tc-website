@@ -1,0 +1,6 @@
+# Production deploys bring the database up to date before building, so the live site never runs
+# code ahead of its schema. Migrations use the direct (unpooled) address: Neon's pooler can't
+# hold the session a migration needs. Deploy previews don't migrate: they'd change the live
+# database before their code is merged.
+[context.production]
+  command = "DATABASE_URI=$DATABASE_URI_UNPOOLED npx payload migrate && npm run build"
