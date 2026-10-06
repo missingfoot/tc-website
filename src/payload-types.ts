@@ -93,8 +93,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    navigation: Navigation;
+  };
+  globalsSelect: {
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -2000,6 +2004,161 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * The menu, the desktop bar and the footer. Drag to reorder; untick Show to hide a link.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: number;
+  menu?:
+    | {
+        /**
+         * Optional: a small grey heading. The first section usually has none.
+         */
+        heading?: string | null;
+        items?:
+          | {
+              label: string;
+              /**
+               * Not needed with sub-links: tapping it opens them.
+               */
+              href?: string | null;
+              /**
+               * Untick to hide it without deleting it.
+               */
+              show?: boolean | null;
+              /**
+               * Optional: shown by tapping the link's arrow.
+               */
+              subLinks?:
+                | {
+                    label: string;
+                    href: string;
+                    /**
+                     * Untick to hide it without deleting it.
+                     */
+                    show?: boolean | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  desktop?:
+    | {
+        label: string;
+        opens?: ('link' | 'dropdown' | 'menu') | null;
+        href?: string | null;
+        subLinks?:
+          | {
+              label: string;
+              href: string;
+              /**
+               * Untick to hide it without deleting it.
+               */
+              show?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Untick to hide it without deleting it.
+         */
+        show?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  footer?:
+    | {
+        heading: string;
+        links?:
+          | {
+              label: string;
+              href: string;
+              /**
+               * Untick to hide it without deleting it.
+               */
+              show?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Untick to hide it without deleting it.
+         */
+        show?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  menu?:
+    | T
+    | {
+        heading?: T;
+        items?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              show?: T;
+              subLinks?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                    show?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  desktop?:
+    | T
+    | {
+        label?: T;
+        opens?: T;
+        href?: T;
+        subLinks?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              show?: T;
+              id?: T;
+            };
+        show?: T;
+        id?: T;
+      };
+  footer?:
+    | T
+    | {
+        heading?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              show?: T;
+              id?: T;
+            };
+        show?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

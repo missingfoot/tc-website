@@ -53,6 +53,11 @@ npm run dev                            # then open http://localhost:3000/admin
   card and its own page come from the same record, so a price or photo changes in one place. Drag
   to reorder them in the list. What every page of a type shares (e.g. the standard "What's
   included" for working spaces, the promos) is in its `[slug]` route.
+- **Navigation** (/admin → Navigation) holds the menu (mobile, and the desktop bar's More dropdown),
+  the desktop bar and the footer, each in its own order with a Show switch per link. While it's
+  empty the site falls back to `config/navigation.ts`, which is also what the seed fills it from.
+- **Link fields** pick from the site's pages (by page, location, room or other page) or take a
+  typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
 - **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.
 - **Pages at their own address**: `home` is served at `/` and `old-oak` at `/locations/old-oak`
   (`pagePaths` in the Pages collection); `/home` and `/old-oak` redirect there.

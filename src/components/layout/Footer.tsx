@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { footerNav } from "@/config/navigation";
 import { site } from "@/config/site";
 import Container from "@/components/ui/Container";
+import { getNavigation } from "@/lib/payload";
 import { LogoMark } from "./Logo";
 
 const underlined = "border-b border-white/20 pb-0.5 transition-colors hover:border-white";
 
 /**
  * Site footer: logo and link columns on cream, then contact details, address and legal links
- * on dark. Centred on mobile; columns on desktop.
+ * on dark. Centred on mobile; columns on desktop. The columns are in the CMS (/admin → Navigation).
  */
-export default function Footer() {
+export default async function Footer() {
+  const { footer } = await getNavigation();
   return (
     <footer>
       <div className="bg-cream py-12 text-center lg:py-20 lg:text-left">
@@ -19,7 +20,7 @@ export default function Footer() {
             <Link href="/" aria-label={`${site.name} home`} className="mx-auto text-ink lg:mx-0 lg:self-start">
               <LogoMark variant="icon" className="h-14" />
             </Link>
-            {footerNav.map((group) => (
+            {footer.map((group) => (
               <nav key={group.label} aria-label={group.label}>
                 <h2 className="text-sm font-bold text-stone">{group.label}</h2>
                 <ul className="mt-6 flex flex-col gap-5">

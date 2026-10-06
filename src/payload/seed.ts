@@ -1,6 +1,7 @@
-// Seeds Payload with the pages moved out of code (Home, Foundation, Mission, Careers, Press, FAQ), as they were built, so the
-// CMS starts with real content. Safe to rerun, including on production: images already uploaded
-// are reused, and a page that already exists is left alone, so edits made in the admin are kept.
+// Seeds Payload with what moved out of code (pages, locations, rooms, the navigation), as it was
+// built, so the CMS starts with real content. Safe to rerun, including on production: images
+// already uploaded are reused, and anything that already exists is left alone, so edits made in
+// the admin are kept.
 //
 //   npx payload run src/payload/seed.ts
 import path from "node:path";
@@ -22,6 +23,7 @@ import {
   coLivingVideo,
 } from "@/content/co-living";
 import { bedfordVenues, eventsGallery, oldOakVenues, venues } from "@/content/events";
+import { footerNav, mainNav, mobileNav } from "@/config/navigation";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
@@ -655,4 +657,30 @@ await seedPage("old-oak", "Old Oak", oldOak, { floatingEnquiry: "living" });
 
 const images = await payload.count({ collection: "media" });
 console.log(`${images.totalDocs} images in the Media library.`);
+// The navigation, from config/navigation.ts, unless it's been set up in the admin already
+const nav = await payload.findGlobal({ slug: "navigation", depth: 0 });
+if (nav.menu?.length || nav.desktop?.length || nav.footer?.length) console.log("navigation: already set up, left as it is");
+else {
+  const links = (items: { label: string; href: string }[]) => items.map(({ label, href }) => ({ label, href, show: true }));
+  await payload.updateGlobal({
+    slug: "navigation",
+    data: {
+      menu: mobileNav.map((group) => ({
+        heading: group.label,
+        items: group.items.map((item) => ({ label: item.label, href: item.href, show: true, subLinks: links(item.children ?? []) })),
+      })),
+      desktop: mainNav.map((item) =>
+        !item.menu
+          ? { label: item.label, opens: "link" as const, href: item.href, show: true }
+          : // A dropdown of headed sections is the menu's (More); one without headings, its own links
+            item.menu.some((group) => group.label)
+            ? { label: item.label, opens: "menu" as const, show: true }
+            : { label: item.label, opens: "dropdown" as const, subLinks: links(item.menu.flatMap((group) => group.items)), show: true },
+      ),
+      footer: footerNav.map((column) => ({ heading: column.label!, links: links(column.items), show: true })),
+    },
+  });
+  console.log("navigation: created");
+}
+
 process.exit(0);

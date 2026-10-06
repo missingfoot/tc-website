@@ -11,6 +11,7 @@ import { Pages } from "./payload/collections/Pages";
 import { Rooms } from "./payload/collections/Rooms";
 import { Users } from "./payload/collections/Users";
 import { siteLinks } from "./payload/endpoints/siteLinks";
+import { Navigation } from "./payload/globals/Navigation";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,6 +31,7 @@ export default buildConfig({
     components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
   },
   collections: [Pages, Locations, Rooms, Media, Users],
+  globals: [Navigation],
   endpoints: [siteLinks],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",

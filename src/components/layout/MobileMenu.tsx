@@ -4,7 +4,7 @@ import Link from "next/link";
 import AccountButton from "./AccountButton";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { mobileNav, type MobileNavGroup, type MobileNavItem } from "@/config/navigation";
+import type { MobileNavGroup, MobileNavItem } from "@/config/navigation";
 import { ChevronDown, Close, Menu } from "@/components/icons";
 import { useMobileMenu } from "./StickyHeader";
 
@@ -16,7 +16,7 @@ const activeBg = "bg-white/6";
  * open the header shows its dock pill, the card floats just under it, and the page stays
  * visible (dimmed) around it; tapping outside closes it.
  */
-export default function MobileMenu({ groups = mobileNav }: { groups?: MobileNavGroup[] }) {
+export default function MobileMenu({ groups }: { groups: MobileNavGroup[] }) {
   const { open, setOpen } = useMobileMenu();
   const pathname = usePathname();
 

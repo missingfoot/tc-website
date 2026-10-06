@@ -3,6 +3,7 @@ import { getPayload } from "payload";
 import { cache } from "react";
 import * as icons from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
+import { footerNav, mainNav, mobileNav, type MobileNavGroup, type NavLink } from "@/config/navigation";
 import type { Location, Media, Page, Room as RoomDoc } from "@/payload-types";
 import type { CircleImage, GalleryImage, LocationDetails, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
@@ -139,3 +140,34 @@ export function roomDetails(room: RoomDoc): RoomDetails {
     booking: { moveIn: room.moveIn, floor: room.floor, periods: lines(room.periods) },
   };
 }
+
+type Shown = { show?: boolean | null };
+const shown = <T extends Shown>(items?: T[] | null) => (items ?? []).filter((item) => item.show !== false);
+const navLinks = (items?: ({ label: string; href: string } & Shown)[] | null) => shown(items).map(({ label, href }) => ({ label, href }));
+
+/**
+ * The site's navigation from the CMS (/admin → Navigation): the menu (mobile, and the More
+ * dropdown), the desktop bar and the footer, without hidden links. Each falls back to the one in
+ * config/navigation.ts while it's empty in the CMS, so the site always has a menu.
+ */
+export const getNavigation = cache(async (): Promise<{ menu: MobileNavGroup[]; desktop: NavLink[]; footer: MobileNavGroup[] }> => {
+  const nav = await (await payload()).findGlobal({ slug: "navigation", depth: 0 });
+  const menu: MobileNavGroup[] = (nav.menu ?? []).map((section) => ({
+    label: section.heading ?? undefined,
+    items: shown(section.items).map((item) => {
+      const children = navLinks(item.subLinks);
+      return { label: item.label, href: item.href ?? "#", ...(children.length && { children }) };
+    }),
+  }));
+  const desktop: NavLink[] = shown(nav.desktop).map((item) => {
+    if (item.opens === "menu") return { label: item.label, href: "#", menu: menu.filter((section) => section.label) };
+    if (item.opens === "dropdown") return { label: item.label, href: "#", menu: [{ items: navLinks(item.subLinks) }] };
+    return { label: item.label, href: item.href ?? "#" };
+  });
+  const footer: MobileNavGroup[] = shown(nav.footer).map((column) => ({ label: column.heading, items: navLinks(column.links) }));
+  return {
+    menu: menu.length ? menu : mobileNav,
+    desktop: desktop.length ? desktop : mainNav,
+    footer: footer.length ? footer : footerNav,
+  };
+});
