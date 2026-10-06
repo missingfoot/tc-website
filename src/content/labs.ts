@@ -80,8 +80,9 @@ export const research: {
         "Counting the people it found, frame by frame, measured the footfall in every room: how often it was used, and when. Over time, that showed which spaces were in demand and which sat quiet, so we could shape them around residents.",
       ],
       figure: {
-        src: `${img}/room-activity-camera.jpg`,
+        src: `${img}/room-activity-detection.jpg`,
         alt: "Ceiling camera view of the 4th floor garden room during a yoga session, with each person, chair and plant boxed and labelled by the detection software",
+        shape: "wide",
       },
     },
     {
@@ -91,8 +92,9 @@ export const research: {
         "In the lobby and our larger rooms, we mapped how people move through the space with an agent-based simulation: virtual people, each choosing between seating, the bar and the views. Their paths showed where people cross and gather, and how a layout really gets used.",
       ],
       figure: {
-        src: `${img}/people-flow-map.jpg`,
-        alt: "3D model of a lobby with people moving between seating, the bar and viewpoints, their paths traced in glowing blue, and each person’s choices logged down the side",
+        src: `${img}/people-encounters-simulation.jpg`,
+        alt: "See-through 3D model of The Collective's building, with people shown as yellow spheres clustering where they meet, and a count of 15 encounters (simulation by ZHCODE)",
+        shape: "wide",
       },
     },
   ],

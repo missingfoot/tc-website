@@ -6,7 +6,12 @@ import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
 /** A photo. Leave out `src` to show a placeholder box until the photo is ready. */
-export type ResearchFigure = { src?: string; alt: string };
+export type ResearchFigure = {
+  src?: string;
+  alt: string;
+  /** Frame shape: 4:3 (default), or 16:9 for a wide image whose edges shouldn't be cropped (e.g. a credit). */
+  shape?: "standard" | "wide";
+};
 
 type ResearchSectionProps = {
   heading: string;
@@ -19,7 +24,7 @@ type ResearchSectionProps = {
 
 function Figure({ figure }: { figure: ResearchFigure }) {
   return (
-    <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-cream">
+    <div className={`relative overflow-hidden rounded-2xl bg-cream ${figure.shape === "wide" ? "aspect-video" : "aspect-4/3"}`}>
       {figure.src ? (
         <Photo src={figure.src} alt={figure.alt} sizes={sizes2x(["(min-width: 1024px)", "600px"], [null, "100vw"])} quality={90} className="object-cover" />
       ) : (

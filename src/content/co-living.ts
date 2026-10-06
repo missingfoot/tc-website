@@ -165,9 +165,8 @@ export const coLivingVideo = "https://vimeo.com/261310781";
 export const coLivingPromos: PromoCard[] = [
   {
     heading: "Spread the word. Your friends join. You earn.",
-    // TODO: stand-in; the design's two-friends photo isn't in the image folder
-    image: { src: `${img}/friends.jpg`, alt: "Friends hugging and laughing together" },
-    cta: { label: "Refer a friend", href: "#" },
+    image: { src: "/images/referrals/two-friends.jpg", alt: "Two friends standing together in front of a hedge at night" },
+    cta: { label: "Refer a friend", href: "/refer-a-friend" },
   },
   {
     heading: "Explore Old Oak, the world’s largest co-living building.",

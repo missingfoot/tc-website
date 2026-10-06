@@ -14,8 +14,8 @@ export default function ReferAFriend() {
   return (
     <>
       <Hero
-        image="/images/press-kit/community/social-chats.jpg"
-        imageAlt="Friends chatting round a table"
+        image="/images/referrals/two-friends.jpg"
+        imageAlt="Two friends standing together in front of a hedge at night"
         title="Get up to £200 for every friend you refer"
         subtitle="Help us build our community. You get up to £200 for every friend who moves in, and they get up to £200 off their rent."
       />
