@@ -3,8 +3,8 @@ import Button from "@/components/ui/Button";
 import type { EnquiryKind } from "@/lib/types";
 
 /** Every button for a form says the same thing, and goes to the same page. */
-const labels: Record<EnquiryKind, string> = { living: "Apply now", working: "Get a free day trial", serviced: "Book a viewing", events: "Make an enquiry" };
-export const enquiryPages: Record<EnquiryKind, string> = { living: "/apply", working: "/free-trial", serviced: "/book-a-viewing", events: "/event-enquiry" };
+const labels: Record<EnquiryKind, string> = { living: "Apply now", working: "Get a free day trial", serviced: "Book a viewing", events: "Make an enquiry", waitlist: "Join the waitlist" };
+export const enquiryPages: Record<EnquiryKind, string> = { living: "/apply", working: "/free-trial", serviced: "/book-a-viewing", events: "/event-enquiry", waitlist: "/waitlist" };
 
 type EnquiryButtonProps = {
   kind: EnquiryKind;

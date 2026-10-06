@@ -73,7 +73,7 @@ export type TravelMode = {
 };
 
 /** Which enquiry form a button opens: co-living (a tour or a room), a working space (a trial day), serviced living (a viewing) or an event space. */
-export type EnquiryKind = "living" | "working" | "serviced" | "events";
+export type EnquiryKind = "living" | "working" | "serviced" | "events" | "waitlist";
 
 /** A photo card with a heading and a button, e.g. "Like what you see? / Apply now". */
 export type PromoCard = {

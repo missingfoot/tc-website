@@ -21,8 +21,8 @@ export const mobileNav: MobileNavGroup[] = [
         href: "/locations",
         children: [
           { label: "Old Oak", href: "/locations/old-oak" },
-          { label: "Canary Wharf", href: "/locations/canary-wharf" },
-          { label: "Stratford", href: "/locations/stratford" },
+          { label: "Canary Wharf", href: "/waitlist?location=canary-wharf" },
+          { label: "Stratford", href: "/waitlist?location=stratford" },
         ],
       },
       { label: "Co-Living", href: "/co-living" },

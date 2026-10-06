@@ -31,9 +31,20 @@ const copy = {
     title: "Book a viewing",
     image: { src: "/images/serviced-living/notting-hill/02-studio-kitchen.jpg", alt: "A Notting Hill studio with its kitchen" },
   },
+  waitlist: {
+    title: "Join the waitlist",
+    image: { src: "/images/co-living/canary-wharf.jpg", alt: "The Collective Canary Wharf tower" },
+  },
 };
 
 const intro = "We can’t wait to show you around. Fill in the form and we’ll get back to you as soon as we can.";
+
+/** Buildings that aren't open yet, which people can join the waitlist for. */
+export const waitlistLocations = [
+  { value: "canary-wharf", label: "Canary Wharf" },
+  { value: "stratford", label: "Stratford" },
+];
+const waitlistIntro = "We’re not open here yet. Join the waitlist and we’ll let you know as soon as rooms are available.";
 
 /** Tour slots, every half hour. TODO: real opening hours and availability. */
 const times = Array.from({ length: 17 }, (_, i) => `${String(9 + Math.floor(i / 2)).padStart(2, "0")}:${i % 2 ? "30" : "00"}`);
@@ -49,7 +60,7 @@ function nextDays() {
 }
 
 /** Where Back goes when the page was opened directly (no page of ours to go back to). */
-const fallbacks: Record<EnquiryKind, string> = { living: "/co-living", working: "/working", serviced: "/serviced-living", events: "/event-spaces" };
+const fallbacks: Record<EnquiryKind, string> = { living: "/co-living", working: "/working", serviced: "/serviced-living", events: "/event-spaces", waitlist: "/co-living" };
 
 // True in the browser, false while rendering on the server (so the server and browser agree on "today")
 const subscribe = () => () => {};
@@ -67,9 +78,11 @@ type EnquiryFormProps = {
   venue?: string;
   /** Referral code from a friend's link (co-living), sent with the enquiry. */
   referral?: string;
+  /** Pre-selected building (waitlist). */
+  location?: string;
 };
 
-export default function EnquiryForm({ kind, venue, referral }: EnquiryFormProps) {
+export default function EnquiryForm({ kind, venue, referral, location }: EnquiryFormProps) {
   const uid = useId();
   const isClient = useIsClient();
   const [sent, setSent] = useState(false);
@@ -101,14 +114,14 @@ export default function EnquiryForm({ kind, venue, referral }: EnquiryFormProps)
               <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-sage/20 text-sage">
                 <Check strokeWidth={3} />
               </span>
-              <h1 className={text.sectionHeading}>Thank you</h1>
-              <p className={text.body}>Someone from our team will be in touch shortly.</p>
+              <h1 className={text.sectionHeading}>{kind === "waitlist" ? "You’re on the list" : "Thank you"}</h1>
+              <p className={text.body}>{kind === "waitlist" ? "We’ll be in touch as soon as rooms are available." : "Someone from our team will be in touch shortly."}</p>
               <BackButton fallback={fallbacks[kind]} label="Done" icon={false} variant="dark" className="w-full justify-center lg:w-auto lg:min-w-40" />
             </div>
           ) : (
             <>
               <h1 className={text.sectionHeading}>{title}</h1>
-              <p className={`mt-4 ${text.body}`}>{intro}</p>
+              <p className={`mt-4 ${text.body}`}>{kind === "waitlist" ? waitlistIntro : intro}</p>
 
               {referral && (
                 <InfoBox tone="success" className="mt-6">
@@ -193,6 +206,29 @@ export default function EnquiryForm({ kind, venue, referral }: EnquiryFormProps)
                   </>
                 )}
 
+                {kind === "waitlist" && (
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <label htmlFor={`${uid}-location`} className={`block ${text.label}`}>
+                        Location
+                      </label>
+                      <Select
+                        id={`${uid}-location`}
+                        name="location"
+                        defaultValue={location && waitlistLocations.some((o) => o.value === location) ? location : waitlistLocations[0].value}
+                        options={waitlistLocations}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor={`${uid}-move-in`} className={`block ${text.label}`}>
+                        Move-in date
+                      </label>
+                      <Select id={`${uid}-move-in`} name="moveIn" options={["As soon as possible", "In 1–3 months", "In 3–6 months", "In 6+ months", "Not sure yet"]} className="mt-2" />
+                    </div>
+                  </div>
+                )}
+
                 {kind === "serviced" && (
                   <TextField
                     id={`${uid}-offer`}
@@ -212,7 +248,17 @@ export default function EnquiryForm({ kind, venue, referral }: EnquiryFormProps)
                 )}
 
                 <Button type="submit" variant="dark" className="mt-2 w-full justify-center lg:w-auto lg:min-w-40 lg:self-start">
-                  {kind === "working" ? "Book my trial day" : kind === "serviced" ? "Book my viewing" : kind === "events" ? "Send enquiry" : mode === "tour" ? "Book a tour" : "Apply now"}
+                  {kind === "working"
+                    ? "Book my trial day"
+                    : kind === "serviced"
+                      ? "Book my viewing"
+                      : kind === "events"
+                        ? "Send enquiry"
+                        : kind === "waitlist"
+                          ? "Join the waitlist"
+                          : mode === "tour"
+                            ? "Book a tour"
+                            : "Apply now"}
                 </Button>
               </form>
             </>
