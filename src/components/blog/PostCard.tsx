@@ -19,14 +19,17 @@ export default function PostCard({ post }: { post: PostCardData }) {
     <Link href={`/blog/${post.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-cream text-ink">
       <div className="relative aspect-video overflow-hidden bg-ink/10">
         {post.cover && (
-          <Photo
-            src={post.cover.src}
-            alt=""
-            preview={post.cover.blur}
-            sizes={sizes2x(["(min-width: 1024px)", "33vw"], ["(min-width: 768px)", "50vw"], [null, "100vw"])}
-            quality={90}
-            className="object-cover transition-transform duration-500 ease-smooth group-hover:scale-105 motion-reduce:transition-none"
-          />
+          // The zoom is on a wrapper so its transition doesn't replace the photo's fade
+          <div className="absolute inset-0 transition-transform duration-500 ease-smooth group-hover:scale-105 motion-reduce:transition-none">
+            <Photo
+              src={post.cover.src}
+              alt=""
+              preview={post.cover.blur}
+              sizes={sizes2x(["(min-width: 1024px)", "33vw"], ["(min-width: 768px)", "50vw"], [null, "100vw"])}
+              quality={90}
+              className="object-cover"
+            />
+          </div>
         )}
       </div>
       <div className="flex flex-1 flex-col p-6">

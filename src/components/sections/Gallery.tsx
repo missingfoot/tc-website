@@ -95,7 +95,7 @@ export default function Gallery({ heading, intro, images, footer, tone = "cream"
                 onClick={() => goTo(i)}
                 aria-label={`Show ${image.alt}`}
                 aria-current={i === index}
-                className={`relative block size-14 overflow-hidden rounded-xl transition ${
+                className={`relative block size-14 overflow-hidden rounded-xl bg-cream-dark transition ${
                   i === index ? "ring-2 ring-ink ring-offset-2 ring-offset-transparent" : "opacity-80 hover:opacity-100"
                 }`}
               >

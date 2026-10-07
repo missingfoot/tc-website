@@ -50,7 +50,7 @@ export default function ProgressiveImage({ src, placeholder, alt, sizes, positio
           quality={90}
           draggable={false}
           onLoad={() => setLoaded(true)}
-          className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"} ${className}`}
+          className={`object-cover transition-opacity duration-800 ease-out motion-reduce:transition-none ${loaded ? "opacity-100" : "opacity-0"} ${className}`}
           style={{ objectPosition: position }}
         />
       )}

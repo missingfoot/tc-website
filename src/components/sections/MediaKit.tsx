@@ -71,12 +71,15 @@ export default function MediaKit({ heading, intro, logos, photoGroups, tone = "c
                   <li key={photo.src}>
                     <a href={photo.src} download className={`group block ${pressable}`}>
                       <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-ink/10">
-                        <Photo
-                          src={photo.src}
-                          alt=""
-                          sizes="(min-width: 768px) (min-resolution: 2dppx) 30vw, (min-width: 768px) 60vw, (min-resolution: 2dppx) 50vw, 100vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
+                        {/* The zoom is on a wrapper so its transition doesn't replace the photo's fade */}
+                        <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+                          <Photo
+                            src={photo.src}
+                            alt=""
+                            sizes="(min-width: 768px) (min-resolution: 2dppx) 30vw, (min-width: 768px) 60vw, (min-resolution: 2dppx) 50vw, 100vw"
+                            className="object-cover"
+                          />
+                        </div>
                         <span className="absolute right-3 bottom-3 flex size-9 items-center justify-center rounded-full bg-white text-ink shadow-md">
                           <Download />
                         </span>

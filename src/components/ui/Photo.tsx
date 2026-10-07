@@ -24,10 +24,11 @@ type State = "loading" | "fading" | "shown";
  * loaded, so slow connections never see an empty box. A photo that's already loaded when it
  * mounts (e.g. cached) shows at once, without the fade.
  *
- * Above-the-fold photos (`loading="eager"`, `fetchPriority="high"` or `preload`) are never
- * hidden: they draw over the preview as they arrive, which is removed once they've loaded.
- * Hiding them until the page's JavaScript noticed the load kept already-downloaded hero photos
- * invisible for seconds on slow phones. Previews come from
+ * Above-the-fold photos (`loading="eager"`, `fetchPriority="high"` or `preload`) start visible
+ * in the server HTML, so they draw as soon as they arrive even if the page's JavaScript is slow
+ * (hiding them until it ran kept already-downloaded hero photos invisible for seconds on slow
+ * phones). Once it runs, one that's still loading is hidden and fades in like the rest.
+ * Previews come from
  * `src/lib/blur-placeholders.json`, generated from `public/images` by `npm run blur` (runs
  * before `dev` and `build`); a photo without one simply loads as normal.
  */
@@ -40,10 +41,14 @@ export default function Photo({ alt, className = "", style, onLoad, preview, ...
   const blur = preview ?? (typeof props.src === "string" ? blurFor(props.src) : undefined);
   const aboveFold = props.loading === "eager" || props.fetchPriority === "high" || !!props.preload;
   const [state, setState] = useState<State>(blur ? "loading" : "shown");
+  // Above-the-fold photos stay visible until the page's JavaScript runs (see above)
+  const [canHide, setCanHide] = useState(!aboveFold);
   // Already loaded when it mounts (cached, or arrived before the page's JavaScript ran): no fade.
-  // Stable, so it only runs on mount (a new function each render would re-run it mid-fade).
+  // Still loading: hide it so it fades in. Stable, so it only runs on mount (a new function each
+  // render would re-run it mid-fade).
   const checkLoaded = useCallback((img: HTMLImageElement | null) => {
     if (img?.complete && img.naturalWidth) setState("shown");
+    else if (img) setCanHide(true);
   }, []);
 
   return (
@@ -64,12 +69,13 @@ export default function Photo({ alt, className = "", style, onLoad, preview, ...
         data-photo
         ref={checkLoaded}
         onLoad={(e) => {
-          setState((s) => (s === "loading" ? (aboveFold ? "shown" : "fading") : s));
+          setState((s) => (s === "loading" ? "fading" : s));
           onLoad?.(e);
         }}
         onError={() => setState("shown")}
-        onTransitionEnd={() => setState("shown")}
-        className={`${className} ${state === "loading" && !aboveFold ? "opacity-0" : ""} ${state === "fading" ? "transition-opacity duration-500 motion-reduce:transition-none" : ""}`}
+        // Only the fade: a transition of the caller's (e.g. a hover zoom) mid-load would remove the preview early
+        onTransitionEnd={(e) => e.propertyName === "opacity" && setState("shown")}
+        className={`${className} ${state === "loading" && canHide ? "opacity-0" : ""} ${state === "fading" ? "transition-opacity duration-800 ease-out motion-reduce:transition-none" : ""}`}
         style={style}
         {...props}
       />
