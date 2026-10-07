@@ -46,7 +46,7 @@ export default async function ApplyForRoom({ params, searchParams }: PageProps<"
               slug: room.slug,
               name: room.name,
               location: room.location,
-              floor: room.booking.floor,
+              floor: room.booking.floor ?? "To be confirmed",
               photo: { src: room.photos[0].src!, alt: room.photos[0].alt },
               weeklyPrice: parsePrice(room.price),
               moveIn: room.booking.moveIn,

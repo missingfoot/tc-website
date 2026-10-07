@@ -7,11 +7,13 @@ type RoomBookingProps = {
   price: string;
   booking: RoomDetails["booking"];
   cta: Cta;
+  /** Sent with the form as hidden fields (a GET form drops any query string in `cta.href`), e.g. { location: "canary-wharf" }. */
+  fields?: Record<string, string>;
   className?: string;
 };
 
 /** Price, move-in details, a membership period picker and the apply button. A white card on desktop. */
-export default function RoomBooking({ price, booking, cta, className = "" }: RoomBookingProps) {
+export default function RoomBooking({ price, booking, cta, fields = {}, className = "" }: RoomBookingProps) {
   return (
     <div id="booking" className={`lg:rounded-2xl lg:bg-white lg:p-6 lg:shadow-xl lg:shadow-black/10 ${className}`}>
       <p className="text-2xl font-bold text-ink">From {price} per week</p>
@@ -21,14 +23,19 @@ export default function RoomBooking({ price, booking, cta, className = "" }: Roo
           <dt className="text-stone">Move in</dt>
           <dd className="text-ink">{booking.moveIn}</dd>
         </div>
-        <div className="flex justify-between gap-4">
-          <dt className="text-stone">Floor</dt>
-          <dd className="text-ink">{booking.floor}</dd>
-        </div>
+        {booking.floor && (
+          <div className="flex justify-between gap-4">
+            <dt className="text-stone">Floor</dt>
+            <dd className="text-ink">{booking.floor}</dd>
+          </div>
+        )}
       </dl>
 
       {/* A plain GET form: the chosen period goes to the application as ?period=… */}
       <form action={cta.href}>
+        {Object.entries(fields).map(([name, value]) => (
+          <input key={name} type="hidden" name={name} value={value} />
+        ))}
         <label htmlFor="membership-period" className={`mt-6 block ${text.label}`}>
           Select membership period
         </label>

@@ -14,8 +14,8 @@ export default function Faq() {
   return (
     <>
       <Hero
-        image="/images/old-oak/gallery/05-reception.jpg"
-        imageAlt="The reception at The Collective Old Oak"
+        image="/images/old-oak/gallery/05-secret-garden.jpg"
+        imageAlt="The secret garden at The Collective Old Oak"
         title="Frequently asked questions"
         subtitle="Everything you need to know about living at The Collective."
       />

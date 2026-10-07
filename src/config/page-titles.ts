@@ -2,6 +2,7 @@ import { jobs } from "@/content/careers";
 import { blogCategories, postSlugs } from "@/lib/blog";
 import { venues } from "@/content/events";
 import { oldOakRoomDetails } from "@/content/old-oak";
+import { canaryWharfRoomDetails } from "@/content/canary-wharf";
 import { servicedLocationPages } from "@/content/serviced-living";
 import { workingLocationPages } from "@/content/working";
 
@@ -14,6 +15,7 @@ export const pageTitles: Record<string, string> = {
   "/": "The Collective",
   "/locations/old-oak": "Old Oak",
   "/locations/canary-wharf": "Canary Wharf",
+  ...Object.fromEntries(canaryWharfRoomDetails.map((room) => [`/locations/canary-wharf/rooms/${room.slug}`, room.name])),
   ...Object.fromEntries(oldOakRoomDetails.map((room) => [`/locations/old-oak/rooms/${room.slug}`, room.name])),
   "/co-living": "Co-Living",
   "/working": "Working",

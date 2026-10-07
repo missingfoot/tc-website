@@ -143,7 +143,8 @@ export type RoomDetails = {
   floorPlan?: CircleImage;
   booking: {
     moveIn: string;
-    floor: string;
+    /** Left out when it isn't known. */
+    floor?: string;
     /** Options in the membership period picker. */
     periods: string[];
   };

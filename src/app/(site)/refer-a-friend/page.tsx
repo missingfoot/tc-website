@@ -16,21 +16,22 @@ export default function ReferAFriend() {
       <Hero
         image="/images/referrals/two-friends.jpg"
         imageAlt="Two friends standing together in front of a hedge at night"
-        title="Get up to £200 for every friend you refer"
+        imagePosition="center 38%"
+        title="Get up to £200 per friend"
         subtitle="Help us build our community. You get up to £200 for every friend who moves in, and they get up to £200 off their rent."
       />
 
       <Section raised>
-        <Container className="mx-auto max-w-4xl">
+        <Container className="mx-auto max-w-4xl lg:text-center">
           <h2 className={text.subheading}>Get your referral link</h2>
           <p className={`mt-2 ${text.body}`}>Referrals are for members, and there’s no limit, so invite as many friends as you like.</p>
-          <div className="mt-8">
+          <div className="mt-2">
             <GetLinkForm />
           </div>
         </Container>
       </Section>
 
-      <Checklist tone="cream" heading="How it works" items={referralSteps} />
+      <Checklist tone="cream" heading="How it works" items={referralSteps} numbered />
 
       <Section>
         <Container>

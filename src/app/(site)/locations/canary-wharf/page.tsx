@@ -11,10 +11,10 @@ import PromoCards from "@/components/sections/PromoCards";
 import Button from "@/components/ui/Button";
 import FloatingButton from "@/components/ui/FloatingButton";
 import {
-  canaryWharfEventsImages, canaryWharfFaq, canaryWharfGallery, canaryWharfIncluded, canaryWharfMapEmbed, canaryWharfOffers,
+  canaryWharfEventsImages, canaryWharfFaq, canaryWharfGallery, canaryWharfIncluded, canaryWharfMapEmbed, canaryWharfOffers, canaryWharfPromos,
   canaryWharfRooms, canaryWharfTower, canaryWharfTravelModes, canaryWharfWaitlist,
 } from "@/content/canary-wharf";
-import { oldOakPromos, socialLinks } from "@/content/old-oak";
+import { socialLinks } from "@/content/old-oak";
 
 export const metadata = { title: "Canary Wharf" };
 
@@ -24,9 +24,6 @@ const waitlist = (variant: "light" | "dark") => (
     Join the waitlist
   </Button>
 );
-
-// The closing cards, with "Like what you see?" pointing at the waitlist instead of Old Oak's application
-const promos = oldOakPromos.map((card) => (card.cta.enquiry ? { ...card, cta: { label: "Join the waitlist", href: canaryWharfWaitlist } } : card));
 
 export default function CanaryWharf() {
   return (
@@ -71,7 +68,6 @@ export default function CanaryWharf() {
         heading="Explore the rooms"
         intro="Every studio has an ensuite rain shower, a kitchenette, a comfy mattress and a smart TV. Stay from £80 a night, or live with us on a 3 to 12 month membership with one all-inclusive bill."
         rooms={canaryWharfRooms}
-        ctaLabel="Join the waitlist"
       />
 
       <FeatureGroups
@@ -97,7 +93,7 @@ export default function CanaryWharf() {
         cta={{ label: "Sign up for a newsletter", href: "#" }}
       />
 
-      <PromoCards cards={promos} />
+      <PromoCards cards={canaryWharfPromos} />
 
       <FloatingButton>{waitlist("dark")}</FloatingButton>
     </>

@@ -1,4 +1,3 @@
-import { Bill, DoorEntry, Plane } from "@/components/icons";
 import type { ChecklistItem } from "@/components/sections/Checklist";
 
 // Amounts from the scheme's terms (The Collective Partners LLP). TODO: confirm they're current.
@@ -8,14 +7,12 @@ export const rewardRows = [
 ];
 
 export const referralSteps: ChecklistItem[] = [
-  { icon: Plane, title: "Invite friends", text: "Sign in to your account for your own link, then share it, or let us email your friends for you." },
+  { title: "Invite friends", text: "Sign in to your account for your own link, then share it, or let us email your friends for you." },
   {
-    icon: DoorEntry,
     title: "Your friend moves in",
     text: "They book a tour and move in on a membership of 9 months or more, and get up to £200 off their rent.",
   },
   {
-    icon: Bill,
     title: "You get rewarded",
     text: "After their first rent payment, the same amount comes off your next month’s rent.",
   },

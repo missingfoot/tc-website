@@ -391,6 +391,39 @@ export function Dumbbell(props: IconProps) {
   );
 }
 
+/** Paper plane (sending an invite). */
+export function Invite(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <polyline points="21.5 2.5 7 12.875 7 21 12 16.625" strokeLinecap="butt" />
+      <polygon points="2.5 9.5 21.5 2.5 18.5 21.5 2.5 9.5" />
+    </Icon>
+  );
+}
+
+/** Open moving box (moving in). */
+export function MoveIn(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M16.6772 9.16431L12.4461 11.2772C12.1652 11.4175 11.8347 11.4177 11.5536 11.2778L7.32132 9.17072" strokeLinecap="butt" />
+      <path d="M3 11.7935V18L12 22.5L21 18V11.7935" strokeLinecap="butt" />
+      <path d="M21 7.00552L13 11L14 15L22.5 11L21 6L12 1.5L3 6L1.5 11L10 15L11 11L3 7.01921" strokeLinecap="butt" />
+    </Icon>
+  );
+}
+
+/** Hand receiving coins (a reward). */
+export function Reward(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.10001 17H14.5L14.5 16.5C14.5 14.8431 13.1569 13.5 11.5 13.5H10L9.17157 12.6716C8.42143 11.9214 7.40401 11.5 6.34315 11.5H6.14074C4.80332 11.5 3.5544 12.1684 2.81253 13.2812L2 14.5L2.33333 14M18.5 15L21.1178 14.4183C22.0837 14.2036 23 14.9386 23 15.9281V15.9281C23 16.5729 22.6001 17.15 21.9964 17.3764L12.2198 21.0426C11.4271 21.3398 10.5605 21.3779 9.74476 21.1513L2 19L2.5 19.1389" />
+      <path d="M2 21V11" />
+      <path d="M20 10C21.6569 10 23 8.65685 23 7C23 5.34315 21.6569 4 20 4C18.3431 4 17 5.34315 17 7C17 8.65685 18.3431 10 20 10Z" />
+      <path d="M10 7C11.6569 7 13 5.65685 13 4C13 2.34315 11.6569 1 10 1C8.34315 1 7 2.34315 7 4C7 5.65685 8.34315 7 10 7Z" />
+    </Icon>
+  );
+}
+
 /** Pool ladder over water (swimming pool). */
 export function Pool(props: IconProps) {
   return (
