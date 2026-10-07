@@ -6,6 +6,17 @@ import placeholders from "@/lib/blur-placeholders.json";
 
 const blurs: Record<string, string | undefined> = placeholders;
 
+// Photos that have loaded during this visit. Going back to a page creates its photos afresh, and a
+// lazy one isn't "complete" yet when it mounts even though it's cached, so without this it would
+// blur and fade in again. Module state, so it lasts across client-side navigations.
+const loaded = new Set<string>();
+
+/** Notes that a photo has loaded, so it shows at once next time. */
+export const markLoaded = (src: string | undefined) => src && loaded.add(src);
+
+/** Whether a photo has already loaded during this visit (it's in the browser's cache). */
+export const hasLoaded = (src: string | undefined) => !!src && loaded.has(src);
+
 /** The inline blur preview generated for a photo in `public/images`, if there is one. */
 export function blurFor(src: string | undefined) {
   return src ? blurs[src] : undefined;
@@ -40,15 +51,19 @@ type PhotoProps = Omit<ImageProps, "fill"> & {
 export default function Photo({ alt, className = "", style, onLoad, preview, ...props }: PhotoProps) {
   const blur = preview ?? (typeof props.src === "string" ? blurFor(props.src) : undefined);
   const aboveFold = props.loading === "eager" || props.fetchPriority === "high" || !!props.preload;
-  const [state, setState] = useState<State>(blur ? "loading" : "shown");
+  const src = typeof props.src === "string" ? props.src : undefined;
+  // Seen before: show it straight away (no preview, no fade)
+  const [state, setState] = useState<State>(blur && !hasLoaded(src) ? "loading" : "shown");
   // Above-the-fold photos stay visible until the page's JavaScript runs (see above)
   const [canHide, setCanHide] = useState(!aboveFold);
   // Already loaded when it mounts (cached, or arrived before the page's JavaScript ran): no fade.
   // Still loading: hide it so it fades in. Stable, so it only runs on mount (a new function each
   // render would re-run it mid-fade).
   const checkLoaded = useCallback((img: HTMLImageElement | null) => {
-    if (img?.complete && img.naturalWidth) setState("shown");
-    else if (img) setCanHide(true);
+    if (img?.complete && img.naturalWidth) {
+      setState("shown");
+      markLoaded(img.getAttribute("data-src") ?? undefined);
+    } else if (img) setCanHide(true);
   }, []);
 
   return (
@@ -67,8 +82,10 @@ export default function Photo({ alt, className = "", style, onLoad, preview, ...
         alt={alt}
         fill
         data-photo
+        data-src={src}
         ref={checkLoaded}
         onLoad={(e) => {
+          markLoaded(src);
           setState((s) => (s === "loading" ? "fading" : s));
           onLoad?.(e);
         }}

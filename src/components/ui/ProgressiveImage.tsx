@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { blurFor } from "@/components/ui/Photo";
+import { blurFor, hasLoaded, markLoaded } from "@/components/ui/Photo";
 import { useState } from "react";
 import type { ImagePosition } from "@/lib/types";
 
@@ -23,7 +23,8 @@ type ProgressiveImageProps = {
  * inline blur preview (see `Photo`) stands in. Place inside a positioned, overflow-hidden parent.
  */
 export default function ProgressiveImage({ src, placeholder, alt, sizes, position, className = "" }: ProgressiveImageProps) {
-  const [loaded, setLoaded] = useState(false);
+  // Seen before this visit: show it straight away, without the fade
+  const [loaded, setLoaded] = useState(() => hasLoaded(src));
   const blur = blurFor(src);
 
   return (
@@ -49,7 +50,10 @@ export default function ProgressiveImage({ src, placeholder, alt, sizes, positio
           sizes={sizes}
           quality={90}
           draggable={false}
-          onLoad={() => setLoaded(true)}
+          onLoad={() => {
+            markLoaded(src);
+            setLoaded(true);
+          }}
           className={`object-cover transition-opacity duration-800 ease-out motion-reduce:transition-none ${loaded ? "opacity-100" : "opacity-0"} ${className}`}
           style={{ objectPosition: position }}
         />
