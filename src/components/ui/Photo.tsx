@@ -52,10 +52,11 @@ export default function Photo({ alt, className = "", style, onLoad, preview, ...
   const blur = preview ?? (typeof props.src === "string" ? blurFor(props.src) : undefined);
   const aboveFold = props.loading === "eager" || props.fetchPriority === "high" || !!props.preload;
   const src = typeof props.src === "string" ? props.src : undefined;
-  // Seen before: show it straight away (no preview, no fade)
-  const [state, setState] = useState<State>(blur && !hasLoaded(src) ? "loading" : "shown");
-  // Above-the-fold photos stay visible until the page's JavaScript runs (see above)
-  const [canHide, setCanHide] = useState(!aboveFold);
+  const [state, setState] = useState<State>(blur ? "loading" : "shown");
+  // Above-the-fold photos stay visible until the page's JavaScript runs (see above). Photos seen
+  // before this visit are never hidden: they draw straight away over the preview, which covers the
+  // moment the browser takes to decode them (otherwise the background, e.g. a hero's black, flashes).
+  const [canHide, setCanHide] = useState(!aboveFold && !hasLoaded(src));
   // Already loaded when it mounts (cached, or arrived before the page's JavaScript ran): no fade.
   // Still loading: hide it so it fades in. Stable, so it only runs on mount (a new function each
   // render would re-run it mid-fade).
@@ -63,7 +64,7 @@ export default function Photo({ alt, className = "", style, onLoad, preview, ...
     if (img?.complete && img.naturalWidth) {
       setState("shown");
       markLoaded(img.getAttribute("data-src") ?? undefined);
-    } else if (img) setCanHide(true);
+    } else if (img && !hasLoaded(img.getAttribute("data-src") ?? undefined)) setCanHide(true);
   }, []);
 
   return (
@@ -86,7 +87,10 @@ export default function Photo({ alt, className = "", style, onLoad, preview, ...
         ref={checkLoaded}
         onLoad={(e) => {
           markLoaded(src);
-          setState((s) => (s === "loading" ? "fading" : s));
+          if (canHide) setState((s) => (s === "loading" ? "fading" : s));
+          // Already visible (seen before, or a hero before the page's JavaScript ran): remove the
+          // preview once the photo is decoded, so nothing behind it shows for a frame
+          else e.currentTarget.decode().catch(() => {}).then(() => setState("shown"));
           onLoad?.(e);
         }}
         onError={() => setState("shown")}
