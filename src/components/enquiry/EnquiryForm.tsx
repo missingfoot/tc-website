@@ -95,10 +95,11 @@ export default function EnquiryForm({ kind, venue, referral, location }: Enquiry
   return (
     <div className="grid min-h-dvh lg:grid-cols-2">
       {/* Desktop: the photo in a rounded panel filling the left half, inset from the screen edge.
-          Lazy (with high priority) rather than preloaded, so phones, where it's hidden, skip it */}
+          Lazy, so phones, where it's hidden, skip it. Not high priority: that would make Photo treat it
+          as a hero and draw it in as it downloads; beside the form it blurs and fades in instead */}
       <div className="hidden p-6 lg:sticky lg:top-0 lg:block lg:h-dvh">
         <div className="relative h-full overflow-hidden rounded-4xl bg-ink/10">
-          <Photo src={image.src} alt={image.alt} fetchPriority="high" sizes={sizes2x([null, "50vw"])} quality={90} className="object-cover" />
+          <Photo src={image.src} alt={image.alt} sizes={sizes2x([null, "50vw"])} quality={90} className="object-cover" />
         </div>
       </div>
 
