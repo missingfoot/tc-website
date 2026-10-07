@@ -7,10 +7,11 @@ import { footerNav, mainNav, mobileNav, type MobileNavGroup, type NavLink } from
 import { site } from "@/config/site";
 import type { SocialLink } from "@/components/sections/SocialLinks";
 import { socialLinks } from "@/content/old-oak";
-import type { Location, Media, Page, PricingStructure, Room as RoomDoc, Template } from "@/payload-types";
+import type { Building, Media, Page, PricingStructure, Room as RoomDoc, Template } from "@/payload-types";
 import type { CircleImage, Cta, GalleryImage, LocationDetails, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
-import { locationPaths, type LocationType } from "@/payload/collections/Locations";
-import { roomsPath } from "@/payload/collections/Rooms";
+import { placePaths, type PlaceKind } from "@/payload/fields/place";
+import { findPlaces, offeringOf, type Place } from "@/payload/places";
+import { roomPath } from "@/payload/collections/Rooms";
 import { formatPence, fromPill, lowest, monthsLabel, periodLine, resolvePrices, type PriceItem, type PricePlan } from "@/lib/pricing";
 import { defaultPricingRules, type PricingRules } from "@/lib/application";
 import { fillVariables, type Variables } from "@/lib/variables";
@@ -29,14 +30,17 @@ export const getVariables = cache(async (): Promise<Variables> => new Map((await
 export const getPage = cache(async (slug: string): Promise<Page | null> => {
   const { docs } = await (await payload()).find({ collection: "pages", where: { slug: { equals: slug } }, limit: 1, depth: 2 });
   if (!docs[0]) return null;
-  // Location cards' locations, with their prices worked out (for their pills)
-  const structure = await getPricingStructure();
+  // Location cards' places (buildings' working space or serviced living, or venue rooms), with
+  // their prices worked out (for their pills); room cards' rooms, with their home (for their links)
+  const [structure, rooms] = await Promise.all([getPricingStructure(), getRooms()]);
   const page = {
     ...docs[0],
     layout: docs[0].layout.map((block) =>
       block.blockType === "locationCards"
-        ? { ...block, locations: block.locations.map((l) => (typeof l === "object" ? withPrices(l, structure) : l)) }
-        : block,
+        ? { ...block, places: cardPlaces(block).map((place) => withPrices(place, structure)) }
+        : block.blockType === "roomCards"
+          ? { ...block, rooms: block.rooms.flatMap((r) => rooms.filter((room) => room.id === idOf(r))) }
+          : block,
     ),
   };
   return fillVariables(page, await getVariables());
@@ -45,14 +49,32 @@ export const getPage = cache(async (slug: string): Promise<Page | null> => {
 /** The pricing structure (/admin/pricing): room lengths, and working and serviced living plans. */
 export const getPricingStructure = cache(async (): Promise<PricingStructure> => (await payload()).findGlobal({ slug: "pricingStructure", depth: 0 }));
 
-/** A location with its prices worked out from its type's plans (its own price, or the standard one). */
-export type PricedLocation = Location & { priceItems: PriceItem[] };
-const plansFor = (structure: PricingStructure, type: Location["type"]): PricePlan[] =>
-  (type === "working" ? structure.working : type === "serviced" ? structure.serviced : null) ?? [];
-const withPrices = (location: Location, structure: PricingStructure): PricedLocation => ({
-  ...location,
-  priceItems: resolvePrices(location.prices, plansFor(structure, location.type)),
-});
+/** A Location cards section's places, in its order: its buildings' working space or serviced living, or its venue rooms. */
+type LocationCardsBlock = Extract<Page["layout"][number], { blockType: "locationCards" }>;
+function cardPlaces(block: LocationCardsBlock): Place[] {
+  if (block.kind === "venue") return (block.venues ?? []).flatMap((venue) => (typeof venue === "object" ? [{ ...venue, kind: "venue" } as Place] : []));
+  const kind = block.kind;
+  return (block.buildings ?? []).flatMap((building) => (typeof building === "object" ? (offeringOf(building, kind) ?? []) : []));
+}
+
+/** A Location cards section with its places worked out (getPage does it). */
+export type PricedLocationCards = LocationCardsBlock & { places?: PricedLocation[] };
+
+/**
+ * A place with its prices worked out from its kind's plans (its own price, or the standard one),
+ * and its lowest price, e.g. "£150" (co-living's is its bedrooms' lowest weekly rate).
+ */
+export type PricedLocation = Place & { priceItems: PriceItem[]; lowestPrice?: string };
+const plansFor = (structure: PricingStructure, kind: PlaceKind): PricePlan[] =>
+  (kind === "working" ? structure.working : kind === "serviced" ? structure.serviced : null) ?? [];
+function withPrices(place: Place, structure: PricingStructure, rooms: HousedRoom[] = []): PricedLocation {
+  const priceItems = resolvePrices(place.prices, plansFor(structure, place.kind));
+  const low =
+    place.kind === "coliving"
+      ? lowest(rooms.filter((room) => room.home.id === place.id).flatMap((room) => (room.rates ?? []).map((r) => ({ amount: r.weekly }))))
+      : lowest(priceItems);
+  return { ...place, priceItems, lowestPrice: low && formatPence(low.amount) };
+}
 
 /** Every Payload page's slug, for pre-building them. */
 export async function getPageSlugs(): Promise<string[]> {
@@ -79,26 +101,28 @@ export const paragraphs = (text: string) =>
     .filter(Boolean);
 
 /**
- * The locations of one type (working spaces, serviced living houses or venues), in their admin
- * order, with the variables in their text filled in ({lowest-price} as each one's own).
+ * The places of one kind (buildings' co-living, working spaces or serviced living, or venue
+ * rooms), each with its building, and the variables in their text filled in ({lowest-price} and
+ * {name} as each one's own).
  */
-export const getLocations = cache(async (type: LocationType): Promise<PricedLocation[]> => {
-  const { docs } = await (await payload()).find({ collection: "locations", where: { type: { equals: type } }, sort: "_order", limit: 1000, depth: 1 });
-  const [variables, structure] = await Promise.all([getVariables(), getPricingStructure()]);
-  return docs.map((doc) => {
-    const location = withPrices(doc, structure);
-    return fillVariables(location, variables, locationLowestPrice(location));
+export const getLocations = cache(async (kind: PlaceKind): Promise<PricedLocation[]> => {
+  const [places, variables, structure, rooms] = await Promise.all([
+    findPlaces(await payload(), kind, 1),
+    getVariables(),
+    getPricingStructure(),
+    kind === "coliving" ? getRooms() : [],
+  ]);
+  return places.map((place) => {
+    const location = withPrices(place, structure, rooms);
+    return fillVariables(location, variables, { "lowest-price": location.lowestPrice, name: location.name });
   });
 });
 
 /** A location's lowest price, e.g. "£150" ({lowest-price} in its text, and its template's). */
-export const locationLowestPrice = (location: PricedLocation) => {
-  const low = lowest(location.priceItems);
-  return low && formatPence(low.amount);
-};
+export const locationLowestPrice = (location: PricedLocation) => location.lowestPrice;
 
-/** One location, by its type and slug. */
-export const getLocation = cache(async (type: LocationType, slug: string): Promise<PricedLocation | null> => (await getLocations(type)).find((l) => l.slug === slug) ?? null);
+/** One place, by its kind and slug. */
+export const getLocation = cache(async (type: PlaceKind, slug: string): Promise<PricedLocation | null> => (await getLocations(type)).find((l) => l.slug === slug) ?? null);
 
 const icon = (name: string) => icons[name as keyof typeof icons];
 /** Icon-and-label items, with each icon's name swapped for its component. */
@@ -130,7 +154,7 @@ export function locationCard(location: PricedLocation): Room {
     price: locationPill(location),
     image: mediaImage(location.image),
     features: iconItems(location.features),
-    href: `${locationPaths[location.type]}/${location.slug}`,
+    href: `${placePaths[location.kind]}/${location.slug}`,
   };
 }
 
@@ -147,22 +171,43 @@ export function locationDetails(location: PricedLocation): LocationDetails {
     intro: paragraphs(location.intro),
     gallery: (location.gallery ?? []).map((photo) => galleryImage(photo.image, photo.name)),
     prices: location.priceItems.map((p) => ({ label: p.label, amount: formatPence(p.amount), period: periodLine(p) })),
-    address: location.address ?? undefined,
-    directionsIntro: location.directionsIntro,
-    travelModes: travelModes(location.travelModes),
+    address: buildingOf(location)?.address ?? undefined,
+    directionsIntro: location.directionsIntro ?? "",
+    travelModes: travelModes(buildingOf(location)?.travelModes),
   };
 }
 
 /** A location's "What's included" groups (empty if it has none of its own). */
-export const locationIncluded = (location: Location): FeatureGroup[] =>
+export const locationIncluded = (location: Place): FeatureGroup[] =>
   (location.included ?? []).map((group) => ({ label: group.label ?? undefined, items: iconItems(group.items) }));
 
-/** Old Oak's rooms, in their admin order, with the variables in their text filled in ({lowest-price} as each one's own). */
-export const getRooms = cache(async (): Promise<RoomDoc[]> => {
-  const { docs } = await (await payload()).find({ collection: "rooms", sort: "_order", limit: 1000, depth: 1 });
-  const variables = await getVariables();
-  return docs.map((room) => fillVariables(room, variables, roomLowestPrice(room)));
+/** A room's or location's building, when it's been read with it (depth 1 or more). */
+export const buildingOf = (doc: { building?: number | Building | null }) => (doc.building && typeof doc.building === "object" ? doc.building : undefined);
+const idOf = (relation?: number | { id: number } | null) => (relation && typeof relation === "object" ? relation.id : relation);
+
+/** A bedroom with its home: its building's co-living, whose page its own is under (and whose lengths it's booked for). */
+export type HousedRoom = RoomDoc & { home: Place };
+
+/**
+ * Every building's bedrooms, in their admin order, each with its home (its building's co-living),
+ * and the variables in their text filled in ({lowest-price} and {name} as each one's own). A room
+ * whose building has no co-living has no page, so it's left out.
+ */
+export const getRooms = cache(async (): Promise<HousedRoom[]> => {
+  const [rooms, homes, variables] = await Promise.all([
+    (await payload()).find({ collection: "rooms", sort: "_order", limit: 1000, depth: 1 }),
+    findPlaces(await payload(), "coliving", 1),
+    getVariables(),
+  ]);
+  const homeOf = new Map(homes.map((home) => [home.id, home]));
+  return rooms.docs.flatMap((room) => {
+    const home = homeOf.get(idOf(room.building) ?? 0);
+    return home ? [{ ...fillVariables(room, variables, { "lowest-price": roomLowestPrice(room), name: room.name }), home }] : [];
+  });
 });
+
+/** A co-living's bedrooms, by its slug. */
+export const getBuildingRooms = async (coliving: string) => (await getRooms()).filter((room) => room.home.slug === coliving);
 
 /** A room's lowest weekly rate, e.g. "£245" ({lowest-price} in its text, and its template's). */
 export const roomLowestPrice = (room: RoomDoc) => {
@@ -170,8 +215,8 @@ export const roomLowestPrice = (room: RoomDoc) => {
   return low && formatPence(low.amount);
 };
 
-/** One room, by its slug. */
-export const getRoom = cache(async (slug: string): Promise<RoomDoc | null> => (await getRooms()).find((r) => r.slug === slug) ?? null);
+/** One room, by its building's slug and its own. */
+export const getRoom = cache(async (building: string, slug: string): Promise<HousedRoom | null> => (await getBuildingRooms(building)).find((r) => r.slug === slug) ?? null);
 
 /** Ways to get somewhere, with each one's steps (a line each) as a list. */
 export const travelModes = (modes?: { label: string; icon: TravelMode["icon"]; steps: string; mapsUrl: string }[] | null): TravelMode[] =>
@@ -189,16 +234,17 @@ function roomPrice(room: RoomDoc) {
   return `${varies ? "From " : ""}${formatPence(min.amount)} per week`;
 }
 
-/** A room as its card on Old Oak's page, linking to its own. */
-export function roomCard(room: RoomDoc): Room {
-  return { name: room.name, price: roomPrice(room), image: mediaImage(room.image), features: iconItems(room.features), href: `${roomsPath}/rooms/${room.slug}` };
+/** A room as its card on its building's page, linking to its own. */
+export function roomCard(room: HousedRoom): Room {
+  return { name: room.name, price: roomPrice(room), image: mediaImage(room.image), features: iconItems(room.features), href: roomPath(room.home.slug, room.slug) };
 }
 
 /** A room as its own page's (and its booking's) content: its photo first in the gallery. */
-export function roomDetails(room: RoomDoc): RoomDetails {
+export function roomDetails(room: HousedRoom): RoomDetails {
   const floorPlan = mediaImage(room.floorPlan);
   return {
     slug: room.slug,
+    href: roomPath(room.home.slug, room.slug),
     name: room.name,
     location: room.location,
     // The lowest rate, e.g. "£245" (the booking card says "From £245 per week")
@@ -295,13 +341,17 @@ export const getTemplate = cache(async (type: Template["type"]): Promise<Templat
   return docs[0] ? fillVariables(docs[0], await getVariables()) : null;
 });
 
-/** A room template's main-column content (what's included, about the building, about co-living); each part empty if it's not filled in. */
-export function roomColumn(template: Template) {
-  const column = template.roomColumn;
+/**
+ * A room page's main column, under the room's own details: its building's "What's included" and
+ * "About" (Locations → the building → Room pages), and the room template's "About Co-living". Each
+ * part is empty if it's not filled in.
+ */
+export function roomColumn(template: Template, building?: Place) {
+  const about = building?.about;
   return {
-    included: iconItems(column?.included),
-    about: { heading: column?.about?.heading ?? "", text: paragraphs(column?.about?.text ?? ""), poster: mediaImage(column?.about?.poster), video: column?.about?.video ?? "" },
-    coLivingAbout: paragraphs(column?.coLivingAbout ?? ""),
+    included: iconItems(building?.roomsIncluded),
+    about: { heading: about?.heading ?? "", text: paragraphs(about?.text ?? ""), poster: mediaImage(about?.poster), video: about?.video ?? "" },
+    coLivingAbout: paragraphs(template.roomColumn?.coLivingAbout ?? ""),
   };
 }
 

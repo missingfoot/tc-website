@@ -1,4 +1,4 @@
-import type { Field } from "payload";
+import type { CollectionSlug, Field, PayloadRequest } from "payload";
 import * as icons from "@/components/icons";
 
 // Fields used in more than one place (page sections, locations).
@@ -65,14 +65,33 @@ export const priceTerms: Field[] = [
 ];
 
 /** A URL slug: lowercase letters, numbers and hyphens. */
-export const slugField = (description: string): Field => ({
+const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const slugFormat = "Use lowercase letters, numbers and hyphens, e.g. our-story";
+
+/**
+ * A URL slug: lowercase letters, numbers and hyphens, unique in its collection. With `within`,
+ * unique only among documents with the same value of that field (a location's type, a room's
+ * building), as their pages live under different addresses.
+ */
+export const slugField = (description: string, within?: string): Field => ({
   name: "slug",
   type: "text",
   required: true,
-  unique: true,
+  unique: !within,
   index: true,
   admin: { position: "sidebar", description },
-  validate: (value: unknown) => (typeof value === "string" && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value)) || "Use lowercase letters, numbers and hyphens, e.g. our-story",
+  validate: async (value: unknown, { data, id, req, collectionSlug }: { data: Record<string, unknown>; id?: string | number; req: PayloadRequest; collectionSlug?: string }) => {
+    if (typeof value !== "string" || !SLUG.test(value)) return slugFormat;
+    if (!within || !collectionSlug) return true;
+    const scope = data?.[within];
+    const scopeId = scope && typeof scope === "object" ? (scope as { id: unknown }).id : scope;
+    const { totalDocs } = await req.payload.count({
+      collection: collectionSlug as CollectionSlug,
+      where: { and: [{ slug: { equals: value } }, { [within]: { equals: scopeId } }, ...(id ? [{ id: { not_equals: id } }] : [])] },
+      req,
+    });
+    return totalDocs === 0 || "Another one here already has this address: pick a different slug.";
+  },
 });
 
 /** Ways to get somewhere (underground, bus…), each with steps and a Google Maps link. */

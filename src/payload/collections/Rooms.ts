@@ -1,18 +1,22 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig, PayloadRequest } from "payload";
+import type { Room } from "@/payload-types";
 import { revalidatePath } from "next/cache";
 import { iconField, itemLabel, slugField } from "../fields/shared";
 
-/** Where the rooms' building page and their own pages live. */
-export const roomsPath = "/locations/old-oak";
+/** A bedroom's page: under its building's co-living page (/locations/old-oak/rooms/ensuite). */
+export const roomPath = (coliving: string, slug: string) => `/locations/${coliving}/rooms/${slug}`;
 
-/** Refreshes a room's pre-built pages (its page and its apply page), and the building's page with its card. */
-function refresh(slug?: string | null) {
-  if (!slug) return;
+/** Refreshes a room's pre-built pages (its page and its apply page), and its building's co-living page with its card. */
+async function refresh(req: PayloadRequest, building: Room["building"] | undefined, slug?: string | null) {
+  if (!slug || !building) return;
+  const found = typeof building === "object" ? building : await req.payload.findByID({ collection: "buildings", id: building, depth: 0, req }).catch(() => null);
+  const coliving = found?.coliving;
+  if (!coliving?.enabled || !coliving.slug) return;
   try {
-    revalidatePath(`${roomsPath}/rooms/${slug}`);
-    revalidatePath(`${roomsPath}/rooms/${slug}/apply`);
-    revalidatePath(roomsPath);
-    // {lowest-price:rooms} can be in any page's text
+    revalidatePath(roomPath(coliving.slug, slug));
+    revalidatePath(`${roomPath(coliving.slug, slug)}/apply`);
+    revalidatePath(`/locations/${coliving.slug}`);
+    // {lowest-price:rooms} and the like can be in any page's text
     revalidatePath("/", "layout");
   } catch {
     // Outside Next (e.g. the seed script) there's no page cache to refresh
@@ -20,18 +24,26 @@ function refresh(slug?: string | null) {
 }
 
 /**
- * Old Oak's co-living rooms: each one's card (via the Room cards section), its own page
- * (/locations/old-oak/rooms/<slug>) and its booking (the apply pages). Drag to reorder: cards
+ * Bedrooms, each in a building: its card (on the building's co-living page), its own page
+ * (/locations/<co-living>/rooms/<slug>) and its booking (the apply pages). Drag to reorder: cards
  * follow this order.
  */
 export const Rooms: CollectionConfig = {
   slug: "rooms",
+  labels: { singular: "Bedroom", plural: "Bedrooms" },
   orderable: true,
-  admin: { useAsTitle: "name", defaultColumns: ["name", "price", "updatedAt"], description: "Old Oak's rooms: their cards, their own pages and their booking." },
+  admin: { useAsTitle: "name", defaultColumns: ["name", "building", "updatedAt"], description: "Bedrooms, each in a building: their cards, their own pages and their booking." },
   access: { read: () => true },
   fields: [
     { name: "name", type: "text", required: true },
-    slugField("The page's address: /locations/old-oak/rooms/ensuite for “ensuite”."),
+    {
+      name: "building",
+      type: "relationship",
+      relationTo: "buildings",
+      required: true,
+      admin: { position: "sidebar", description: "The building it's in: its page is under the building's co-living page." },
+    },
+    slugField("The page's address under its building's co-living page: /locations/old-oak/rooms/ensuite for “ensuite”.", "building"),
     { name: "location", type: "text", required: true, defaultValue: "Old Oak, Willesden Junction", admin: { description: "Shown under the room's name." } },
     { name: "image", label: "Photo", type: "upload", relationTo: "media", required: true, admin: { description: "The card's photo, the page's header and the gallery's first photo." } },
     {
@@ -57,7 +69,7 @@ export const Rooms: CollectionConfig = {
     },
     { name: "floorPlan", type: "upload", relationTo: "media", admin: { description: "Optional: the floor plan drawing. Left out until there is one." } },
     // Rates are edited on the Pricing page (/admin/pricing); this shows them with a link there
-    { name: "ratesNote", type: "ui", admin: { components: { Field: "/payload/fields/PricesField#RoomPrices" } } },
+    { name: "ratesNote", type: "ui", admin: { disableListColumn: true, components: { Field: "/payload/fields/PricesField#RoomPrices" } } },
     {
       name: "rates",
       label: "Rates",
@@ -74,11 +86,11 @@ export const Rooms: CollectionConfig = {
   ],
   hooks: {
     afterChange: [
-      ({ doc, previousDoc }) => {
-        refresh(doc.slug);
-        if (previousDoc && previousDoc.slug !== doc.slug) refresh(previousDoc.slug);
+      async ({ doc, previousDoc, req }) => {
+        await refresh(req, doc.building, doc.slug);
+        if (previousDoc && (previousDoc.slug !== doc.slug || previousDoc.building !== doc.building)) await refresh(req, previousDoc.building, previousDoc.slug);
       },
     ],
-    afterDelete: [({ doc }) => refresh(doc.slug)],
+    afterDelete: [({ doc, req }) => refresh(req, doc.building, doc.slug)],
   },
 };

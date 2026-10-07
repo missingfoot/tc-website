@@ -31,8 +31,8 @@ export const Variables: GlobalConfig = {
           validate: (value: unknown) =>
             typeof value !== "string" || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(value)
               ? "Use lowercase letters, numbers and hyphens, e.g. gym-joining-fee"
-              : value === "lowest-price" || value === "joining-fee"
-                ? "That name is taken by one worked out from the prices"
+              : ["lowest-price", "name", "joining-fee"].includes(value)
+                ? "That name is taken by one worked out from the site"
                 : true,
         },
         {

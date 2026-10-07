@@ -2,28 +2,48 @@ import type { Block, Field } from "payload";
 import { iconField, itemLabel } from "./fields/shared";
 
 // Sections for the Templates collection that fill themselves from the location (or room) being
-// shown: placed in a template, they show that place's photo, intro, gallery, list, prices or
-// directions. Their own fields are the words every page of that type shares.
+// shown: placed in a template, they show that place's photo, intro, gallery, list, prices,
+// directions or rooms. Their own fields are the words every page of that type shares, where
+// {name} is the place's name (e.g. “Co-living at {name}”).
 
 const linkPicker = { components: { Field: "/payload/fields/LinkPicker#LinkPicker" } };
 
 export const LocationHeaderBlock: Block = {
   slug: "locationHeader",
-  labels: { singular: "Location: header photo", plural: "Location: header photos" },
+  labels: { singular: "Place: header photo", plural: "Place: header photos" },
   fields: [],
+};
+
+export const LocationHeroBlock: Block = {
+  slug: "locationHero",
+  labels: { singular: "Place: hero (name over its photo)", plural: "Place: heroes" },
+  fields: [
+    { name: "subtitle", type: "text", admin: { description: "Under the name, e.g. “Live somewhere that's home, and so much more.”" } },
+    { name: "enquiryButton", label: "Enquiry button", type: "checkbox", defaultValue: true, admin: { description: "Opens the enquiry form for its kind of place." } },
+  ],
 };
 
 export const LocationIntroBlock: Block = {
   slug: "locationIntro",
-  labels: { singular: "Location: name and intro", plural: "Location: names and intros" },
+  labels: { singular: "Place: name and intro", plural: "Place: names and intros" },
   fields: [],
+};
+
+export const LocationTextIntroBlock: Block = {
+  slug: "locationTextIntro",
+  labels: { singular: "Place: intro under a heading", plural: "Place: intros under a heading" },
+  fields: [
+    { name: "heading", type: "text", required: true, admin: { description: "Beside its intro, e.g. “Co-living at {name}”." } },
+    { name: "enquiryButton", label: "Enquiry button", type: "checkbox", defaultValue: true },
+  ],
 };
 
 export const LocationGalleryBlock: Block = {
   slug: "locationGallery",
-  labels: { singular: "Location: gallery", plural: "Location: galleries" },
+  labels: { singular: "Place: gallery", plural: "Place: galleries" },
   fields: [
     { name: "heading", type: "text", admin: { description: "Optional, e.g. “Explore the room”." } },
+    { name: "intro", type: "textarea" },
     {
       name: "tour",
       label: "3D tour button",
@@ -39,7 +59,7 @@ export const LocationGalleryBlock: Block = {
 
 export const LocationIncludedBlock: Block = {
   slug: "locationIncluded",
-  labels: { singular: "Location: what's included", plural: "Location: what's included" },
+  labels: { singular: "Place: what's included", plural: "Place: what's included" },
   fields: [
     { name: "heading", type: "text", required: true, defaultValue: "What’s included" },
     { name: "intro", type: "textarea" },
@@ -56,7 +76,7 @@ export const LocationIncludedBlock: Block = {
 
 export const LocationPricingBlock: Block = {
   slug: "locationPricing",
-  labels: { singular: "Location: pricing", plural: "Location: pricing" },
+  labels: { singular: "Place: pricing", plural: "Place: pricing" },
   fields: [
     { name: "heading", type: "text", required: true, defaultValue: "Pricing" },
     { name: "intro", type: "textarea" },
@@ -90,11 +110,34 @@ export const LocationPricingBlock: Block = {
 
 export const LocationDirectionsBlock: Block = {
   slug: "locationDirections",
-  labels: { singular: "Location: directions", plural: "Location: directions" },
+  labels: { singular: "Place: directions", plural: "Place: directions" },
   fields: [{ name: "heading", type: "text", required: true, defaultValue: "Well connected" }],
 };
 
-export const locationBlocks = [LocationHeaderBlock, LocationIntroBlock, LocationGalleryBlock, LocationIncludedBlock, LocationPricingBlock, LocationDirectionsBlock];
+export const LocationRoomsBlock: Block = {
+  slug: "locationRooms",
+  labels: { singular: "Place: rooms", plural: "Place: rooms" },
+  fields: [
+    { name: "heading", type: "text", required: true, defaultValue: "Explore the rooms" },
+    { name: "intro", type: "textarea" },
+    { name: "ctaLabel", label: "Card button", type: "text", defaultValue: "View Room" },
+  ],
+};
+
+export const locationBlocks = [
+  LocationHeaderBlock,
+  LocationHeroBlock,
+  LocationIntroBlock,
+  LocationTextIntroBlock,
+  LocationGalleryBlock,
+  LocationIncludedBlock,
+  LocationPricingBlock,
+  LocationDirectionsBlock,
+  LocationRoomsBlock,
+];
+
+/** Location sections only the co-living template can use. */
+export const buildingLocationBlocks = [LocationRoomsBlock.slug];
 
 /** The location sections a room template can use: its main column (header, facts, booking) is fixed. */
 export const roomLocationBlocks = [LocationGalleryBlock.slug];

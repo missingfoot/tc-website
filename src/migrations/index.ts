@@ -19,6 +19,7 @@ import * as migration_20261007_000623_structured_pricing from './20261007_000623
 import * as migration_20261007_001702_variables from './20261007_001702_variables';
 import * as migration_20261007_003025_optional_booking_details from './20261007_003025_optional_booking_details';
 import * as migration_20261007_004819_pricing_structure from './20261007_004819_pricing_structure';
+import * as migration_20261007_021213_buildings from './20261007_021213_buildings';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20261007_004819_pricing_structure.up,
     down: migration_20261007_004819_pricing_structure.down,
-    name: '20261007_004819_pricing_structure'
+    name: '20261007_004819_pricing_structure',
+  },
+  {
+    up: migration_20261007_021213_buildings.up,
+    down: migration_20261007_021213_buildings.down,
+    name: '20261007_021213_buildings'
   },
 ];

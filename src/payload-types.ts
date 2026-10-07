@@ -67,10 +67,11 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    buildings: Building;
+    rooms: Room;
+    venues: Venue;
     pages: Page;
     templates: Template;
-    locations: Location;
-    rooms: Room;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -78,12 +79,18 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    buildings: {
+      bedrooms: 'rooms';
+      venueRooms: 'venues';
+    };
+  };
   collectionsSelect: {
+    buildings: BuildingsSelect<false> | BuildingsSelect<true>;
+    rooms: RoomsSelect<false> | RoomsSelect<true>;
+    venues: VenuesSelect<false> | VenuesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     templates: TemplatesSelect<false> | TemplatesSelect<true>;
-    locations: LocationsSelect<false> | LocationsSelect<true>;
-    rooms: RoomsSelect<false> | RoomsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -138,6 +145,1136 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * The physical buildings: their co-living, working space and serviced living (each a tab), and their bedrooms and venue rooms.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "buildings".
+ */
+export interface Building {
+  id: number;
+  /**
+   * Also the name its co-living, working space or serviced living go by.
+   */
+  name: string;
+  /**
+   * Street address: drives the maps. Without one, directions sections are left out.
+   */
+  address?: string | null;
+  travelModes?:
+    | {
+        label: string;
+        icon: 'underground' | 'overground' | 'bus' | 'car';
+        /**
+         * One step per line.
+         */
+        steps: string;
+        mapsUrl: string;
+        id?: string | null;
+      }[]
+    | null;
+  coliving?: {
+    enabled?: boolean | null;
+    /**
+     * Not open yet: no page of its own, and its card offers the waitlist. Untick when it opens (once it has bedrooms).
+     */
+    comingSoon?: boolean | null;
+    /**
+     * Its page's address: /locations/<slug>.
+     */
+    slug?: string | null;
+    /**
+     * Neighbourhood, e.g. Bloomsbury
+     */
+    area?: string | null;
+    postcode?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * Leave a blank line between paragraphs.
+     */
+    intro?: string | null;
+    gallery?:
+      | {
+          image: number | Media;
+          /**
+           * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
+           */
+          name?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * In groups (a label is optional). A working space can leave it empty to show the standard list every working space has.
+     */
+    included?:
+      | {
+          label?: string | null;
+          items?:
+            | {
+                label: string;
+                icon:
+                  | 'Api'
+                  | 'Automate'
+                  | 'BarKitchen'
+                  | 'Basin'
+                  | 'Bed'
+                  | 'Bike'
+                  | 'Bill'
+                  | 'Bus'
+                  | 'Calendar'
+                  | 'CalendarCheck'
+                  | 'Car'
+                  | 'Cctv'
+                  | 'Check'
+                  | 'Chef'
+                  | 'Cocktail'
+                  | 'Community'
+                  | 'Crowd'
+                  | 'Database'
+                  | 'DealFlow'
+                  | 'Desk'
+                  | 'Dining'
+                  | 'DoorEntry'
+                  | 'Dumbbell'
+                  | 'FeasibilityModel'
+                  | 'FruitBowl'
+                  | 'Groceries'
+                  | 'Guard'
+                  | 'Hack'
+                  | 'HandsHeart'
+                  | 'Handshake'
+                  | 'Help'
+                  | 'Hob'
+                  | 'Icon360'
+                  | 'Info'
+                  | 'IntegrateData'
+                  | 'Integrations'
+                  | 'Lion'
+                  | 'LocationPin'
+                  | 'Lock'
+                  | 'Lounge'
+                  | 'Mail'
+                  | 'ManageMembership'
+                  | 'MeetingTable'
+                  | 'MemberSupport'
+                  | 'Membership'
+                  | 'Microwave'
+                  | 'Outdoor'
+                  | 'Oven'
+                  | 'Padlock'
+                  | 'People'
+                  | 'Plane'
+                  | 'Play'
+                  | 'PrivateOffice'
+                  | 'QuoteMark'
+                  | 'Relationships'
+                  | 'Reporting'
+                  | 'Restaurant'
+                  | 'RestaurantsNearby'
+                  | 'RoomAllocation'
+                  | 'RoomPricing'
+                  | 'Roundel'
+                  | 'Router'
+                  | 'Scales'
+                  | 'Shelves'
+                  | 'SmartHome'
+                  | 'SocialNetwork'
+                  | 'Sofa'
+                  | 'SprayBottle'
+                  | 'Sprout'
+                  | 'Star'
+                  | 'SunCloud'
+                  | 'TapeMeasure'
+                  | 'TeamChat'
+                  | 'TrackMarket'
+                  | 'Train'
+                  | 'WashingMachine'
+                  | 'Workshop'
+                  | 'Wrench';
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    roomsIncluded?:
+      | {
+          label: string;
+          icon:
+            | 'Api'
+            | 'Automate'
+            | 'BarKitchen'
+            | 'Basin'
+            | 'Bed'
+            | 'Bike'
+            | 'Bill'
+            | 'Bus'
+            | 'Calendar'
+            | 'CalendarCheck'
+            | 'Car'
+            | 'Cctv'
+            | 'Check'
+            | 'Chef'
+            | 'Cocktail'
+            | 'Community'
+            | 'Crowd'
+            | 'Database'
+            | 'DealFlow'
+            | 'Desk'
+            | 'Dining'
+            | 'DoorEntry'
+            | 'Dumbbell'
+            | 'FeasibilityModel'
+            | 'FruitBowl'
+            | 'Groceries'
+            | 'Guard'
+            | 'Hack'
+            | 'HandsHeart'
+            | 'Handshake'
+            | 'Help'
+            | 'Hob'
+            | 'Icon360'
+            | 'Info'
+            | 'IntegrateData'
+            | 'Integrations'
+            | 'Lion'
+            | 'LocationPin'
+            | 'Lock'
+            | 'Lounge'
+            | 'Mail'
+            | 'ManageMembership'
+            | 'MeetingTable'
+            | 'MemberSupport'
+            | 'Membership'
+            | 'Microwave'
+            | 'Outdoor'
+            | 'Oven'
+            | 'Padlock'
+            | 'People'
+            | 'Plane'
+            | 'Play'
+            | 'PrivateOffice'
+            | 'QuoteMark'
+            | 'Relationships'
+            | 'Reporting'
+            | 'Restaurant'
+            | 'RestaurantsNearby'
+            | 'RoomAllocation'
+            | 'RoomPricing'
+            | 'Roundel'
+            | 'Router'
+            | 'Scales'
+            | 'Shelves'
+            | 'SmartHome'
+            | 'SocialNetwork'
+            | 'Sofa'
+            | 'SprayBottle'
+            | 'Sprout'
+            | 'Star'
+            | 'SunCloud'
+            | 'TapeMeasure'
+            | 'TeamChat'
+            | 'TrackMarket'
+            | 'Train'
+            | 'WashingMachine'
+            | 'Workshop'
+            | 'Wrench';
+          id?: string | null;
+        }[]
+      | null;
+    about?: {
+      /**
+       * e.g. “About Old Oak”. Leave empty to leave this part out.
+       */
+      heading?: string | null;
+      /**
+       * Leave a blank line between paragraphs.
+       */
+      text?: string | null;
+      poster?: (number | null) | Media;
+      /**
+       * YouTube, Vimeo or an .mp4, played over the poster.
+       */
+      video?: string | null;
+    };
+    roomLengths?:
+      | {
+          months: number;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The words above the map. The address and ways to get there are the building's (its Getting there tab).
+     */
+    directionsIntro?: string | null;
+  };
+  working?: {
+    enabled?: boolean | null;
+    /**
+     * Its page's address: /working/<slug>.
+     */
+    slug?: string | null;
+    /**
+     * Neighbourhood, e.g. Bloomsbury
+     */
+    area?: string | null;
+    postcode?: string | null;
+    /**
+     * Leave empty to show its lowest price (e.g. “From £150 per month”). Fill in for something else.
+     */
+    pill?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * Transport and key facilities: the card's tiles and the page header's rows (up to 4).
+     */
+    features?:
+      | {
+          label: string;
+          icon:
+            | 'Api'
+            | 'Automate'
+            | 'BarKitchen'
+            | 'Basin'
+            | 'Bed'
+            | 'Bike'
+            | 'Bill'
+            | 'Bus'
+            | 'Calendar'
+            | 'CalendarCheck'
+            | 'Car'
+            | 'Cctv'
+            | 'Check'
+            | 'Chef'
+            | 'Cocktail'
+            | 'Community'
+            | 'Crowd'
+            | 'Database'
+            | 'DealFlow'
+            | 'Desk'
+            | 'Dining'
+            | 'DoorEntry'
+            | 'Dumbbell'
+            | 'FeasibilityModel'
+            | 'FruitBowl'
+            | 'Groceries'
+            | 'Guard'
+            | 'Hack'
+            | 'HandsHeart'
+            | 'Handshake'
+            | 'Help'
+            | 'Hob'
+            | 'Icon360'
+            | 'Info'
+            | 'IntegrateData'
+            | 'Integrations'
+            | 'Lion'
+            | 'LocationPin'
+            | 'Lock'
+            | 'Lounge'
+            | 'Mail'
+            | 'ManageMembership'
+            | 'MeetingTable'
+            | 'MemberSupport'
+            | 'Membership'
+            | 'Microwave'
+            | 'Outdoor'
+            | 'Oven'
+            | 'Padlock'
+            | 'People'
+            | 'Plane'
+            | 'Play'
+            | 'PrivateOffice'
+            | 'QuoteMark'
+            | 'Relationships'
+            | 'Reporting'
+            | 'Restaurant'
+            | 'RestaurantsNearby'
+            | 'RoomAllocation'
+            | 'RoomPricing'
+            | 'Roundel'
+            | 'Router'
+            | 'Scales'
+            | 'Shelves'
+            | 'SmartHome'
+            | 'SocialNetwork'
+            | 'Sofa'
+            | 'SprayBottle'
+            | 'Sprout'
+            | 'Star'
+            | 'SunCloud'
+            | 'TapeMeasure'
+            | 'TeamChat'
+            | 'TrackMarket'
+            | 'Train'
+            | 'WashingMachine'
+            | 'Workshop'
+            | 'Wrench';
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Leave a blank line between paragraphs.
+     */
+    intro?: string | null;
+    gallery?:
+      | {
+          image: number | Media;
+          /**
+           * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
+           */
+          name?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    prices?:
+      | {
+          plan: string;
+          amount?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * In groups (a label is optional). A working space can leave it empty to show the standard list every working space has.
+     */
+    included?:
+      | {
+          label?: string | null;
+          items?:
+            | {
+                label: string;
+                icon:
+                  | 'Api'
+                  | 'Automate'
+                  | 'BarKitchen'
+                  | 'Basin'
+                  | 'Bed'
+                  | 'Bike'
+                  | 'Bill'
+                  | 'Bus'
+                  | 'Calendar'
+                  | 'CalendarCheck'
+                  | 'Car'
+                  | 'Cctv'
+                  | 'Check'
+                  | 'Chef'
+                  | 'Cocktail'
+                  | 'Community'
+                  | 'Crowd'
+                  | 'Database'
+                  | 'DealFlow'
+                  | 'Desk'
+                  | 'Dining'
+                  | 'DoorEntry'
+                  | 'Dumbbell'
+                  | 'FeasibilityModel'
+                  | 'FruitBowl'
+                  | 'Groceries'
+                  | 'Guard'
+                  | 'Hack'
+                  | 'HandsHeart'
+                  | 'Handshake'
+                  | 'Help'
+                  | 'Hob'
+                  | 'Icon360'
+                  | 'Info'
+                  | 'IntegrateData'
+                  | 'Integrations'
+                  | 'Lion'
+                  | 'LocationPin'
+                  | 'Lock'
+                  | 'Lounge'
+                  | 'Mail'
+                  | 'ManageMembership'
+                  | 'MeetingTable'
+                  | 'MemberSupport'
+                  | 'Membership'
+                  | 'Microwave'
+                  | 'Outdoor'
+                  | 'Oven'
+                  | 'Padlock'
+                  | 'People'
+                  | 'Plane'
+                  | 'Play'
+                  | 'PrivateOffice'
+                  | 'QuoteMark'
+                  | 'Relationships'
+                  | 'Reporting'
+                  | 'Restaurant'
+                  | 'RestaurantsNearby'
+                  | 'RoomAllocation'
+                  | 'RoomPricing'
+                  | 'Roundel'
+                  | 'Router'
+                  | 'Scales'
+                  | 'Shelves'
+                  | 'SmartHome'
+                  | 'SocialNetwork'
+                  | 'Sofa'
+                  | 'SprayBottle'
+                  | 'Sprout'
+                  | 'Star'
+                  | 'SunCloud'
+                  | 'TapeMeasure'
+                  | 'TeamChat'
+                  | 'TrackMarket'
+                  | 'Train'
+                  | 'WashingMachine'
+                  | 'Workshop'
+                  | 'Wrench';
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The words above the map. The address and ways to get there are the building's (its Getting there tab).
+     */
+    directionsIntro?: string | null;
+  };
+  serviced?: {
+    enabled?: boolean | null;
+    /**
+     * Its page's address: /serviced-living/<slug>.
+     */
+    slug?: string | null;
+    /**
+     * Neighbourhood, e.g. Bloomsbury
+     */
+    area?: string | null;
+    postcode?: string | null;
+    /**
+     * Leave empty to show its lowest price (e.g. “From £150 per month”). Fill in for something else.
+     */
+    pill?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * Transport and key facilities: the card's tiles and the page header's rows (up to 4).
+     */
+    features?:
+      | {
+          label: string;
+          icon:
+            | 'Api'
+            | 'Automate'
+            | 'BarKitchen'
+            | 'Basin'
+            | 'Bed'
+            | 'Bike'
+            | 'Bill'
+            | 'Bus'
+            | 'Calendar'
+            | 'CalendarCheck'
+            | 'Car'
+            | 'Cctv'
+            | 'Check'
+            | 'Chef'
+            | 'Cocktail'
+            | 'Community'
+            | 'Crowd'
+            | 'Database'
+            | 'DealFlow'
+            | 'Desk'
+            | 'Dining'
+            | 'DoorEntry'
+            | 'Dumbbell'
+            | 'FeasibilityModel'
+            | 'FruitBowl'
+            | 'Groceries'
+            | 'Guard'
+            | 'Hack'
+            | 'HandsHeart'
+            | 'Handshake'
+            | 'Help'
+            | 'Hob'
+            | 'Icon360'
+            | 'Info'
+            | 'IntegrateData'
+            | 'Integrations'
+            | 'Lion'
+            | 'LocationPin'
+            | 'Lock'
+            | 'Lounge'
+            | 'Mail'
+            | 'ManageMembership'
+            | 'MeetingTable'
+            | 'MemberSupport'
+            | 'Membership'
+            | 'Microwave'
+            | 'Outdoor'
+            | 'Oven'
+            | 'Padlock'
+            | 'People'
+            | 'Plane'
+            | 'Play'
+            | 'PrivateOffice'
+            | 'QuoteMark'
+            | 'Relationships'
+            | 'Reporting'
+            | 'Restaurant'
+            | 'RestaurantsNearby'
+            | 'RoomAllocation'
+            | 'RoomPricing'
+            | 'Roundel'
+            | 'Router'
+            | 'Scales'
+            | 'Shelves'
+            | 'SmartHome'
+            | 'SocialNetwork'
+            | 'Sofa'
+            | 'SprayBottle'
+            | 'Sprout'
+            | 'Star'
+            | 'SunCloud'
+            | 'TapeMeasure'
+            | 'TeamChat'
+            | 'TrackMarket'
+            | 'Train'
+            | 'WashingMachine'
+            | 'Workshop'
+            | 'Wrench';
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Leave a blank line between paragraphs.
+     */
+    intro?: string | null;
+    gallery?:
+      | {
+          image: number | Media;
+          /**
+           * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
+           */
+          name?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    prices?:
+      | {
+          plan: string;
+          amount?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * In groups (a label is optional). A working space can leave it empty to show the standard list every working space has.
+     */
+    included?:
+      | {
+          label?: string | null;
+          items?:
+            | {
+                label: string;
+                icon:
+                  | 'Api'
+                  | 'Automate'
+                  | 'BarKitchen'
+                  | 'Basin'
+                  | 'Bed'
+                  | 'Bike'
+                  | 'Bill'
+                  | 'Bus'
+                  | 'Calendar'
+                  | 'CalendarCheck'
+                  | 'Car'
+                  | 'Cctv'
+                  | 'Check'
+                  | 'Chef'
+                  | 'Cocktail'
+                  | 'Community'
+                  | 'Crowd'
+                  | 'Database'
+                  | 'DealFlow'
+                  | 'Desk'
+                  | 'Dining'
+                  | 'DoorEntry'
+                  | 'Dumbbell'
+                  | 'FeasibilityModel'
+                  | 'FruitBowl'
+                  | 'Groceries'
+                  | 'Guard'
+                  | 'Hack'
+                  | 'HandsHeart'
+                  | 'Handshake'
+                  | 'Help'
+                  | 'Hob'
+                  | 'Icon360'
+                  | 'Info'
+                  | 'IntegrateData'
+                  | 'Integrations'
+                  | 'Lion'
+                  | 'LocationPin'
+                  | 'Lock'
+                  | 'Lounge'
+                  | 'Mail'
+                  | 'ManageMembership'
+                  | 'MeetingTable'
+                  | 'MemberSupport'
+                  | 'Membership'
+                  | 'Microwave'
+                  | 'Outdoor'
+                  | 'Oven'
+                  | 'Padlock'
+                  | 'People'
+                  | 'Plane'
+                  | 'Play'
+                  | 'PrivateOffice'
+                  | 'QuoteMark'
+                  | 'Relationships'
+                  | 'Reporting'
+                  | 'Restaurant'
+                  | 'RestaurantsNearby'
+                  | 'RoomAllocation'
+                  | 'RoomPricing'
+                  | 'Roundel'
+                  | 'Router'
+                  | 'Scales'
+                  | 'Shelves'
+                  | 'SmartHome'
+                  | 'SocialNetwork'
+                  | 'Sofa'
+                  | 'SprayBottle'
+                  | 'Sprout'
+                  | 'Star'
+                  | 'SunCloud'
+                  | 'TapeMeasure'
+                  | 'TeamChat'
+                  | 'TrackMarket'
+                  | 'Train'
+                  | 'WashingMachine'
+                  | 'Workshop'
+                  | 'Wrench';
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The words above the map. The address and ways to get there are the building's (its Getting there tab).
+     */
+    directionsIntro?: string | null;
+  };
+  bedrooms?: {
+    docs?: (number | Room)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  venueRooms?: {
+    docs?: (number | Venue)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Describe the image for people who can't see it.
+   */
+  alt: string;
+  blur?: string | null;
+  source?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * Bedrooms, each in a building: their cards, their own pages and their booking.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rooms".
+ */
+export interface Room {
+  id: number;
+  _order?: string | null;
+  name: string;
+  /**
+   * The building it's in: its page is under the building's co-living page.
+   */
+  building: number | Building;
+  /**
+   * The page's address under its building's co-living page: /locations/old-oak/rooms/ensuite for “ensuite”.
+   */
+  slug: string;
+  /**
+   * Shown under the room's name.
+   */
+  location: string;
+  /**
+   * The card's photo, the page's header and the gallery's first photo.
+   */
+  image: number | Media;
+  /**
+   * The card's tiles and the page's key facts (up to 4).
+   */
+  features?:
+    | {
+        label: string;
+        icon:
+          | 'Api'
+          | 'Automate'
+          | 'BarKitchen'
+          | 'Basin'
+          | 'Bed'
+          | 'Bike'
+          | 'Bill'
+          | 'Bus'
+          | 'Calendar'
+          | 'CalendarCheck'
+          | 'Car'
+          | 'Cctv'
+          | 'Check'
+          | 'Chef'
+          | 'Cocktail'
+          | 'Community'
+          | 'Crowd'
+          | 'Database'
+          | 'DealFlow'
+          | 'Desk'
+          | 'Dining'
+          | 'DoorEntry'
+          | 'Dumbbell'
+          | 'FeasibilityModel'
+          | 'FruitBowl'
+          | 'Groceries'
+          | 'Guard'
+          | 'Hack'
+          | 'HandsHeart'
+          | 'Handshake'
+          | 'Help'
+          | 'Hob'
+          | 'Icon360'
+          | 'Info'
+          | 'IntegrateData'
+          | 'Integrations'
+          | 'Lion'
+          | 'LocationPin'
+          | 'Lock'
+          | 'Lounge'
+          | 'Mail'
+          | 'ManageMembership'
+          | 'MeetingTable'
+          | 'MemberSupport'
+          | 'Membership'
+          | 'Microwave'
+          | 'Outdoor'
+          | 'Oven'
+          | 'Padlock'
+          | 'People'
+          | 'Plane'
+          | 'Play'
+          | 'PrivateOffice'
+          | 'QuoteMark'
+          | 'Relationships'
+          | 'Reporting'
+          | 'Restaurant'
+          | 'RestaurantsNearby'
+          | 'RoomAllocation'
+          | 'RoomPricing'
+          | 'Roundel'
+          | 'Router'
+          | 'Scales'
+          | 'Shelves'
+          | 'SmartHome'
+          | 'SocialNetwork'
+          | 'Sofa'
+          | 'SprayBottle'
+          | 'Sprout'
+          | 'Star'
+          | 'SunCloud'
+          | 'TapeMeasure'
+          | 'TeamChat'
+          | 'TrackMarket'
+          | 'Train'
+          | 'WashingMachine'
+          | 'Workshop'
+          | 'Wrench';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Leave a blank line between paragraphs.
+   */
+  about: string;
+  /**
+   * The gallery, after the room's photo.
+   */
+  photos?:
+    | {
+        image: number | Media;
+        /**
+         * Shown with the photo. Leave empty to use the photo's alt text.
+         */
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional: the floor plan drawing. Left out until there is one.
+   */
+  floorPlan?: (number | null) | Media;
+  /**
+   * A weekly price per membership length, longest first. Edited on the Pricing page.
+   */
+  rates?:
+    | {
+        months: number;
+        weekly: number;
+        id?: string | null;
+      }[]
+    | null;
+  moveIn?: string | null;
+  floor?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Rooms for events, each in a building: their cards and their own pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "venues".
+ */
+export interface Venue {
+  id: number;
+  _order?: string | null;
+  name: string;
+  /**
+   * The building it's in: its address and ways to get there are the building's.
+   */
+  building: number | Building;
+  /**
+   * Its page's address: /event-spaces/the-den for “the-den”.
+   */
+  slug: string;
+  /**
+   * Neighbourhood, e.g. Bloomsbury
+   */
+  area: string;
+  postcode: string;
+  /**
+   * Its capacity, e.g. “Up to 225 guests”.
+   */
+  pill?: string | null;
+  image: number | Media;
+  /**
+   * Transport and key facilities: the card's tiles and the page header's rows (up to 4).
+   */
+  features?:
+    | {
+        label: string;
+        icon:
+          | 'Api'
+          | 'Automate'
+          | 'BarKitchen'
+          | 'Basin'
+          | 'Bed'
+          | 'Bike'
+          | 'Bill'
+          | 'Bus'
+          | 'Calendar'
+          | 'CalendarCheck'
+          | 'Car'
+          | 'Cctv'
+          | 'Check'
+          | 'Chef'
+          | 'Cocktail'
+          | 'Community'
+          | 'Crowd'
+          | 'Database'
+          | 'DealFlow'
+          | 'Desk'
+          | 'Dining'
+          | 'DoorEntry'
+          | 'Dumbbell'
+          | 'FeasibilityModel'
+          | 'FruitBowl'
+          | 'Groceries'
+          | 'Guard'
+          | 'Hack'
+          | 'HandsHeart'
+          | 'Handshake'
+          | 'Help'
+          | 'Hob'
+          | 'Icon360'
+          | 'Info'
+          | 'IntegrateData'
+          | 'Integrations'
+          | 'Lion'
+          | 'LocationPin'
+          | 'Lock'
+          | 'Lounge'
+          | 'Mail'
+          | 'ManageMembership'
+          | 'MeetingTable'
+          | 'MemberSupport'
+          | 'Membership'
+          | 'Microwave'
+          | 'Outdoor'
+          | 'Oven'
+          | 'Padlock'
+          | 'People'
+          | 'Plane'
+          | 'Play'
+          | 'PrivateOffice'
+          | 'QuoteMark'
+          | 'Relationships'
+          | 'Reporting'
+          | 'Restaurant'
+          | 'RestaurantsNearby'
+          | 'RoomAllocation'
+          | 'RoomPricing'
+          | 'Roundel'
+          | 'Router'
+          | 'Scales'
+          | 'Shelves'
+          | 'SmartHome'
+          | 'SocialNetwork'
+          | 'Sofa'
+          | 'SprayBottle'
+          | 'Sprout'
+          | 'Star'
+          | 'SunCloud'
+          | 'TapeMeasure'
+          | 'TeamChat'
+          | 'TrackMarket'
+          | 'Train'
+          | 'WashingMachine'
+          | 'Workshop'
+          | 'Wrench';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Leave a blank line between paragraphs.
+   */
+  intro: string;
+  gallery?:
+    | {
+        image: number | Media;
+        /**
+         * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
+         */
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * In groups (a label is optional). A working space can leave it empty to show the standard list every working space has.
+   */
+  included?:
+    | {
+        label?: string | null;
+        items?:
+          | {
+              label: string;
+              icon:
+                | 'Api'
+                | 'Automate'
+                | 'BarKitchen'
+                | 'Basin'
+                | 'Bed'
+                | 'Bike'
+                | 'Bill'
+                | 'Bus'
+                | 'Calendar'
+                | 'CalendarCheck'
+                | 'Car'
+                | 'Cctv'
+                | 'Check'
+                | 'Chef'
+                | 'Cocktail'
+                | 'Community'
+                | 'Crowd'
+                | 'Database'
+                | 'DealFlow'
+                | 'Desk'
+                | 'Dining'
+                | 'DoorEntry'
+                | 'Dumbbell'
+                | 'FeasibilityModel'
+                | 'FruitBowl'
+                | 'Groceries'
+                | 'Guard'
+                | 'Hack'
+                | 'HandsHeart'
+                | 'Handshake'
+                | 'Help'
+                | 'Hob'
+                | 'Icon360'
+                | 'Info'
+                | 'IntegrateData'
+                | 'Integrations'
+                | 'Lion'
+                | 'LocationPin'
+                | 'Lock'
+                | 'Lounge'
+                | 'Mail'
+                | 'ManageMembership'
+                | 'MeetingTable'
+                | 'MemberSupport'
+                | 'Membership'
+                | 'Microwave'
+                | 'Outdoor'
+                | 'Oven'
+                | 'Padlock'
+                | 'People'
+                | 'Plane'
+                | 'Play'
+                | 'PrivateOffice'
+                | 'QuoteMark'
+                | 'Relationships'
+                | 'Reporting'
+                | 'Restaurant'
+                | 'RestaurantsNearby'
+                | 'RoomAllocation'
+                | 'RoomPricing'
+                | 'Roundel'
+                | 'Router'
+                | 'Scales'
+                | 'Shelves'
+                | 'SmartHome'
+                | 'SocialNetwork'
+                | 'Sofa'
+                | 'SprayBottle'
+                | 'Sprout'
+                | 'Star'
+                | 'SunCloud'
+                | 'TapeMeasure'
+                | 'TeamChat'
+                | 'TrackMarket'
+                | 'Train'
+                | 'WashingMachine'
+                | 'Workshop'
+                | 'Wrench';
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The words above the map. The address and ways to get there are the building's (its Getting there tab).
+   */
+  directionsIntro?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -461,10 +1598,15 @@ export interface Page {
     | {
         heading: string;
         intro?: string | null;
+        kind: 'working' | 'serviced' | 'venue';
         /**
-         * Cards for these locations (/admin → Locations), in this order. Each links to its own page.
+         * These buildings' working space or serviced living, in this order. Each card links to its page.
          */
-        locations: (number | Location)[];
+        buildings?: (number | Building)[] | null;
+        /**
+         * These venue rooms, in this order. Each card links to its page.
+         */
+        venues?: (number | Venue)[] | null;
         ctaLabel?: string | null;
         /**
          * Background colour. Alternate them down the page.
@@ -878,426 +2020,7 @@ export interface Page {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  /**
-   * Describe the image for people who can't see it.
-   */
-  alt: string;
-  blur?: string | null;
-  source?: string | null;
-  _objectKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * Working spaces, serviced living houses and event venues: their cards and their own pages.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "locations".
- */
-export interface Location {
-  id: number;
-  _order?: string | null;
-  name: string;
-  /**
-   * The page's address after its type's, e.g. /working/bedford-square for “bedford-square”.
-   */
-  slug: string;
-  type: 'working' | 'serviced' | 'venue';
-  /**
-   * Neighbourhood, e.g. Bloomsbury
-   */
-  area: string;
-  postcode: string;
-  /**
-   * Leave empty to show its lowest price (e.g. “From £150 per month”). Fill in for something else, like a venue's capacity (“Up to 225 guests”).
-   */
-  pill?: string | null;
-  image: number | Media;
-  /**
-   * Transport and key facilities: the card's tiles and the page header's rows (up to 4).
-   */
-  features?:
-    | {
-        label: string;
-        icon:
-          | 'Api'
-          | 'Automate'
-          | 'BarKitchen'
-          | 'Basin'
-          | 'Bed'
-          | 'Bike'
-          | 'Bill'
-          | 'Bus'
-          | 'Calendar'
-          | 'CalendarCheck'
-          | 'Car'
-          | 'Cctv'
-          | 'Check'
-          | 'Chef'
-          | 'Cocktail'
-          | 'Community'
-          | 'Crowd'
-          | 'Database'
-          | 'DealFlow'
-          | 'Desk'
-          | 'Dining'
-          | 'DoorEntry'
-          | 'Dumbbell'
-          | 'FeasibilityModel'
-          | 'FruitBowl'
-          | 'Groceries'
-          | 'Guard'
-          | 'Hack'
-          | 'HandsHeart'
-          | 'Handshake'
-          | 'Help'
-          | 'Hob'
-          | 'Icon360'
-          | 'Info'
-          | 'IntegrateData'
-          | 'Integrations'
-          | 'Lion'
-          | 'LocationPin'
-          | 'Lock'
-          | 'Lounge'
-          | 'Mail'
-          | 'ManageMembership'
-          | 'MeetingTable'
-          | 'MemberSupport'
-          | 'Membership'
-          | 'Microwave'
-          | 'Outdoor'
-          | 'Oven'
-          | 'Padlock'
-          | 'People'
-          | 'Plane'
-          | 'Play'
-          | 'PrivateOffice'
-          | 'QuoteMark'
-          | 'Relationships'
-          | 'Reporting'
-          | 'Restaurant'
-          | 'RestaurantsNearby'
-          | 'RoomAllocation'
-          | 'RoomPricing'
-          | 'Roundel'
-          | 'Router'
-          | 'Scales'
-          | 'Shelves'
-          | 'SmartHome'
-          | 'SocialNetwork'
-          | 'Sofa'
-          | 'SprayBottle'
-          | 'Sprout'
-          | 'Star'
-          | 'SunCloud'
-          | 'TapeMeasure'
-          | 'TeamChat'
-          | 'TrackMarket'
-          | 'Train'
-          | 'WashingMachine'
-          | 'Workshop'
-          | 'Wrench';
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Leave a blank line between paragraphs.
-   */
-  intro: string;
-  gallery?:
-    | {
-        image: number | Media;
-        /**
-         * Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text.
-         */
-        name?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  prices?:
-    | {
-        plan: string;
-        amount?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Facilities, in groups (a label is optional). Working spaces can leave it empty to show the standard list every working space has.
-   */
-  included?:
-    | {
-        label?: string | null;
-        items?:
-          | {
-              label: string;
-              icon:
-                | 'Api'
-                | 'Automate'
-                | 'BarKitchen'
-                | 'Basin'
-                | 'Bed'
-                | 'Bike'
-                | 'Bill'
-                | 'Bus'
-                | 'Calendar'
-                | 'CalendarCheck'
-                | 'Car'
-                | 'Cctv'
-                | 'Check'
-                | 'Chef'
-                | 'Cocktail'
-                | 'Community'
-                | 'Crowd'
-                | 'Database'
-                | 'DealFlow'
-                | 'Desk'
-                | 'Dining'
-                | 'DoorEntry'
-                | 'Dumbbell'
-                | 'FeasibilityModel'
-                | 'FruitBowl'
-                | 'Groceries'
-                | 'Guard'
-                | 'Hack'
-                | 'HandsHeart'
-                | 'Handshake'
-                | 'Help'
-                | 'Hob'
-                | 'Icon360'
-                | 'Info'
-                | 'IntegrateData'
-                | 'Integrations'
-                | 'Lion'
-                | 'LocationPin'
-                | 'Lock'
-                | 'Lounge'
-                | 'Mail'
-                | 'ManageMembership'
-                | 'MeetingTable'
-                | 'MemberSupport'
-                | 'Membership'
-                | 'Microwave'
-                | 'Outdoor'
-                | 'Oven'
-                | 'Padlock'
-                | 'People'
-                | 'Plane'
-                | 'Play'
-                | 'PrivateOffice'
-                | 'QuoteMark'
-                | 'Relationships'
-                | 'Reporting'
-                | 'Restaurant'
-                | 'RestaurantsNearby'
-                | 'RoomAllocation'
-                | 'RoomPricing'
-                | 'Roundel'
-                | 'Router'
-                | 'Scales'
-                | 'Shelves'
-                | 'SmartHome'
-                | 'SocialNetwork'
-                | 'Sofa'
-                | 'SprayBottle'
-                | 'Sprout'
-                | 'Star'
-                | 'SunCloud'
-                | 'TapeMeasure'
-                | 'TeamChat'
-                | 'TrackMarket'
-                | 'Train'
-                | 'WashingMachine'
-                | 'Workshop'
-                | 'Wrench';
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Street address: drives the map and the “open in Maps” links. Without one, the map is left out.
-   */
-  address?: string | null;
-  directionsIntro: string;
-  travelModes?:
-    | {
-        label: string;
-        icon: 'underground' | 'overground' | 'bus' | 'car';
-        /**
-         * One step per line.
-         */
-        steps: string;
-        mapsUrl: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Old Oak's rooms: their cards, their own pages and their booking.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "rooms".
- */
-export interface Room {
-  id: number;
-  _order?: string | null;
-  name: string;
-  /**
-   * The page's address: /locations/old-oak/rooms/ensuite for “ensuite”.
-   */
-  slug: string;
-  /**
-   * Shown under the room's name.
-   */
-  location: string;
-  /**
-   * The card's photo, the page's header and the gallery's first photo.
-   */
-  image: number | Media;
-  /**
-   * The card's tiles and the page's key facts (up to 4).
-   */
-  features?:
-    | {
-        label: string;
-        icon:
-          | 'Api'
-          | 'Automate'
-          | 'BarKitchen'
-          | 'Basin'
-          | 'Bed'
-          | 'Bike'
-          | 'Bill'
-          | 'Bus'
-          | 'Calendar'
-          | 'CalendarCheck'
-          | 'Car'
-          | 'Cctv'
-          | 'Check'
-          | 'Chef'
-          | 'Cocktail'
-          | 'Community'
-          | 'Crowd'
-          | 'Database'
-          | 'DealFlow'
-          | 'Desk'
-          | 'Dining'
-          | 'DoorEntry'
-          | 'Dumbbell'
-          | 'FeasibilityModel'
-          | 'FruitBowl'
-          | 'Groceries'
-          | 'Guard'
-          | 'Hack'
-          | 'HandsHeart'
-          | 'Handshake'
-          | 'Help'
-          | 'Hob'
-          | 'Icon360'
-          | 'Info'
-          | 'IntegrateData'
-          | 'Integrations'
-          | 'Lion'
-          | 'LocationPin'
-          | 'Lock'
-          | 'Lounge'
-          | 'Mail'
-          | 'ManageMembership'
-          | 'MeetingTable'
-          | 'MemberSupport'
-          | 'Membership'
-          | 'Microwave'
-          | 'Outdoor'
-          | 'Oven'
-          | 'Padlock'
-          | 'People'
-          | 'Plane'
-          | 'Play'
-          | 'PrivateOffice'
-          | 'QuoteMark'
-          | 'Relationships'
-          | 'Reporting'
-          | 'Restaurant'
-          | 'RestaurantsNearby'
-          | 'RoomAllocation'
-          | 'RoomPricing'
-          | 'Roundel'
-          | 'Router'
-          | 'Scales'
-          | 'Shelves'
-          | 'SmartHome'
-          | 'SocialNetwork'
-          | 'Sofa'
-          | 'SprayBottle'
-          | 'Sprout'
-          | 'Star'
-          | 'SunCloud'
-          | 'TapeMeasure'
-          | 'TeamChat'
-          | 'TrackMarket'
-          | 'Train'
-          | 'WashingMachine'
-          | 'Workshop'
-          | 'Wrench';
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Leave a blank line between paragraphs.
-   */
-  about: string;
-  /**
-   * The gallery, after the room's photo.
-   */
-  photos?:
-    | {
-        image: number | Media;
-        /**
-         * Shown with the photo. Leave empty to use the photo's alt text.
-         */
-        name?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Optional: the floor plan drawing. Left out until there is one.
-   */
-  floorPlan?: (number | null) | Media;
-  /**
-   * A weekly price per membership length, longest first. Edited on the Pricing page.
-   */
-  rates?:
-    | {
-        months: number;
-        weekly: number;
-        id?: string | null;
-      }[]
-    | null;
-  moveIn?: string | null;
-  floor?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * The layout of every working space's, house's, venue's and room's page. Each place's own content (photos, prices, address…) is in Locations and Rooms.
+ * The layout of every co-living's, bedroom's, working space's, house's and venue's page. Each place's own content (photos, prices, address…) is in Locations and Rooms.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "templates".
@@ -1308,112 +2031,15 @@ export interface Template {
   /**
    * The pages that use this template: one template each.
    */
-  type: 'working' | 'serviced' | 'venue' | 'room';
+  type: 'coliving' | 'room' | 'working' | 'serviced' | 'venue';
   /**
    * An enquiry button that stays on screen on mobile (rooms have their own Apply bar).
    */
   floatingEnquiry?: boolean | null;
   /**
-   * The column beside the booking card, under each room's facts and description. The sections below come after it.
+   * The column beside the booking card, under each room's facts and description, and its building's “What's included” and “About” (Locations → the building → Room pages). The sections below come after it.
    */
   roomColumn?: {
-    included?:
-      | {
-          label: string;
-          icon:
-            | 'Api'
-            | 'Automate'
-            | 'BarKitchen'
-            | 'Basin'
-            | 'Bed'
-            | 'Bike'
-            | 'Bill'
-            | 'Bus'
-            | 'Calendar'
-            | 'CalendarCheck'
-            | 'Car'
-            | 'Cctv'
-            | 'Check'
-            | 'Chef'
-            | 'Cocktail'
-            | 'Community'
-            | 'Crowd'
-            | 'Database'
-            | 'DealFlow'
-            | 'Desk'
-            | 'Dining'
-            | 'DoorEntry'
-            | 'Dumbbell'
-            | 'FeasibilityModel'
-            | 'FruitBowl'
-            | 'Groceries'
-            | 'Guard'
-            | 'Hack'
-            | 'HandsHeart'
-            | 'Handshake'
-            | 'Help'
-            | 'Hob'
-            | 'Icon360'
-            | 'Info'
-            | 'IntegrateData'
-            | 'Integrations'
-            | 'Lion'
-            | 'LocationPin'
-            | 'Lock'
-            | 'Lounge'
-            | 'Mail'
-            | 'ManageMembership'
-            | 'MeetingTable'
-            | 'MemberSupport'
-            | 'Membership'
-            | 'Microwave'
-            | 'Outdoor'
-            | 'Oven'
-            | 'Padlock'
-            | 'People'
-            | 'Plane'
-            | 'Play'
-            | 'PrivateOffice'
-            | 'QuoteMark'
-            | 'Relationships'
-            | 'Reporting'
-            | 'Restaurant'
-            | 'RestaurantsNearby'
-            | 'RoomAllocation'
-            | 'RoomPricing'
-            | 'Roundel'
-            | 'Router'
-            | 'Scales'
-            | 'Shelves'
-            | 'SmartHome'
-            | 'SocialNetwork'
-            | 'Sofa'
-            | 'SprayBottle'
-            | 'Sprout'
-            | 'Star'
-            | 'SunCloud'
-            | 'TapeMeasure'
-            | 'TeamChat'
-            | 'TrackMarket'
-            | 'Train'
-            | 'WashingMachine'
-            | 'Workshop'
-            | 'Wrench';
-          id?: string | null;
-        }[]
-      | null;
-    about?: {
-      heading?: string | null;
-      /**
-       * Leave a blank line between paragraphs.
-       */
-      text?: string | null;
-      poster?: (number | null) | Media;
-      /**
-       * YouTube, Vimeo or an .mp4, played over the poster.
-       */
-      video?: string | null;
-    };
     /**
      * Leave a blank line between paragraphs.
      */
@@ -1426,15 +2052,39 @@ export interface Template {
         blockType: 'locationHeader';
       }
     | {
+        /**
+         * Under the name, e.g. “Live somewhere that's home, and so much more.”
+         */
+        subtitle?: string | null;
+        /**
+         * Opens the enquiry form for its kind of place.
+         */
+        enquiryButton?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationHero';
+      }
+    | {
         id?: string | null;
         blockName?: string | null;
         blockType: 'locationIntro';
       }
     | {
         /**
+         * Beside its intro, e.g. “Co-living at {name}”.
+         */
+        heading: string;
+        enquiryButton?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationTextIntro';
+      }
+    | {
+        /**
          * Optional, e.g. “Explore the room”.
          */
         heading?: string | null;
+        intro?: string | null;
         /**
          * Optional: a “View 3D Tour” button under the photos. Leave the link empty for none.
          */
@@ -1565,6 +2215,14 @@ export interface Template {
         id?: string | null;
         blockName?: string | null;
         blockType: 'locationDirections';
+      }
+    | {
+        heading: string;
+        intro?: string | null;
+        ctaLabel?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'locationRooms';
       }
     | {
         /**
@@ -1869,10 +2527,15 @@ export interface Template {
     | {
         heading: string;
         intro?: string | null;
+        kind: 'working' | 'serviced' | 'venue';
         /**
-         * Cards for these locations (/admin → Locations), in this order. Each links to its own page.
+         * These buildings' working space or serviced living, in this order. Each card links to its page.
          */
-        locations: (number | Location)[];
+        buildings?: (number | Building)[] | null;
+        /**
+         * These venue rooms, in this order. Each card links to its page.
+         */
+        venues?: (number | Venue)[] | null;
         ctaLabel?: string | null;
         /**
          * Background colour. Alternate them down the page.
@@ -2336,20 +2999,24 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'buildings';
+        value: number | Building;
+      } | null)
+    | ({
+        relationTo: 'rooms';
+        value: number | Room;
+      } | null)
+    | ({
+        relationTo: 'venues';
+        value: number | Venue;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
     | ({
         relationTo: 'templates';
         value: number | Template;
-      } | null)
-    | ({
-        relationTo: 'locations';
-        value: number | Location;
-      } | null)
-    | ({
-        relationTo: 'rooms';
-        value: number | Room;
       } | null)
     | ({
         relationTo: 'media';
@@ -2400,6 +3067,256 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "buildings_select".
+ */
+export interface BuildingsSelect<T extends boolean = true> {
+  name?: T;
+  address?: T;
+  travelModes?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        steps?: T;
+        mapsUrl?: T;
+        id?: T;
+      };
+  coliving?:
+    | T
+    | {
+        enabled?: T;
+        comingSoon?: T;
+        slug?: T;
+        area?: T;
+        postcode?: T;
+        image?: T;
+        intro?: T;
+        gallery?:
+          | T
+          | {
+              image?: T;
+              name?: T;
+              id?: T;
+            };
+        included?:
+          | T
+          | {
+              label?: T;
+              items?:
+                | T
+                | {
+                    label?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        roomsIncluded?:
+          | T
+          | {
+              label?: T;
+              icon?: T;
+              id?: T;
+            };
+        about?:
+          | T
+          | {
+              heading?: T;
+              text?: T;
+              poster?: T;
+              video?: T;
+            };
+        roomLengths?:
+          | T
+          | {
+              months?: T;
+              id?: T;
+            };
+        directionsIntro?: T;
+      };
+  working?:
+    | T
+    | {
+        enabled?: T;
+        slug?: T;
+        area?: T;
+        postcode?: T;
+        pill?: T;
+        image?: T;
+        features?:
+          | T
+          | {
+              label?: T;
+              icon?: T;
+              id?: T;
+            };
+        intro?: T;
+        gallery?:
+          | T
+          | {
+              image?: T;
+              name?: T;
+              id?: T;
+            };
+        prices?:
+          | T
+          | {
+              plan?: T;
+              amount?: T;
+              id?: T;
+            };
+        included?:
+          | T
+          | {
+              label?: T;
+              items?:
+                | T
+                | {
+                    label?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        directionsIntro?: T;
+      };
+  serviced?:
+    | T
+    | {
+        enabled?: T;
+        slug?: T;
+        area?: T;
+        postcode?: T;
+        pill?: T;
+        image?: T;
+        features?:
+          | T
+          | {
+              label?: T;
+              icon?: T;
+              id?: T;
+            };
+        intro?: T;
+        gallery?:
+          | T
+          | {
+              image?: T;
+              name?: T;
+              id?: T;
+            };
+        prices?:
+          | T
+          | {
+              plan?: T;
+              amount?: T;
+              id?: T;
+            };
+        included?:
+          | T
+          | {
+              label?: T;
+              items?:
+                | T
+                | {
+                    label?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        directionsIntro?: T;
+      };
+  bedrooms?: T;
+  venueRooms?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rooms_select".
+ */
+export interface RoomsSelect<T extends boolean = true> {
+  _order?: T;
+  name?: T;
+  building?: T;
+  slug?: T;
+  location?: T;
+  image?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        id?: T;
+      };
+  about?: T;
+  photos?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        id?: T;
+      };
+  floorPlan?: T;
+  rates?:
+    | T
+    | {
+        months?: T;
+        weekly?: T;
+        id?: T;
+      };
+  moveIn?: T;
+  floor?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "venues_select".
+ */
+export interface VenuesSelect<T extends boolean = true> {
+  _order?: T;
+  name?: T;
+  building?: T;
+  slug?: T;
+  area?: T;
+  postcode?: T;
+  pill?: T;
+  image?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        id?: T;
+      };
+  intro?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        id?: T;
+      };
+  included?:
+    | T
+    | {
+        label?: T;
+        items?:
+          | T
+          | {
+              label?: T;
+              icon?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  directionsIntro?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2518,7 +3435,9 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               heading?: T;
               intro?: T;
-              locations?: T;
+              kind?: T;
+              buildings?: T;
+              venues?: T;
               ctaLabel?: T;
               tone?: T;
               id?: T;
@@ -2833,21 +3752,6 @@ export interface TemplatesSelect<T extends boolean = true> {
   roomColumn?:
     | T
     | {
-        included?:
-          | T
-          | {
-              label?: T;
-              icon?: T;
-              id?: T;
-            };
-        about?:
-          | T
-          | {
-              heading?: T;
-              text?: T;
-              poster?: T;
-              video?: T;
-            };
         coLivingAbout?: T;
       };
   layout?:
@@ -2859,9 +3763,25 @@ export interface TemplatesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        locationHero?:
+          | T
+          | {
+              subtitle?: T;
+              enquiryButton?: T;
+              id?: T;
+              blockName?: T;
+            };
         locationIntro?:
           | T
           | {
+              id?: T;
+              blockName?: T;
+            };
+        locationTextIntro?:
+          | T
+          | {
+              heading?: T;
+              enquiryButton?: T;
               id?: T;
               blockName?: T;
             };
@@ -2869,6 +3789,7 @@ export interface TemplatesSelect<T extends boolean = true> {
           | T
           | {
               heading?: T;
+              intro?: T;
               tour?:
                 | T
                 | {
@@ -2913,6 +3834,15 @@ export interface TemplatesSelect<T extends boolean = true> {
           | T
           | {
               heading?: T;
+              id?: T;
+              blockName?: T;
+            };
+        locationRooms?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              ctaLabel?: T;
               id?: T;
               blockName?: T;
             };
@@ -3022,7 +3952,9 @@ export interface TemplatesSelect<T extends boolean = true> {
           | {
               heading?: T;
               intro?: T;
-              locations?: T;
+              kind?: T;
+              buildings?: T;
+              venues?: T;
               ctaLabel?: T;
               tone?: T;
               id?: T;
@@ -3328,106 +4260,6 @@ export interface TemplatesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "locations_select".
- */
-export interface LocationsSelect<T extends boolean = true> {
-  _order?: T;
-  name?: T;
-  slug?: T;
-  type?: T;
-  area?: T;
-  postcode?: T;
-  pill?: T;
-  image?: T;
-  features?:
-    | T
-    | {
-        label?: T;
-        icon?: T;
-        id?: T;
-      };
-  intro?: T;
-  gallery?:
-    | T
-    | {
-        image?: T;
-        name?: T;
-        id?: T;
-      };
-  prices?:
-    | T
-    | {
-        plan?: T;
-        amount?: T;
-        id?: T;
-      };
-  included?:
-    | T
-    | {
-        label?: T;
-        items?:
-          | T
-          | {
-              label?: T;
-              icon?: T;
-              id?: T;
-            };
-        id?: T;
-      };
-  address?: T;
-  directionsIntro?: T;
-  travelModes?:
-    | T
-    | {
-        label?: T;
-        icon?: T;
-        steps?: T;
-        mapsUrl?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "rooms_select".
- */
-export interface RoomsSelect<T extends boolean = true> {
-  _order?: T;
-  name?: T;
-  slug?: T;
-  location?: T;
-  image?: T;
-  features?:
-    | T
-    | {
-        label?: T;
-        icon?: T;
-        id?: T;
-      };
-  about?: T;
-  photos?:
-    | T
-    | {
-        image?: T;
-        name?: T;
-        id?: T;
-      };
-  floorPlan?: T;
-  rates?:
-    | T
-    | {
-        months?: T;
-        weekly?: T;
-        id?: T;
-      };
-  moveIn?: T;
-  floor?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -3665,7 +4497,7 @@ export interface SocialLink {
   createdAt?: string | null;
 }
 /**
- * What applying for an Old Oak room costs, besides its rate. Bonds and deposits are in weeks of the room's weekly rate.
+ * What applying for a room costs, besides its rate. Bonds and deposits are in weeks of the room's weekly rate.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pricingRules".
@@ -3694,12 +4526,6 @@ export interface PricingRule {
  */
 export interface PricingStructure {
   id: number;
-  roomLengths?:
-    | {
-        months: number;
-        id?: string | null;
-      }[]
-    | null;
   working?:
     | {
         label: string;
@@ -3881,12 +4707,6 @@ export interface PricingRulesSelect<T extends boolean = true> {
  * via the `definition` "pricingStructure_select".
  */
 export interface PricingStructureSelect<T extends boolean = true> {
-  roomLengths?:
-    | T
-    | {
-        months?: T;
-        id?: T;
-      };
   working?:
     | T
     | {

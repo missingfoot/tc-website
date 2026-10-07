@@ -29,19 +29,19 @@ import Button from "@/components/ui/Button";
 import FloatingButton from "@/components/ui/FloatingButton";
 import { jobs } from "@/content/careers";
 import { pressLogos, pressPhotos } from "@/content/press";
-import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes, type PricedLocation } from "@/lib/payload";
+import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes, type HousedRoom, type PricedLocationCards } from "@/lib/payload";
 import type { Page, Template } from "@/payload-types";
 import { fillVariables } from "@/lib/variables";
 import LocationIntro from "@/components/sections/LocationIntro";
 import Pricing from "@/components/sections/Pricing";
 import { mapEmbedUrl } from "@/content/directions";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
-import type { EnquiryKind, GalleryImage, LocationDetails } from "@/lib/types";
+import type { EnquiryKind, GalleryImage, LocationDetails, Room } from "@/lib/types";
 
 type Block = Page["layout"][number] | Template["layout"][number];
 
 /**
- * The place a template's "Location" sections fill themselves from: a location's details (its
+ * The place a template's "Place" sections fill themselves from: a location's details (its
  * header, intro, prices, directions), or a room's gallery.
  */
 export type TemplatePlace = {
@@ -54,6 +54,8 @@ export type TemplatePlace = {
   venue?: string;
   /** Its lowest price, e.g. "£150": {lowest-price} in the template's text. */
   lowestPrice?: string;
+  /** A co-living's bedrooms, as cards. */
+  rooms?: Room[];
 };
 
 const asParagraphs = (text: string): ReactNode => paragraphs(text).map((p) => <p key={p}>{p}</p>);
@@ -83,11 +85,49 @@ function MoreLink({ label, href }: { label: string; href: string }) {
 export default function RenderBlocks({ blocks, place }: { blocks: Block[]; place?: TemplatePlace }) {
   return blocks.map((block, i) => {
     const key = block.id ?? i;
-    const raised = blocks[i - 1]?.blockType === "hero" || blocks[i - 1]?.blockType === "locationHeader";
+    const raised = ["hero", "locationHeader", "locationHero"].includes(blocks[i - 1]?.blockType ?? "");
     switch (block.blockType) {
       case "locationHeader":
         return place?.details ? (
           <Hero key={key} image={place.details.image.src} imageAlt={place.details.image.alt} imagePreview={place.details.image.blur} />
+        ) : null;
+      case "locationHero": {
+        const details = place?.details;
+        if (!details) return null;
+        return (
+          <Hero
+            key={key}
+            eyebrow={details.area}
+            title={details.name}
+            subtitle={block.subtitle ?? undefined}
+            action={block.enquiryButton && place.enquiry ? <EnquiryButton kind={place.enquiry} venue={place.venue} variant="light" arrow /> : undefined}
+            image={details.image.src}
+            imageAlt={details.image.alt}
+            imagePreview={details.image.blur}
+          />
+        );
+      }
+      case "locationTextIntro": {
+        const details = place?.details;
+        if (!details) return null;
+        return (
+          <Intro
+            key={key}
+            heading={block.heading}
+            layout="split"
+            tone="white"
+            raised={raised}
+            action={block.enquiryButton && place.enquiry ? <EnquiryButton kind={place.enquiry} venue={place.venue} variant="light" /> : undefined}
+          >
+            {details.intro.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </Intro>
+        );
+      }
+      case "locationRooms":
+        return place?.rooms?.length ? (
+          <RoomCards key={key} heading={block.heading} intro={block.intro ?? undefined} tone="cream" ctaLabel={block.ctaLabel ?? undefined} rooms={place.rooms} />
         ) : null;
       case "locationIntro": {
         const details = place?.details;
@@ -112,6 +152,7 @@ export default function RenderBlocks({ blocks, place }: { blocks: Block[]; place
           <Gallery
             key={key}
             heading={block.heading ?? undefined}
+            intro={block.intro ?? undefined}
             images={place.gallery}
             footer={
               block.tour?.label && block.tour.href ? (
@@ -251,8 +292,8 @@ export default function RenderBlocks({ blocks, place }: { blocks: Block[]; place
             intro={block.intro ?? undefined}
             tone={block.tone ?? "cream"}
             ctaLabel={block.ctaLabel ?? undefined}
-            // getPage has worked out their prices
-            rooms={block.locations.filter((l) => typeof l === "object").map((l) => locationCard(l as PricedLocation))}
+            // getPage has found their places and worked out their prices
+            rooms={((block as PricedLocationCards).places ?? []).map(locationCard)}
           />
         );
       case "roomCards":
@@ -263,7 +304,8 @@ export default function RenderBlocks({ blocks, place }: { blocks: Block[]; place
             intro={block.intro ?? undefined}
             tone={block.tone ?? "cream"}
             ctaLabel={block.ctaLabel ?? undefined}
-            rooms={block.rooms.filter((r) => typeof r === "object").map(roomCard)}
+            // getPage has given them their homes
+            rooms={block.rooms.filter((r) => typeof r === "object").map((r) => roomCard(r as HousedRoom))}
           />
         );
       case "reviews":
@@ -485,8 +527,8 @@ function heroButton(button?: Extract<Block, { blockType: "hero" }>["button"]) {
  * Location ones filled from the place, then the floating enquiry button if the template has it.
  */
 export function RenderTemplate({ template, place }: { template: Template; place: TemplatePlace }) {
-  // {lowest-price} in the template's words is this place's
-  const layout = fillVariables(template.layout, new Map(), place.lowestPrice);
+  // {lowest-price} and {name} in the template's words are this place's
+  const layout = fillVariables(template.layout, new Map(), { "lowest-price": place.lowestPrice, name: place.details?.name });
   return (
     <>
       <RenderBlocks blocks={layout} place={place} />

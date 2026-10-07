@@ -5,28 +5,29 @@ import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import { getPricingRules, getRoom, getRooms, roomDetails } from "@/lib/payload";
 
-// Rooms are in the CMS (/admin → Rooms)
+// Bedrooms are in the CMS (/admin → Bedrooms), each under its building's co-living (/admin → Locations)
 export async function generateStaticParams() {
-  return (await getRooms()).map(({ slug }) => ({ slug }));
+  return (await getRooms()).filter((room) => !room.home.comingSoon).map((room) => ({ building: room.home.slug, slug: room.slug }));
 }
 
 // Unknown slugs 404 via notFound(). (Not `dynamicParams = false`: on Netlify that 404s the prebuilt pages too.)
-async function findRoom(slug: string) {
-  const room = await getRoom(slug);
-  if (!room) notFound();
-  return roomDetails(room);
+async function findRoom(building: string, slug: string) {
+  const room = await getRoom(building, slug);
+  if (!room || room.home.comingSoon) notFound();
+  return { room: roomDetails(room), building: room.home };
 }
 
-export async function generateMetadata({ params }: PageProps<"/locations/old-oak/rooms/[slug]/apply">): Promise<Metadata> {
-  const { slug } = await params;
-  return { title: `Apply · ${(await findRoom(slug)).name} · Old Oak`, robots: { index: false } };
+export async function generateMetadata({ params }: PageProps<"/locations/[building]/rooms/[slug]/apply">): Promise<Metadata> {
+  const { building, slug } = await params;
+  const found = await findRoom(building, slug);
+  return { title: `Apply · ${found.room.name} · ${found.building.name}`, robots: { index: false } };
 }
 
 /** The room application, reached from a room page's "Apply now" (which passes the chosen ?period=). */
-export default async function ApplyForRoom({ params, searchParams }: PageProps<"/locations/old-oak/rooms/[slug]/apply">) {
-  const { slug } = await params;
+export default async function ApplyForRoom({ params, searchParams }: PageProps<"/locations/[building]/rooms/[slug]/apply">) {
+  const { building, slug } = await params;
   const { period } = await searchParams;
-  const room = await findRoom(slug);
+  const { room } = await findRoom(building, slug);
   // Only accept a period the room offers; otherwise the first (longest)
   const chosenPeriod = typeof period === "string" && room.booking.periods.includes(period) ? period : room.booking.periods[0];
 

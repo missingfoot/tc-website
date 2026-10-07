@@ -16,10 +16,10 @@ const plans = (name: string, label: string): Field => ({
 });
 
 /**
- * The top level of pricing: what each kind of place's prices are made of. Rooms offer membership
- * lengths; working spaces and serviced living houses offer plans, with standard prices places use
- * unless they set their own. Each place's prices fill these in (Pricing page grids). Edited on
- * the Pricing page only.
+ * The top level of pricing: what working spaces' and serviced living houses' prices are made of,
+ * plans with standard prices places use unless they set their own. Each place's prices fill these
+ * in (Pricing page grids). Rooms' membership lengths are their building's (Locations' hidden
+ * roomLengths). Edited on the Pricing page only.
  */
 export const PricingStructure: GlobalConfig = {
   slug: "pricingStructure",
@@ -27,12 +27,6 @@ export const PricingStructure: GlobalConfig = {
   access: { read: () => true },
   admin: { hidden: true },
   fields: [
-    {
-      name: "roomLengths",
-      label: "Room membership lengths",
-      type: "array",
-      fields: [{ name: "months", type: "number", required: true, min: 1 }],
-    },
     plans("working", "Working space plans"),
     plans("serviced", "Serviced living room types"),
   ],

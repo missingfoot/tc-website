@@ -1,7 +1,8 @@
 import { APIError, type CollectionConfig, type Field } from "payload";
 import sharp from "sharp";
 import { pageBlocks } from "../blocks";
-import { Locations } from "./Locations";
+import { Buildings } from "./Buildings";
+import { Venues } from "./Venues";
 import { Rooms } from "./Rooms";
 import { Templates } from "./Templates";
 
@@ -41,13 +42,14 @@ export const Media: CollectionConfig = {
     { name: "source", type: "text", index: true, admin: { hidden: true, disableListColumn: true, disableListFilter: true } },
   ],
   hooks: {
-    // Page and location images are required, so the database refuses to delete a photo still in
+    // Page, building and room images are required, so the database refuses to delete a photo still in
     // use, with an error that means nothing to an editor. Say where it's used instead.
     beforeDelete: [
       async ({ id, req }) => {
-        const [pages, locations, rooms, templates] = await Promise.all([
+        const [pages, buildings, venues, rooms, templates] = await Promise.all([
           req.payload.find({ collection: "pages", depth: 0, pagination: false, req }),
-          req.payload.find({ collection: "locations", depth: 0, pagination: false, req }),
+          req.payload.find({ collection: "buildings", depth: 0, pagination: false, req }),
+          req.payload.find({ collection: "venues", depth: 0, pagination: false, req }),
           req.payload.find({ collection: "rooms", depth: 0, pagination: false, req }),
           req.payload.find({ collection: "templates", depth: 0, pagination: false, req }),
         ]);
@@ -55,7 +57,8 @@ export const Media: CollectionConfig = {
           ...pages.docs
             .filter((page) => page.layout.some((block) => hasPhoto(pageBlocks.find((b) => b.slug === block.blockType)?.fields ?? [], block, id)))
             .map((page) => `“${page.title}”`),
-          ...locations.docs.filter((location) => hasPhoto(Locations.fields, location as unknown as Record<string, unknown>, id)).map((location) => `“${location.name}”`),
+          ...buildings.docs.filter((b) => hasPhoto(Buildings.fields, b as unknown as Record<string, unknown>, id)).map((b) => `the “${b.name}” building`),
+          ...venues.docs.filter((v) => hasPhoto(Venues.fields, v as unknown as Record<string, unknown>, id)).map((v) => `the “${v.name}” venue room`),
           ...rooms.docs.filter((room) => hasPhoto(Rooms.fields, room as unknown as Record<string, unknown>, id)).map((room) => `the “${room.name}” room`),
           ...templates.docs.filter((t) => hasPhoto(Templates.fields, t as unknown as Record<string, unknown>, id)).map((t) => `the “${t.name}” template`),
         ];

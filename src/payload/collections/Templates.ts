@@ -1,21 +1,24 @@
 import type { CollectionConfig } from "payload";
 import { revalidatePath } from "next/cache";
 import { pageBlocks, withHeading } from "../blocks";
-import { iconField, itemLabel } from "../fields/shared";
-import { locationBlocks, roomLocationBlocks } from "../templateBlocks";
-import { locationPaths } from "./Locations";
-import { roomsPath } from "./Rooms";
+import { buildingLocationBlocks, locationBlocks, roomLocationBlocks } from "../templateBlocks";
 
-/** The kinds of place with a template, and where their pages live. */
-const templatePaths = { ...locationPaths, room: `${roomsPath}/rooms` } as const;
-export type TemplateType = keyof typeof templatePaths;
+/** The kinds of place with a template, and the route of their pages. */
+const templateRoutes = {
+  coliving: "/locations/[building]",
+  room: "/locations/[building]/rooms/[slug]",
+  working: "/working/[slug]",
+  serviced: "/serviced-living/[slug]",
+  venue: "/event-spaces/[slug]",
+} as const;
+export type TemplateType = keyof typeof templateRoutes;
 
 /** Refreshes every page built from this type's template. */
 function refresh(type?: string | null) {
-  const base = type ? templatePaths[type as TemplateType] : undefined;
-  if (!base) return;
+  const route = type ? templateRoutes[type as TemplateType] : undefined;
+  if (!route) return;
   try {
-    revalidatePath(`${base}/[slug]`, "page");
+    revalidatePath(route, "page");
   } catch {
     // Outside Next (e.g. the seed script) there's no page cache to refresh
   }
@@ -24,8 +27,8 @@ function refresh(type?: string | null) {
 const blocks = [...locationBlocks.map(withHeading), ...pageBlocks];
 
 /**
- * How every page of a kind of place is laid out: working spaces, serviced living houses, venues
- * and Old Oak rooms. A template is a list of sections like a page's: "Location" sections fill
+ * How every page of a kind of place is laid out: co-living and its bedrooms, working
+ * spaces, serviced living houses and venues. A template is a list of sections like a page's: "Place" sections fill
  * themselves from the place being shown (its photos, intro, prices…), the rest show the same on
  * every one. One template per kind.
  */
@@ -34,7 +37,7 @@ export const Templates: CollectionConfig = {
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "type", "updatedAt"],
-    description: "The layout of every working space's, house's, venue's and room's page. Each place's own content (photos, prices, address…) is in Locations and Rooms.",
+    description: "The layout of every co-living's, bedroom's, working space's, house's and venue's page. Each place's own content (photos, prices, address…) is in Locations and Rooms.",
   },
   access: { read: () => true },
   fields: [
@@ -46,10 +49,11 @@ export const Templates: CollectionConfig = {
       required: true,
       unique: true,
       options: [
+        { label: "Co-living", value: "coliving" },
+        { label: "Bedrooms", value: "room" },
         { label: "Working spaces", value: "working" },
         { label: "Serviced living houses", value: "serviced" },
         { label: "Venues", value: "venue" },
-        { label: "Old Oak rooms", value: "room" },
       ],
       admin: { position: "sidebar", description: "The pages that use this template: one template each." },
     },
@@ -70,28 +74,9 @@ export const Templates: CollectionConfig = {
       type: "group",
       admin: {
         condition: (data) => data?.type === "room",
-        description: "The column beside the booking card, under each room's facts and description. The sections below come after it.",
+        description: "The column beside the booking card, under each room's facts and description, and its building's “What's included” and “About” (Locations → the building → Room pages). The sections below come after it.",
       },
       fields: [
-        {
-          name: "included",
-          label: "What's included",
-          labels: { singular: "Item", plural: "Items" },
-          type: "array",
-          admin: itemLabel("Item"),
-          fields: [{ name: "label", type: "text", required: true }, iconField("", true)],
-        },
-        {
-          name: "about",
-          label: "About the building",
-          type: "group",
-          fields: [
-            { name: "heading", type: "text" },
-            { name: "text", type: "textarea", admin: { description: "Leave a blank line between paragraphs." } },
-            { name: "poster", label: "Video poster", type: "upload", relationTo: "media" },
-            { name: "video", label: "Video link", type: "text", admin: { description: "YouTube, Vimeo or an .mp4, played over the poster." } },
-          ],
-        },
         { name: "coLivingAbout", label: "“About Co-living”", type: "textarea", admin: { description: "Leave a blank line between paragraphs." } },
       ],
     },
@@ -101,9 +86,14 @@ export const Templates: CollectionConfig = {
       type: "blocks",
       blocks,
       required: true,
-      // A room's main column is fixed, so of the location sections its template only offers the gallery
+      // A room's main column is fixed, so of the location sections its template only offers the gallery;
+      // only a building has rooms to show
       filterOptions: ({ data }) =>
-        data?.type === "room" ? blocks.map((b) => b.slug).filter((slug) => !slug.startsWith("location") || roomLocationBlocks.includes(slug)) : true,
+        blocks
+          .map((b) => b.slug)
+          .filter((slug) =>
+            data?.type === "room" ? !slug.startsWith("location") || roomLocationBlocks.includes(slug) : data?.type === "coliving" || !buildingLocationBlocks.includes(slug),
+          ),
       admin: { initCollapsed: true },
     },
   ],

@@ -8,15 +8,21 @@ export type Variables = Map<string, string>;
 const VARIABLE = /\{([a-z0-9][a-z0-9:-]*)\}/g;
 
 /**
- * Text with its {variables} filled in. `{lowest-price}` is the price of the room or location the
- * text belongs to (`own`). An unknown variable stays as written, so a typo shows on the page.
+ * The variables that mean the place the text belongs to (a room or location, or the one a
+ * template is showing): `{lowest-price}`, its lowest price, and `{name}`, its name.
  */
-export function fillText(text: string, variables: Variables, own?: string) {
-  return text.replace(VARIABLE, (written, name: string) => (name === "lowest-price" ? (own ?? written) : (variables.get(name) ?? written)));
+export type OwnVariables = { "lowest-price"?: string; name?: string };
+const ownNames = new Set<string>(["lowest-price", "name"]);
+
+/** Text with its {variables} filled in. An unknown variable stays as written, so a typo shows on the page. */
+export function fillText(text: string, variables: Variables, own?: OwnVariables) {
+  return text.replace(VARIABLE, (written, name: string) =>
+    ownNames.has(name) ? (own?.[name as keyof OwnVariables] ?? written) : (variables.get(name) ?? written),
+  );
 }
 
 /** A document (page, location, room, template) with the variables in all of its text filled in. */
-export function fillVariables<T>(value: T, variables: Variables, own?: string): T {
+export function fillVariables<T>(value: T, variables: Variables, own?: OwnVariables): T {
   if (typeof value === "string") return fillText(value, variables, own) as T;
   if (Array.isArray(value)) return value.map((item) => fillVariables(item, variables, own)) as T;
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, fillVariables(item, variables, own)])) as T;

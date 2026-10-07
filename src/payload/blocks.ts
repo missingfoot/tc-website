@@ -474,17 +474,42 @@ export const FeatureGroupsBlock: Block = {
 
 export const LocationCardsBlock: Block = {
   slug: "locationCards",
-  labels: { singular: "Location cards", plural: "Location cards" },
+  labels: { singular: "Place cards", plural: "Place cards" },
   fields: [
     { name: "heading", type: "text", required: true },
     intro,
     {
-      name: "locations",
-      type: "relationship",
-      relationTo: "locations",
-      hasMany: true,
+      name: "kind",
+      label: "Cards for",
+      type: "radio",
       required: true,
-      admin: { description: "Cards for these locations (/admin → Locations), in this order. Each links to its own page." },
+      defaultValue: "working",
+      options: [
+        { label: "Working spaces", value: "working" },
+        { label: "Serviced living", value: "serviced" },
+        { label: "Venue rooms", value: "venue" },
+      ],
+      admin: { layout: "horizontal" },
+    },
+    {
+      name: "buildings",
+      type: "relationship",
+      relationTo: "buildings",
+      hasMany: true,
+      // Only buildings with this kind switched on
+      filterOptions: ({ siblingData }) => ({ [`${(siblingData as { kind?: string })?.kind}.enabled`]: { equals: true } }),
+      admin: {
+        condition: (_, siblingData) => siblingData?.kind !== "venue",
+        description: "These buildings' working space or serviced living, in this order. Each card links to its page.",
+      },
+    },
+    {
+      name: "venues",
+      label: "Venue rooms",
+      type: "relationship",
+      relationTo: "venues",
+      hasMany: true,
+      admin: { condition: (_, siblingData) => siblingData?.kind === "venue", description: "These venue rooms, in this order. Each card links to its page." },
     },
     { name: "ctaLabel", label: "Button label", type: "text", defaultValue: "More info" },
     { ...tone, defaultValue: "cream" },

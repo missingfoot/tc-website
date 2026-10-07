@@ -104,6 +104,7 @@ const booking: RoomDetails["booking"] = {
 
 export const oldOakRoomDetails: RoomDetails[] = oldOakRooms.map((room) => ({
   slug: room.href.split("/").pop()!,
+  href: room.href,
   name: room.name,
   location: "Old Oak, Willesden Junction",
   price: room.price.replace(" per week", ""),

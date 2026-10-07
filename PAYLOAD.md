@@ -1,9 +1,9 @@
 # Payload CMS proof of concept
 
 The site with [Payload](https://payloadcms.com) built in: an admin at `/admin` where pages are put
-together from the site's own sections. Home, Old Oak, Co-Living, Working, Serviced Living, Event Spaces,
-Mission, Foundation, Careers, Press and FAQ are served from Payload, along with every location, venue
-and room page. The rest (blog, Labs, legal pages, referrals, account) are still written in code.
+together from the site's own sections. Home, Co-Living, Working, Serviced Living, Event Spaces,
+Mission, Foundation, Careers, Press and FAQ are served from Payload, along with every co-living
+building, location, venue and room page. The rest (blog, Labs, legal pages, referrals, account) are still written in code.
 
 ## Try it
 
@@ -29,9 +29,10 @@ npm run dev                            # then open http://localhost:3000/admin
 | Payload config (collections, database) | `src/payload.config.ts` |
 | Database migrations | `src/migrations/` |
 | Page sections editors can add | `src/payload/blocks.ts`, one per section component |
-| Pages, Locations, Rooms and Media collections | `src/payload/collections/` |
-| Location pages (`/working/…`, `/serviced-living/…`, `/event-spaces/…`) | their `[slug]` routes, reading Locations |
-| Room pages and their apply pages (`/locations/old-oak/rooms/…`) | their `[slug]` routes, reading Rooms |
+| Buildings, Rooms (Bedrooms), Venues (Venue rooms), Pages and Media collections | `src/payload/collections/` |
+| Working spaces, serviced living and venue rooms (`/working/…`, `/serviced-living/…`, `/event-spaces/…`) | their `[slug]` routes, reading Buildings and Venues |
+| Co-living (`/locations/old-oak`) | `locations/[building]`, reading Buildings |
+| Room pages and their apply pages (`/locations/<building>/rooms/…`) | their `[slug]` routes, reading Rooms |
 | Blocks → section components | `src/components/payload/RenderBlocks.tsx` |
 | Payload pages at `/<slug>` | `src/app/(frontend)/(site)/[slug]/page.tsx` |
 | Admin and API routes (generated) | `src/app/(payload)/` |
@@ -49,9 +50,21 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Framing photos**: click the photo's focal point in the Media library; crops keep it in view. A
   section's own "position" setting, where it has one, wins.
 - Pages written in code (e.g. `/co-living`) win over a Payload page with the same slug.
-- **Locations** (working spaces, serviced living houses, event venues) are a collection: each one's
-  card and its own page come from the same record, so a price or photo changes in one place. Drag
-  to reorder them in the list. How their pages are laid out, and what they share, is in Templates.
+- **Buildings** (first under Collections) are the physical buildings, and hold what's in them:
+  - **Getting there**: the address and ways to get there, shared by everything in the building
+    (its directions sections and maps; each place keeps its own directions intro).
+  - **Co-living**, **Working space**, **Serviced living**: a tab each, switched on with its box,
+    with that offering's own slug, card, page and directions intro. It goes by the building's
+    name. Co-living is at `/locations/<slug>`, with the building's bedrooms under it
+    (`/locations/old-oak/rooms/ensuite`); it has no prices of its own (its lowest is its
+    bedrooms'), and holds what its bedrooms' pages say about it and its membership lengths
+    (Pricing page). "Coming soon" (Canary Wharf) means no page yet and no bedroom pages.
+  - **Rooms**: its bedrooms and venue rooms, each its own collection; add one from its list.
+- **Bedrooms** (the Rooms collection) and **Venue rooms** (Venues) each belong to a building: a
+  card and a page each (`/event-spaces/<slug>` for venue rooms). A bedroom's slug only has to be
+  unique within its building. The shared card and page fields are `fields/place.ts`, and
+  `payload/places.ts` reads any kind of place (an offering of a building, or a venue room) the
+  same way for the site and the Pricing page.
 - **Navigation** (/admin → Navigation) holds the menu (mobile, and the desktop bar's More dropdown),
   the desktop bar and the footer, each in its own order with a Show switch per link. While it's
   empty the site falls back to `config/navigation.ts`, which is also what the seed fills it from.
@@ -60,11 +73,14 @@ npm run dev                            # then open http://localhost:3000/admin
   page. The tel: link is worked out from the number as shown. Falls back to `config/site.ts`.
 - **Social links** (/admin → Social links): the icons and button in every "Connect with us"
   section; the email icon uses Contact details. Falls back to `content/old-oak.ts`.
-- **Templates** (/admin → Templates): how every working space's, house's, venue's and room's page
-  is laid out, one per kind. Built from sections like a page: "Location" sections fill themselves
-  from the place shown (header, intro, gallery, what's included, pricing, directions) and hold the
-  words those pages share; any other section shows the same on all of them. A room's main column
-  (booking card, facts) is fixed, with its shared content in the room template. Templates come
+- **Templates** (/admin → Templates): how every co-living's, bedroom's, working space's,
+  house's and venue's page is laid out, one per kind. Built from sections like a page: "Place"
+  sections fill themselves from the place shown (hero, header, intro, gallery, what's included,
+  pricing, directions, a building's rooms) and hold the words those pages share, with `{name}` for
+  the place's name ("Co-living at {name}"); any other section shows the same on all of them. A
+  room's main column (booking card, facts) is fixed, with its building's content and the room
+  template's "About Co-living". The co-living template was made from Old Oak's old page
+  (`payload/buildingFromPage.ts`, used by its migration and the seed). Templates come
   from the seed (from `content/location-pages.ts`): without one, that type's pages are not found.
 - **Prices** are amounts in pence with what they're per (night, week, month, one-off) and how VAT
   applies, written into words by `lib/pricing.ts` only ("£150", "Per month +VAT", "From £150 per
@@ -72,8 +88,9 @@ npm run dev                            # then open http://localhost:3000/admin
   out from its lowest price unless it has its own text (venues' capacity).
 - **Pricing** (/admin/pricing, linked in the sidebar) holds every price, on two levels, with a tab
   per kind so each grid only has its own columns:
-  - **Rooms**: the membership lengths (the columns), then a grid of rooms × lengths with each
-    room's weekly rate; an empty cell means that length isn't offered for the room.
+  - **Rooms**: a section per co-living (per building): its membership lengths (the columns), then a
+    grid of its rooms × lengths with each room's weekly rate (an empty cell: that length isn't
+    offered for the room), with its own CSV download and upload.
   - **Working spaces** and **Serviced living**: the plans (columns: name, standard price, per,
     VAT, small print), then a grid of places × plans. A cell is the place's own price, empty for
     the plan's standard price, or "not offered" (×; "Offer" brings it back).
@@ -81,23 +98,26 @@ npm run dev                            # then open http://localhost:3000/admin
     variables.
   The structures are the hidden Pricing structure global; places keep entries naming a plan (amount
   null = standard), resolved by `resolvePrices` in `lib/pricing.ts`. Pricing rules is hidden too.
-  Each tab downloads a CSV in its grid's shape and uploads it back (rows match by ID or name,
+  Each grid downloads as a CSV in its own shape and uploads it back (rows match by ID or name,
   columns by heading; "standard" means the standard price). Changed cells are highlighted until
   saved. A new room or location appears as a row with no prices; its form shows a summary with a
   link here. `src/payload/views/`, `fields/PricingSheet.tsx` and `endpoints/pricingSheet.ts`. A
   room's move-in and floor are hidden: they're to come from a booking system, and keep their
   values meanwhile.
-- **Variables** in text: write `{lowest-price}` in a room's or location's text (or a template's,
-  for the place shown) and its current lowest price goes in when the page is built. Other pages
-  can name one (`{lowest-price:room:ensuite}`, `{lowest-price:working:old-oak}`,
-  `{lowest-price:rooms}`), use `{joining-fee}`, or editors' own from /admin → Variables, which
+- **Variables** in text: write `{lowest-price}` or `{name}` in a room's or location's text (or a
+  template's, for the place shown) and its current lowest price or name goes in when the page is
+  built. Other pages can name one (`{lowest-price:room:old-oak:ensuite}`, or `room:ensuite` while
+  no other building has an ensuite; `{lowest-price:coliving:old-oak}`, `{lowest-price:working:old-oak}`,
+  `{lowest-price:rooms}` for any building's), use `{joining-fee}`, or editors' own from /admin → Variables, which
   lists them all with their values. Filled in by `lib/variables.ts` as pages, locations, rooms and
   templates are read; an unknown one shows as written.
 - **Link fields** pick from the site's pages (by page, location, room or other page) or take a
   typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
-- **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.
-- **Pages at their own address**: `home` is served at `/` and `old-oak` at `/locations/old-oak`
-  (`pagePaths` in the Pages collection); `/home` and `/old-oak` redirect there.
+- **Bedrooms** (the Rooms collection) work the same way: card, page and booking options from one
+  record. Each is in a building, under its co-living's page, and its slug only has to be unique
+  within the building.
+- **Pages at their own address**: `home` is served at `/` (`pagePaths` in the Pages collection);
+  `/home` redirects there.
 - **Some sections keep part of their content in code**: Open positions lists the job pages
   (`content/careers.ts`), and Media kit's downloads are `content/press.ts`; editors set their headings.
 - **Moving a page from code into Payload**: add any missing section types, add the page to

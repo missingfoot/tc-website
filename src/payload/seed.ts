@@ -5,7 +5,7 @@
 //
 //   npx payload run src/payload/seed.ts
 import path from "node:path";
-import { getPayload } from "payload";
+import { getPayload, type Where } from "payload";
 import * as icons from "@/components/icons";
 import type { CircleImage, GalleryImage, LinkCard, LocationDetails, PressQuote, PromoCard, Room } from "@/lib/types";
 import type { FaqItem } from "@/components/ui/FaqAccordion";
@@ -31,13 +31,14 @@ import { locationPagesDefaults } from "@/content/location-pages";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { missionLeaders, missionProducts, missionPromos, missionTeamImages, missionValues } from "@/content/mission";
-import { oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
+import { oldOakAddress, oldOakMapEmbed, oldOakTravelModes } from "@/content/directions";
 import { oldOakIncluded } from "@/content/included";
 import { oldOakBenefitsImages, oldOakCommunityCards, oldOakGallery, oldOakPromos, oldOakReviews, oldOakRoomDetails, oldOakTestimonials, socialLinks as socialAccounts } from "@/content/old-oak";
 import { morePressUrl, pressInfo, pressNews, pressQuotes } from "@/content/press";
 import { servicedGallery, servicedIncluded, servicedLocationIncluded, servicedLocationPages, servicedPromos } from "@/content/serviced-living";
 import { workingHowItWorks, workingIncluded, workingLocationPages, workingSpaces } from "@/content/working";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
+import { buildingFromPage } from "./buildingFromPage";
 import config from "../payload.config";
 
 const payload = await getPayload({ config });
@@ -85,10 +86,18 @@ const socialLinks = { blockType: "socialLinks", heading: "Connect with us", intr
 const galleryPhotos = (images: GalleryImage[]) => Promise.all(images.map(async (g) => ({ image: await media(g.src ?? g.thumb, g.alt, g.position), name: g.alt })));
 const featureGroups = (groups: FeatureGroup[]) => groups.map((group) => ({ label: group.label, items: group.items.map((item) => ({ label: item.label, icon: iconName(item.icon) })) }));
 
-/** The seeded locations behind these cards (their links end in each location's slug), in order. */
-async function locationIds(type: "working" | "serviced" | "venue", cards: Room[]) {
-  const { docs } = await payload.find({ collection: "locations", where: { type: { equals: type } }, pagination: false, depth: 0 });
-  return cards.map((card) => docs.find((doc) => card.href.endsWith(`/${doc.slug}`))!.id);
+/**
+ * A Location cards section's places, from the cards it had in code (their links end in each
+ * place's slug), in order: buildings for working spaces and serviced living, or venue rooms.
+ */
+async function cardPlaces(kind: "working" | "serviced" | "venue", cards: Room[]) {
+  const slugOf = (card: Room) => card.href.split("/").pop();
+  if (kind === "venue") {
+    const { docs } = await payload.find({ collection: "venues", pagination: false, depth: 0 });
+    return { kind, venues: cards.map((card) => docs.find((doc) => doc.slug === slugOf(card))!.id) };
+  }
+  const { docs } = await payload.find({ collection: "buildings", where: { [`${kind}.enabled`]: { equals: true } }, pagination: false, depth: 0 });
+  return { kind, buildings: cards.map((card) => docs.find((doc) => doc[kind]?.slug === slugOf(card))!.id) };
 }
 
 /** Creates a page unless one with this slug exists (its layout, and so its uploads, only then). */
@@ -321,12 +330,12 @@ function priceFromText(price: { label: string; amount: string; period: string })
   return { label: price.label, amount: penceFromText(price.amount), per, vat: /\+\s*VAT/i.test(price.period) ? "excluded" : "included", note: price.period.split(", ")[1] };
 }
 
-// The pricing structure, from the content files' prices, unless it's set up already: room
-// lengths, and each location type's plans (a plan per price name; a standard price where all of
+// The pricing structure, from the content files' prices, unless it's set up already: each
+// location type's plans (a plan per price name; a standard price where all of
 // that type's locations charge the same, as the working spaces do)
 {
   const structure = await payload.findGlobal({ slug: "pricingStructure", depth: 0 });
-  if (structure.roomLengths?.length || structure.working?.length || structure.serviced?.length) console.log("pricing structure: already set up, left as it is");
+  if (structure.working?.length || structure.serviced?.length) console.log("pricing structure: already set up, left as it is");
   else {
     const plansOf = (locations: LocationDetails[]) => {
       const byLabel = new Map<string, ReturnType<typeof priceFromText>[]>();
@@ -340,7 +349,6 @@ function priceFromText(price: { label: string; amount: string; period: string })
     await payload.updateGlobal({
       slug: "pricingStructure",
       data: {
-        roomLengths: oldOakRoomDetails[0].booking.periods.map((p) => ({ months: Number.parseInt(p, 10) })),
         working: plansOf(workingLocationPages),
         serviced: plansOf(servicedLocationPages),
       } as never,
@@ -359,32 +367,52 @@ function planEntries(type: "working" | "serviced" | "venue", location: LocationD
   });
 }
 
-/** Creates a location unless one of this type and slug exists. */
-async function seedLocation(type: "working" | "serviced" | "venue", location: LocationDetails, included: FeatureGroup[] = []) {
-  const existing = await payload.find({ collection: "locations", where: { and: [{ type: { equals: type } }, { slug: { equals: location.slug } }] }, limit: 1 });
-  if (existing.docs[0]) return console.log(`${type} ${location.slug}: already exists, left as it is`);
-  const iconItems = (items: { icon: unknown; label: string }[]) => items.map((item) => ({ label: item.label, icon: iconName(item.icon) }));
-  await payload.create({
-    collection: "locations",
-    data: {
-      type,
-      name: location.name,
-      slug: location.slug,
-      area: location.area,
-      postcode: location.postcode,
-      // Venues' pills are their capacity; the others' are their lowest price, worked out
-      pill: type === "venue" ? location.fromPrice : undefined,
-      image: await photo(location.image),
-      features: iconItems(location.features),
-      intro: location.intro.join("\n\n"),
-      gallery: await Promise.all(location.gallery.map(async (g) => ({ image: await media(g.src ?? g.thumb, g.alt, g.position), name: g.alt }))),
-      prices: planEntries(type, location),
-      included: included.map((group) => ({ label: group.label, items: iconItems(group.items) })),
-      address: location.address,
-      directionsIntro: location.directionsIntro,
-      travelModes: location.travelModes.map((mode) => ({ ...mode, steps: mode.steps.join("\n") })),
-    } as never,
+/**
+ * The building at this address (or, without one, of this name), made unless it exists, with its
+ * address and ways to get there.
+ */
+async function seedBuildingFor(name: string, address?: string, travelModes: LocationDetails["travelModes"] = []) {
+  const where: Where = address ? { address: { equals: address } } : { name: { equals: name } };
+  const existing = await payload.find({ collection: "buildings", where, limit: 1 });
+  if (existing.docs[0]) return existing.docs[0].id;
+  const doc = await payload.create({
+    collection: "buildings",
+    data: { name, address, travelModes: travelModes.map((mode) => ({ ...mode, steps: mode.steps.join("\n") })) } as never,
   });
+  console.log(`building ${name}: created`);
+  return doc.id;
+}
+
+/**
+ * A working space, serviced living house or venue room from its content file, unless it exists:
+ * a working space or house as its building's offering (the building named after it), a venue
+ * room in the building at its address (named after its area, "Bedford Square").
+ */
+async function seedLocation(type: "working" | "serviced" | "venue", location: LocationDetails, included: FeatureGroup[] = []) {
+  const iconItems = (items: { icon: unknown; label: string }[]) => items.map((item) => ({ label: item.label, icon: iconName(item.icon) }));
+  const building = await seedBuildingFor(type === "venue" ? location.area : location.name, location.address, location.travelModes);
+  const place = async () => ({
+    slug: location.slug,
+    area: location.area,
+    postcode: location.postcode,
+    // Venues' pills are their capacity; the others' are their lowest price, worked out
+    pill: type === "venue" ? location.fromPrice : undefined,
+    image: await photo(location.image),
+    features: iconItems(location.features),
+    intro: location.intro.join("\n\n"),
+    gallery: await Promise.all(location.gallery.map(async (g) => ({ image: await media(g.src ?? g.thumb, g.alt, g.position), name: g.alt }))),
+    included: included.map((group) => ({ label: group.label, items: iconItems(group.items) })),
+    directionsIntro: location.directionsIntro,
+  });
+  if (type === "venue") {
+    const existing = await payload.find({ collection: "venues", where: { slug: { equals: location.slug } }, limit: 1 });
+    if (existing.docs[0]) return console.log(`venue room ${location.slug}: already exists, left as it is`);
+    await payload.create({ collection: "venues", data: { name: location.name, building, ...(await place()) } as never });
+    return console.log(`venue room ${location.slug}: created`);
+  }
+  const doc = await payload.findByID({ collection: "buildings", id: building, depth: 0 });
+  if (doc[type]?.enabled) return console.log(`${type} ${location.slug}: already exists, left as it is`);
+  await payload.update({ collection: "buildings", id: building, data: { [type]: { enabled: true, ...(await place()), prices: planEntries(type, location) } } as never });
   console.log(`${type} ${location.slug}: created`);
 }
 
@@ -423,7 +451,7 @@ const working = async () => [
     blockType: "locationCards",
     heading: "Our Locations",
     intro: "Each location has its own unique feel, designed to help you do your best work while encouraging you to explore and make connections with other members.",
-    locations: await locationIds("working", workingLocationPages.map((l) => ({ href: `/working/${l.slug}` }) as Room)),
+    ...(await cardPlaces("working", workingLocationPages.map((l) => ({ href: `/working/${l.slug}` }) as Room))),
     ctaLabel: "More info",
   },
   {
@@ -466,7 +494,7 @@ const servicedLiving = async () => [
     blockType: "locationCards",
     heading: "Locations",
     intro: "Each house has its own character and neighbourhood, with everything you need included in one weekly price.",
-    locations: await locationIds("serviced", servicedLocationPages.map((l) => ({ href: `/serviced-living/${l.slug}` }) as Room)),
+    ...(await cardPlaces("serviced", servicedLocationPages.map((l) => ({ href: `/serviced-living/${l.slug}` }) as Room))),
     ctaLabel: "More info",
   },
   { blockType: "promoCards", cards: await promoCards(servicedPromos) },
@@ -495,7 +523,7 @@ const eventSpaces = async () => [
     blockType: "locationCards",
     heading: "Bedford Square",
     intro: "Four spaces in a Georgian townhouse in Bloomsbury, a short walk from Tottenham Court Road.",
-    locations: await locationIds("venue", bedfordVenues),
+    ...(await cardPlaces("venue", bedfordVenues)),
     ctaLabel: "See the space",
   },
   { blockType: "gallery", heading: "Look inside", tone: "white", photos: await galleryPhotos(eventsGallery) },
@@ -503,7 +531,7 @@ const eventSpaces = async () => [
     blockType: "locationCards",
     heading: "Old Oak",
     intro: "Three spaces in our co-living building on the canal at Willesden Junction, from a 200-guest venue to a private dining room.",
-    locations: await locationIds("venue", oldOakVenues),
+    ...(await cardPlaces("venue", oldOakVenues)),
     ctaLabel: "See the space",
   },
   {
@@ -590,9 +618,9 @@ const coLiving = async () => [
   socialLinks,
 ];
 
-/** Creates a room unless one with this slug exists. */
-async function seedRoom(room: (typeof oldOakRoomDetails)[number]) {
-  const existing = await payload.find({ collection: "rooms", where: { slug: { equals: room.slug } }, limit: 1 });
+/** Creates a room in a building unless the building has one with this slug. */
+async function seedRoom(room: (typeof oldOakRoomDetails)[number], building: number) {
+  const existing = await payload.find({ collection: "rooms", where: { and: [{ slug: { equals: room.slug } }, { building: { equals: building } }] }, limit: 1 });
   if (existing.docs[0]) return console.log(`room ${room.slug}: already exists, left as it is`);
   const [first, ...more] = room.photos;
   await payload.create({
@@ -600,6 +628,7 @@ async function seedRoom(room: (typeof oldOakRoomDetails)[number]) {
     data: {
       name: room.name,
       slug: room.slug,
+      building,
 
       location: room.location,
       image: await media(first.src ?? first.thumb, first.alt, first.position),
@@ -614,8 +643,6 @@ async function seedRoom(room: (typeof oldOakRoomDetails)[number]) {
   });
   console.log(`room ${room.slug}: created`);
 }
-
-for (const room of oldOakRoomDetails) await seedRoom(room);
 
 const oldOak = async () => [
   {
@@ -705,7 +732,41 @@ await seedPage("working", "Working", working, { floatingEnquiry: "working" });
 await seedPage("serviced-living", "Serviced Living", servicedLiving, { floatingEnquiry: "serviced" });
 await seedPage("event-spaces", "Event Spaces", eventSpaces, { floatingEnquiry: "events" });
 await seedPage("co-living", "Co-Living", coLiving);
-await seedPage("old-oak", "Old Oak", oldOak, { floatingEnquiry: "living" });
+
+// Co-living, unless it exists: Old Oak's from the page it had (its own content; the rest makes the
+// co-living template, below), then its bedrooms; and Canary Wharf's, coming soon
+async function seedColiving(building: number, data: () => Promise<object>) {
+  const doc = await payload.findByID({ collection: "buildings", id: building, depth: 0 });
+  if (doc.coliving?.enabled) return console.log(`co-living ${doc.name}: already exists, left as it is`);
+  await payload.update({ collection: "buildings", id: building, data: { coliving: { enabled: true, ...(await data()) } } as never });
+  console.log(`co-living ${doc.name}: created`);
+}
+const oldOakBuilding = await seedBuildingFor("Old Oak", oldOakAddress, oldOakTravelModes);
+await seedColiving(oldOakBuilding, async () => {
+  const about = locationPagesDefaults.rooms.about;
+  return {
+    ...buildingFromPage((await oldOak()) as never, "Old Oak").place,
+    slug: "old-oak",
+    postcode: "NW10",
+    roomLengths: oldOakRoomDetails[0].booking.periods.map((p) => ({ months: Number.parseInt(p, 10) })),
+    roomsIncluded: locationPagesDefaults.rooms.included.map((item) => ({ label: item.label, icon: iconName(item.icon) })),
+    about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },
+  };
+});
+for (const room of oldOakRoomDetails) await seedRoom(room, oldOakBuilding);
+await seedColiving(await seedBuildingFor("Canary Wharf"), async () => {
+  const card = coLivingLocations.find((c) => c.title === "Canary Wharf")!;
+  const image = await photo(card.image);
+  return {
+    slug: "canary-wharf",
+    comingSoon: true,
+    area: "East London",
+    postcode: "E14",
+    image,
+    intro: "The Collective Canary Wharf, opening soon, will offer the option to stop in or stay a while, with stays from just one night. Join the waitlist to hear as soon as rooms are available.",
+    gallery: [{ image }],
+  };
+});
 
 const images = await payload.count({ collection: "media" });
 console.log(`${images.totalDocs} images in the Media library.`);
@@ -797,24 +858,18 @@ else {
         standard: [],
       }),
     room: async () => [{ blockType: "locationGallery", heading: "Explore the room" }, { blockType: "promoCards", cards: await promosFor("rooms") }],
+    // Old Oak's page as it was, with its own content taken out (that's the building's)
+    coliving: async () => buildingFromPage((await oldOak()) as never, "Old Oak").layout,
   };
-  const names = { working: "Working space page", serviced: "Serviced living house page", venue: "Venue page", room: "Old Oak room page" };
+  const names = { coliving: "Co-living page", working: "Working space page", serviced: "Serviced living house page", venue: "Venue page", room: "Room page" };
 
-  for (const type of ["working", "serviced", "venue", "room"] as const) {
+  for (const type of ["coliving", "room", "working", "serviced", "venue"] as const) {
     const existing = await payload.find({ collection: "templates", where: { type: { equals: type } }, limit: 1 });
     if (existing.docs[0]) {
       console.log(`template ${type}: already exists, left as it is`);
       continue;
     }
-    const about = d.rooms.about;
-    const roomColumn =
-      type !== "room"
-        ? undefined
-        : {
-            included: d.rooms.included.map(icon),
-            about: { heading: about.heading, text: about.text.join("\n\n"), poster: await photo(about.poster), video: about.video },
-            coLivingAbout: d.rooms.coLivingAbout.join("\n\n"),
-          };
+    const roomColumn = type === "room" ? { coLivingAbout: d.rooms.coLivingAbout.join("\n\n") } : undefined;
     await payload.create({
       collection: "templates",
       data: { name: names[type], type, floatingEnquiry: type !== "room", layout: await templates[type](), ...(roomColumn && { roomColumn }) } as never,

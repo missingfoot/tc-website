@@ -7,7 +7,7 @@ type VariableInfo = { name: string; value: string; about: string };
 
 /**
  * The Variables page's list of every variable text can use, with its current value (from
- * /api/site-variables), plus {lowest-price}, which depends on where it's written.
+ * /api/site-variables), plus {lowest-price} and {name}, which depend on where they're written.
  */
 export function VariablesList() {
   const { config } = useConfig();
@@ -24,7 +24,11 @@ export function VariablesList() {
     };
   }, [config.serverURL, config.routes.api]);
 
-  const rows = [{ name: "lowest-price", value: "where it's written", about: "The lowest price of the room or location it's written in (or, in a template, of the place shown). Use this one there; the named ones below are for other pages" }, ...(list ?? [])];
+  const rows = [
+    { name: "lowest-price", value: "where it's written", about: "The lowest price of the room or location it's written in (or, in a template, of the place shown). Use this one there; the named ones below are for other pages" },
+    { name: "name", value: "where it's written", about: "The name of the room or location it's written in (or, in a template, of the place shown), e.g. “Co-living at {name}”" },
+    ...(list ?? []),
+  ];
   const cell = { padding: "8px 12px", borderBottom: "1px solid var(--theme-elevation-100)", textAlign: "left" } as const;
 
   return (

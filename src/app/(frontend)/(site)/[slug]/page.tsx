@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/[slug]">) {
 
 export default async function PayloadPage({ params }: PageProps<"/[slug]">) {
   const { slug } = await params;
-  // Pages with an address of their own (the home page at /, Old Oak at /locations/old-oak)
+  // Pages with an address of their own (the home page at /)
   if (pagePaths[slug]) permanentRedirect(pagePaths[slug]);
   const page = await getPage(slug);
   if (!page) notFound();

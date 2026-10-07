@@ -5,12 +5,13 @@ import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 import sharp from "sharp";
-import { Locations } from "./payload/collections/Locations";
+import { Buildings } from "./payload/collections/Buildings";
 import { Media } from "./payload/collections/Media";
 import { Pages } from "./payload/collections/Pages";
 import { Rooms } from "./payload/collections/Rooms";
 import { Templates } from "./payload/collections/Templates";
 import { Users } from "./payload/collections/Users";
+import { Venues } from "./payload/collections/Venues";
 import { siteLinks } from "./payload/endpoints/siteLinks";
 import { siteVariables } from "./payload/endpoints/siteVariables";
 import { pricingSheet } from "./payload/endpoints/pricingSheet";
@@ -43,7 +44,7 @@ export default buildConfig({
       afterNavLinks: ["/payload/fields/PricingSheet#PricingNavLink"],
     },
   },
-  collections: [Pages, Templates, Locations, Rooms, Media, Users],
+  collections: [Buildings, Rooms, Venues, Pages, Templates, Media, Users],
   globals: [Navigation, ContactDetails, SocialLinksGlobal, PricingRules, PricingStructure, Variables],
   endpoints: [siteLinks, siteVariables, ...pricingSheet],
   editor: lexicalEditor(),

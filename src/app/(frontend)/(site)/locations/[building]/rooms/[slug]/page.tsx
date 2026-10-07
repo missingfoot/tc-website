@@ -17,21 +17,22 @@ import { getRoom, getRooms, getTemplate, roomColumn, roomDetails } from "@/lib/p
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
-// Rooms are in the CMS (/admin → Rooms)
+// Bedrooms are in the CMS (/admin → Bedrooms), each under its building's co-living (/admin → Locations)
 export async function generateStaticParams() {
-  return (await getRooms()).map(({ slug }) => ({ slug }));
+  return (await getRooms()).filter((room) => !room.home.comingSoon).map((room) => ({ building: room.home.slug, slug: room.slug }));
 }
 
 // Unknown slugs 404 via notFound(). (Not `dynamicParams = false`: on Netlify that 404s the prebuilt pages too.)
-async function findRoom(slug: string) {
-  const room = await getRoom(slug);
-  if (!room) notFound();
-  return roomDetails(room);
+async function findRoom(building: string, slug: string) {
+  const room = await getRoom(building, slug);
+  if (!room || room.home.comingSoon) notFound();
+  return { room: roomDetails(room), building: room.home };
 }
 
-export async function generateMetadata({ params }: PageProps<"/locations/old-oak/rooms/[slug]">): Promise<Metadata> {
-  const { slug } = await params;
-  return { title: `${(await findRoom(slug)).name} · Old Oak` };
+export async function generateMetadata({ params }: PageProps<"/locations/[building]/rooms/[slug]">): Promise<Metadata> {
+  const { building, slug } = await params;
+  const found = await findRoom(building, slug);
+  return { title: `${found.room.name} · ${found.building.name}` };
 }
 
 
@@ -62,17 +63,17 @@ function Paragraphs({ items }: { items: string[] }) {
  * On mobile the booking block sits under the key facts, and a bar pinned to the bottom of the
  * screen keeps "Apply now" in reach.
  */
-export default async function OldOakRoom({ params }: PageProps<"/locations/old-oak/rooms/[slug]">) {
-  const { slug } = await params;
-  const room = await findRoom(slug);
+export default async function BuildingRoom({ params }: PageProps<"/locations/[building]/rooms/[slug]">) {
+  const { building: buildingSlug, slug } = await params;
+  const { room, building } = await findRoom(buildingSlug, slug);
   // The room template (/admin → Templates) has the main column's shared content and the sections
   // after it. Templates come from the seed: without one, there's no layout to show
   const found = await getTemplate("room");
   if (!found) notFound();
-  // {lowest-price} in the template's words is this room's
-  const template = fillVariables(found, new Map(), room.price);
-  const shared = roomColumn(template);
-  const apply = { label: "Apply now", href: `/locations/old-oak/rooms/${room.slug}/apply` };
+  // {lowest-price} and {name} in the template's words are this room's
+  const template = fillVariables(found, new Map(), { "lowest-price": room.price, name: room.name });
+  const shared = roomColumn(template, building);
+  const apply = { label: "Apply now", href: `${room.href}/apply` };
 
   return (
     <>

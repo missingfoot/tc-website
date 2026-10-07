@@ -136,6 +136,8 @@ export type Price = {
 /** A co-living room's own page: photos, key facts, booking details and copy. */
 export type RoomDetails = {
   slug: string;
+  /** Its page, e.g. "/locations/old-oak/rooms/ensuite". */
+  href: string;
   name: string;
   /** Where it is, under the name, e.g. "Old Oak, Willesden Junction". */
   location: string;

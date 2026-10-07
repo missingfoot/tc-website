@@ -4,13 +4,13 @@ import { Button, useConfig } from "@payloadcms/ui";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties, type ReactNode } from "react";
 import { monthsLabel, type PricePlan } from "@/lib/pricing";
-import type { LocationRow, PlanGrid, PricingData, PricingSave } from "../endpoints/pricingSheet";
+import type { LocationRow, PlanGrid, PricingData, PricingSave, RoomBuilding } from "../endpoints/pricingSheet";
 
-// The admin's Pricing page: a tab per kind of price. Each kind's structure (rooms' membership
-// lengths; working spaces' and serviced living's plans, with standard prices) sits above a grid of
-// its places' prices, one column per length or plan, so each kind has only the columns it needs.
-// Edits are highlighted and saved together; each tab downloads its grid as a CSV for Excel and
-// takes one back (rows match by their ID, columns by their heading).
+// The admin's Pricing page: a tab per kind of price. Each kind's structure (each building's
+// co-living membership lengths; working spaces' and serviced living's plans, with standard
+// prices) sits above a grid of its places' prices, one column per length or plan, so each grid
+// has only the columns it needs. Edits are highlighted and saved together; each grid downloads as
+// a CSV for Excel and takes one back (rows match by their ID, columns by their heading).
 
 const PER = { night: "Per night", week: "Per week", month: "Per month", once: "One-off" } as const;
 const VAT = { included: "VAT included", excluded: "+VAT", none: "No VAT" } as const;
@@ -112,6 +112,8 @@ export function PricingSheet() {
   const [message, setMessage] = useState<string>();
   const [saving, setSaving] = useState(false);
   const file = useRef<HTMLInputElement>(null);
+  // The building whose rooms' CSV is being uploaded (the Rooms tab has one per building)
+  const uploadBuilding = useRef<number>(undefined);
 
   useEffect(() => {
     fetch(api, { credentials: "include" })
@@ -140,19 +142,25 @@ export function PricingSheet() {
     setMessage("Saved. Pages using these prices update now.");
   }
 
-  // CSV for the open tab: its grid, rows by name and ID, columns by length or plan
+  // A building's rooms as a CSV: rows by name and ID, columns by length
+  function downloadRooms(building: RoomBuilding) {
+    const { lengths, rows } = building;
+    download(`room-rates-${building.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, [
+      ["Room", "ID", ...lengths.map(monthsLabel)],
+      ...rows.map((r) => [r.name, String(r.id), ...lengths.map((m) => pounds(r.rates.find((x) => x.months === m)?.weekly))]),
+    ]);
+  }
+  function uploadRooms(building: RoomBuilding) {
+    uploadBuilding.current = building.id;
+    file.current?.click();
+  }
+
+  // CSV for the open tab: its grid, rows by name and ID, columns by plan
   function downloadTab() {
-    if (tab === "rooms") {
-      const { lengths, rows } = draft!.rooms;
-      return download("room-rates", [
-        ["Room", "ID", ...lengths.map((m) => `${m} months`)],
-        ...rows.map((r) => [r.name, String(r.id), ...lengths.map((m) => pounds(r.rates.find((x) => x.months === m)?.weekly))]),
-      ]);
-    }
     if (tab === "working" || tab === "serviced") {
       const { plans, rows } = draft![tab];
       return download(`${tab}-prices`, [
-        ["Location", "ID", ...plans.map((p) => p.label)],
+        ["Building", "ID", ...plans.map((p) => p.label)],
         ["Standard", "", ...plans.map((p) => pounds(p.amount))],
         ...rows.map((r) => [
           r.name,
@@ -188,13 +196,15 @@ export function PricingSheet() {
       rows.find((r) => String(r.id) === (line[col("ID")] ?? "").trim()) ?? rows.find((r) => r.name.toLowerCase() === (line[0] ?? "").trim().toLowerCase());
 
     if (tab === "rooms") {
-      const rooms = structuredClone(draft!.rooms);
+      const buildings = structuredClone(draft!.rooms);
+      const rooms = buildings.find((b) => b.id === uploadBuilding.current);
+      if (!rooms) return;
       for (const h of header.slice(2)) if (!rooms.lengths.includes(Number.parseInt(h, 10))) unknownColumns.add(h);
       for (const line of lines) {
         const row = rowFor(rooms.rows, line);
         if (!row) continue;
         for (const months of rooms.lengths) {
-          const i = col(`${months} months`);
+          const i = header.findIndex((h) => Number.parseInt(h, 10) === months);
           if (i < 0) continue;
           const weekly = toPence(line[i] ?? "");
           const rate = row.rates.find((r) => r.months === months);
@@ -204,7 +214,7 @@ export function PricingSheet() {
           changed++;
         }
       }
-      update("rooms", rooms);
+      update("rooms", buildings);
     } else if (tab === "working" || tab === "serviced") {
       const grid = structuredClone(draft![tab]);
       for (const h of header.slice(2)) if (!grid.plans.some((p) => p.label.toLowerCase() === h.trim().toLowerCase())) unknownColumns.add(h);
@@ -303,12 +313,17 @@ export function PricingSheet() {
           );
         })}
         <span style={{ flex: 1 }} />
-        <Button buttonStyle="secondary" size="small" margin={false} onClick={downloadTab}>
-          Download CSV
-        </Button>
-        <Button buttonStyle="secondary" size="small" margin={false} onClick={() => file.current?.click()}>
-          Upload CSV
-        </Button>
+        {/* The Rooms tab has a CSV per building, in its section */}
+        {tab !== "rooms" && (
+          <>
+            <Button buttonStyle="secondary" size="small" margin={false} onClick={downloadTab}>
+              Download CSV
+            </Button>
+            <Button buttonStyle="secondary" size="small" margin={false} onClick={() => file.current?.click()}>
+              Upload CSV
+            </Button>
+          </>
+        )}
         <input ref={file} type="file" accept=".csv,text/csv" onChange={uploadTab} hidden />
         {dirty.length > 0 && (
           <>
@@ -323,7 +338,21 @@ export function PricingSheet() {
       </div>
       {message && <p style={{ margin: "0 0 16px", padding: "10px 14px", borderRadius: 6, background: "var(--theme-elevation-50)" }}>{message}</p>}
 
-      {tab === "rooms" && <RoomsTab saved={saved.rooms} draft={draft.rooms} onChange={(rooms) => update("rooms", rooms)} />}
+      {tab === "rooms" &&
+        (draft.rooms.length ? (
+          draft.rooms.map((building) => (
+            <BuildingRooms
+              key={building.id}
+              saved={saved.rooms.find((b) => b.id === building.id)}
+              draft={building}
+              onChange={(next) => update("rooms", draft.rooms.map((b) => (b.id === next.id ? next : b)))}
+              onDownload={() => downloadRooms(building)}
+              onUpload={() => uploadRooms(building)}
+            />
+          ))
+        ) : (
+          <p style={muted}>No co-living yet: add it to a building (Buildings → the building → Co-living), then its bedrooms.</p>
+        ))}
       {(tab === "working" || tab === "serviced") && (
         <PlansTab
           key={tab}
@@ -347,8 +376,20 @@ export function PricingSheet() {
   );
 }
 
-/** Rooms: the membership lengths, then a grid of each room's weekly rate per length (empty: not offered). */
-function RoomsTab({ saved, draft, onChange }: { saved: PricingData["rooms"]; draft: PricingData["rooms"]; onChange: (rooms: PricingData["rooms"]) => void }) {
+/** A building's co-living bedrooms: its membership lengths, then a grid of each room's weekly rate per length (empty: not offered). */
+function BuildingRooms({
+  saved,
+  draft,
+  onChange,
+  onDownload,
+  onUpload,
+}: {
+  saved?: RoomBuilding;
+  draft: RoomBuilding;
+  onChange: (building: RoomBuilding) => void;
+  onDownload: () => void;
+  onUpload: () => void;
+}) {
   const [adding, setAdding] = useState("");
   const addLength = () => {
     const months = Number.parseInt(adding, 10);
@@ -363,14 +404,26 @@ function RoomsTab({ saved, draft, onChange }: { saved: PricingData["rooms"]; dra
         r.id !== roomId ? r : { ...r, rates: [...r.rates.filter((x) => x.months !== months), ...(weekly === undefined ? [] : [{ months, weekly }])] },
       ),
     });
-  const savedRate = (roomId: number, months: number) => saved.rows.find((r) => r.id === roomId)?.rates.find((x) => x.months === months)?.weekly;
+  const savedRate = (roomId: number, months: number) => saved?.rows.find((r) => r.id === roomId)?.rates.find((x) => x.months === months)?.weekly;
 
   return (
-    <>
-      <Section title="Membership lengths" description="The lengths people can choose when applying, longest first: each is a column below. Removing one removes its rates.">
+    <div style={{ marginBottom: 40, paddingBottom: 8, borderBottom: "1px solid var(--theme-elevation-100)" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 16 }}>
+        <h2 style={{ margin: 0 }}>{draft.name}</h2>
+        <Link href={draft.href} style={{ marginRight: "auto" }}>
+          Open
+        </Link>
+        <Button buttonStyle="secondary" size="small" margin={false} onClick={onDownload}>
+          Download CSV
+        </Button>
+        <Button buttonStyle="secondary" size="small" margin={false} onClick={onUpload}>
+          Upload CSV
+        </Button>
+      </div>
+      <Section title="Membership lengths" description="The lengths people can choose when applying for one of its rooms, longest first: each is a column below. Removing one removes its rates.">
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           {draft.lengths.map((m) => (
-            <span key={m} style={{ ...input, width: "auto", display: "inline-flex", gap: 8, alignItems: "center", ...(!saved.lengths.includes(m) && changedBg) }}>
+            <span key={m} style={{ ...input, width: "auto", display: "inline-flex", gap: 8, alignItems: "center", ...(!saved?.lengths.includes(m) && changedBg) }}>
               {monthsLabel(m)}
               <button type="button" aria-label={`Remove ${m} months`} style={linkButton} onClick={() => onChange({ ...draft, lengths: draft.lengths.filter((x) => x !== m) })}>
                 ×
@@ -384,13 +437,14 @@ function RoomsTab({ saved, draft, onChange }: { saved: PricingData["rooms"]; dra
         </div>
       </Section>
       <Section title="Rates" description="Each room’s weekly rate for each length. Leave a cell empty if that length isn’t offered for the room.">
+        {!draft.rows.length && <p style={muted}>No bedrooms yet: add them in its building (Buildings → the building → Bedrooms).</p>}
         <table style={{ borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
             <tr>
               <th style={head}>Room</th>
               {draft.lengths.map((m) => (
                 <th key={m} style={head}>
-                  {m} months
+                  {monthsLabel(m)}
                 </th>
               ))}
               <th style={head} />
@@ -416,7 +470,7 @@ function RoomsTab({ saved, draft, onChange }: { saved: PricingData["rooms"]; dra
           </tbody>
         </table>
       </Section>
-    </>
+    </div>
   );
 }
 
@@ -608,7 +662,7 @@ function RulesTab({
   );
   return (
     <>
-      <Section title="Applying for a room" description="What applying for an Old Oak room costs, besides its rate. The deposit and bonds are in weeks of the room’s weekly rate.">
+      <Section title="Applying for a room" description="What applying for a room costs, besides its rate. The deposit and bonds are in weeks of the room’s weekly rate.">
         <table style={{ borderCollapse: "collapse", fontSize: 14 }}>
           <tbody>
             <tr>

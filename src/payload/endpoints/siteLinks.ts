@@ -2,8 +2,9 @@ import type { Endpoint } from "payload";
 import { jobs } from "@/content/careers";
 import { blogCategories } from "@/lib/blog";
 import { pagePath } from "../collections/Pages";
-import { locationPaths, type LocationType } from "../collections/Locations";
-import { roomsPath } from "../collections/Rooms";
+import { placePaths, type PlaceKind } from "../fields/place";
+import { findPlaces } from "../places";
+import { roomPath } from "../collections/Rooms";
 
 type Link = { label: string; value: string };
 
@@ -25,7 +26,7 @@ const codePages: Link[] = [
   { label: "Cookies", value: "/cookies" },
 ];
 
-const locationTypes: Record<LocationType, string> = { working: "Working", serviced: "Serviced living", venue: "Venue" };
+const kindLabels: Record<PlaceKind, string> = { coliving: "Co-living", working: "Working", serviced: "Serviced living", venue: "Venue" };
 
 /**
  * GET /api/site-links: every page on the site, grouped, for the admin's link picker
@@ -36,18 +37,28 @@ export const siteLinks: Endpoint = {
   method: "get",
   handler: async (req) => {
     if (!req.user) return Response.json({ error: "Sign in first" }, { status: 401 });
-    const [pages, locations, rooms] = await Promise.all([
+    const [pages, rooms, ...places] = await Promise.all([
       req.payload.find({ collection: "pages", pagination: false, depth: 0, sort: "title", select: { title: true, slug: true } }),
-      req.payload.find({ collection: "locations", pagination: false, depth: 0, sort: "_order", select: { name: true, slug: true, type: true } }),
-      req.payload.find({ collection: "rooms", pagination: false, depth: 0, sort: "_order", select: { name: true, slug: true } }),
+      req.payload.find({ collection: "rooms", pagination: false, depth: 0, sort: "_order", select: { name: true, slug: true, building: true } }),
+      ...(Object.keys(placePaths) as PlaceKind[]).map((kind) => findPlaces(req.payload, kind, 0, req)),
     ]);
+    const all = places.flat();
+    const colivings = all.filter((p) => p.kind === "coliving");
     return Response.json([
       { label: "Page", options: pages.docs.map((page) => ({ label: page.title, value: pagePath(page.slug) })) },
       {
-        label: "Location",
-        options: locations.docs.map((l) => ({ label: `${locationTypes[l.type]}: ${l.name}`, value: `${locationPaths[l.type]}/${l.slug}` })),
+        label: "Place",
+        // Co-living that's coming soon has no page yet
+        options: all.filter((p) => !p.comingSoon).map((p) => ({ label: `${kindLabels[p.kind]}: ${p.name}`, value: `${placePaths[p.kind]}/${p.slug}` })),
       },
-      { label: "Room", options: rooms.docs.map((room) => ({ label: room.name, value: `${roomsPath}/rooms/${room.slug}` })) },
+      {
+        label: "Room",
+        // Under its building's co-living page
+        options: rooms.docs.flatMap((room) => {
+          const home = colivings.find((c) => c.id === room.building);
+          return home ? [{ label: `${home.name}: ${room.name}`, value: roomPath(home.slug, room.slug) }] : [];
+        }),
+      },
       { label: "Other page", options: codePages },
     ]);
   },
