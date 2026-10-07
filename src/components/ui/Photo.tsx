@@ -70,14 +70,16 @@ export default function Photo({ alt, className = "", style, onLoad, preview, ...
   return (
     <>
       {blur && state !== "shown" && (
-        // Same classes as the photo (object-cover, z-index…) so it sits exactly where the photo
-        // will; scale-110 hides the soft, see-through edges the blur creates
-        // A span, not a div, so a photo can sit inside a paragraph (e.g. a Markdown image in a blog post)
-        <span
-          aria-hidden="true"
-          className={`${className} absolute inset-0 scale-110 bg-cover bg-no-repeat blur-xl`}
-          style={{ backgroundImage: `url("${blur}")`, backgroundPosition: style?.objectPosition ?? "center" }}
-        />
+        // Same classes as the photo (object-cover, z-index, rounding…) so it sits exactly where the
+        // photo will. The preview inside is scaled up to hide the soft, see-through edges the blur
+        // creates, and clipped here so it never spills past the photo's box (e.g. onto a card's text).
+        // Spans, not divs, so a photo can sit inside a paragraph (e.g. a Markdown image in a blog post)
+        <span aria-hidden="true" className={`${className} absolute inset-0 overflow-hidden`}>
+          <span
+            className="absolute inset-0 scale-110 bg-cover bg-no-repeat blur-xl"
+            style={{ backgroundImage: `url("${blur}")`, backgroundPosition: style?.objectPosition ?? "center" }}
+          />
+        </span>
       )}
       <Image
         alt={alt}
