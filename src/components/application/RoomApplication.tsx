@@ -49,8 +49,8 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
   const [submitted, setSubmitted] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
 
-  const costs = roomCosts(room.weeklyPrice);
-  const plans = paymentPlans(room.weeklyPrice, periodMonths(room.period));
+  const costs = roomCosts(room.weeklyPrice, room.rules);
+  const plans = paymentPlans(room.weeklyPrice, periodMonths(room.period), room.rules);
   const [contact, personal, planAnswers] = answers;
   const plan = plans.find((p) => p.id === planAnswers.plan);
 
@@ -353,7 +353,7 @@ function SummarySheet({ room, open, onClose }: { room: ApplicationRoom; open: bo
       <div className="transition-transform duration-500 ease-smooth starting:translate-y-6 motion-reduce:transition-none">
         <ApplicationSummary room={room} fullScreen />
       </div>
-      <StickyBar title={room.name} subtitle={`Total today ${formatMoney(roomCosts(room.weeklyPrice).dueToday, true)}`}>
+      <StickyBar title={room.name} subtitle={`Total today ${formatMoney(roomCosts(room.weeklyPrice, room.rules).dueToday, true)}`}>
         <Button variant="outline" onClick={onClose}>
           Hide info
         </Button>
@@ -365,8 +365,8 @@ function SummarySheet({ room, open, onClose }: { room: ApplicationRoom; open: bo
 /** Shown in place of the steps once the application is sent: everything entered, and what was paid. */
 function Confirmation({ room, answers }: { room: ApplicationRoom; answers: Answers[] }) {
   const [contact, personal, planAnswers, payment] = answers;
-  const costs = roomCosts(room.weeklyPrice);
-  const plan = paymentPlans(room.weeklyPrice, periodMonths(room.period)).find((p) => p.id === planAnswers.plan);
+  const costs = roomCosts(room.weeklyPrice, room.rules);
+  const plan = paymentPlans(room.weeklyPrice, periodMonths(room.period), room.rules).find((p) => p.id === planAnswers.plan);
   const paidByCard = payment.method === "Card payment";
 
   const block = (heading: string, rows: [ReactNode, ReactNode][]) => (

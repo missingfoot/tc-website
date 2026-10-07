@@ -25,6 +25,8 @@ import {
 import { bedfordVenues, eventsGallery, oldOakVenues, venues } from "@/content/events";
 import { footerNav, mainNav, mobileNav } from "@/config/navigation";
 import { site } from "@/config/site";
+import { defaultPricingRules } from "@/lib/application";
+import { penceFromText } from "@/lib/pricing";
 import { locationPagesDefaults } from "@/content/location-pages";
 import { faqTopics } from "@/content/faq";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
@@ -310,6 +312,15 @@ const faq = async () => [
   { blockType: "promoCards", cards: await promoCards(oldOakPromos) },
 ];
 
+/**
+ * A price written as text ("£150", "Per month +VAT") as an amount in pence with what it's per, how
+ * VAT applies and any small print after a comma ("Per week, all bills included").
+ */
+function priceFromText(price: { label: string; amount: string; period: string }) {
+  const per = /night/i.test(price.period) ? "night" : /week/i.test(price.period) ? "week" : /one-off/i.test(price.period) ? "once" : "month";
+  return { label: price.label, amount: penceFromText(price.amount), per, vat: /\+\s*VAT/i.test(price.period) ? "excluded" : "included", note: price.period.split(", ")[1] };
+}
+
 /** Creates a location unless one of this type and slug exists. */
 async function seedLocation(type: "working" | "serviced" | "venue", location: LocationDetails, included: FeatureGroup[] = []) {
   const existing = await payload.find({ collection: "locations", where: { and: [{ type: { equals: type } }, { slug: { equals: location.slug } }] }, limit: 1 });
@@ -323,12 +334,13 @@ async function seedLocation(type: "working" | "serviced" | "venue", location: Lo
       slug: location.slug,
       area: location.area,
       postcode: location.postcode,
-      fromPrice: location.fromPrice,
+      // Venues' pills are their capacity; the others' are their lowest price, worked out
+      pill: type === "venue" ? location.fromPrice : undefined,
       image: await photo(location.image),
       features: iconItems(location.features),
       intro: location.intro.join("\n\n"),
       gallery: await Promise.all(location.gallery.map(async (g) => ({ image: await media(g.src ?? g.thumb, g.alt, g.position), name: g.alt }))),
-      prices: location.prices,
+      prices: location.prices.map(priceFromText),
       included: included.map((group) => ({ label: group.label, items: iconItems(group.items) })),
       address: location.address,
       directionsIntro: location.directionsIntro,
@@ -550,7 +562,7 @@ async function seedRoom(room: (typeof oldOakRoomDetails)[number]) {
     data: {
       name: room.name,
       slug: room.slug,
-      price: room.price,
+
       location: room.location,
       image: await media(first.src ?? first.thumb, first.alt, first.position),
       features: room.features.map((item) => ({ label: item.label, icon: iconName(item.icon) })),
@@ -559,7 +571,7 @@ async function seedRoom(room: (typeof oldOakRoomDetails)[number]) {
       floorPlan: room.floorPlan ? await photo(room.floorPlan) : undefined,
       moveIn: room.booking.moveIn,
       floor: room.booking.floor,
-      periods: room.booking.periods.join("\n"),
+      rates: room.rates.map((rate) => ({ months: rate.months, weekly: rate.weekly })),
     } as never,
   });
   console.log(`room ${room.slug}: created`);
@@ -771,6 +783,15 @@ else {
     });
     console.log(`template ${type}: created`);
   }
+}
+
+// Pricing rules, from lib/application.ts, unless they've been set already
+const rules = await payload.findGlobal({ slug: "pricingRules", depth: 0 });
+if (rules.joiningFee != null) console.log("pricing rules: already set, left as they are");
+else {
+  const r = defaultPricingRules;
+  await payload.updateGlobal({ slug: "pricingRules", data: { joiningFee: r.joiningFee * 100, holdingDepositWeeks: r.holdingDepositWeeks, bondWeeks: r.bondWeeks } });
+  console.log("pricing rules: created");
 }
 
 process.exit(0);

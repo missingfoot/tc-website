@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import RoomApplication from "@/components/application/RoomApplication";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
-import { getRoom, getRooms, roomDetails } from "@/lib/payload";
-import { parsePrice } from "@/lib/application";
+import { getPricingRules, getRoom, getRooms, roomDetails } from "@/lib/payload";
 
 // Rooms are in the CMS (/admin → Rooms)
 export async function generateStaticParams() {
@@ -49,9 +48,11 @@ export default async function ApplyForRoom({ params, searchParams }: PageProps<"
               location: room.location,
               floor: room.booking.floor,
               photo: { src: room.photos[0].src!, alt: room.photos[0].alt },
-              weeklyPrice: parsePrice(room.price),
+              // The rate for the length picked, from pence
+              weeklyPrice: (room.rates.find((rate) => rate.period === chosenPeriod) ?? room.rates[0]).weekly / 100,
               moveIn: room.booking.moveIn,
               period: chosenPeriod,
+              rules: await getPricingRules(),
             }}
           />
         </Container>

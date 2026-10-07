@@ -85,7 +85,7 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
 
           {/* Desktop: the right-hand column, pulled up over the photos and sticky under the nav */}
           <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-            <RoomBooking price={room.price} booking={room.booking} cta={apply} className="lg:sticky lg:top-28 lg:-mt-36" />
+            <RoomBooking price={room.price} booking={room.booking} rates={room.rates} cta={apply} className="lg:sticky lg:top-28 lg:-mt-36" />
           </div>
 
           <div className="flex flex-col gap-12 lg:gap-16">

@@ -14,6 +14,7 @@ import { Users } from "./payload/collections/Users";
 import { siteLinks } from "./payload/endpoints/siteLinks";
 import { ContactDetails } from "./payload/globals/ContactDetails";
 import { Navigation } from "./payload/globals/Navigation";
+import { PricingRules } from "./payload/globals/PricingRules";
 import { SocialLinksGlobal } from "./payload/globals/SocialLinks";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,7 +35,7 @@ export default buildConfig({
     components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
   },
   collections: [Pages, Templates, Locations, Rooms, Media, Users],
-  globals: [Navigation, ContactDetails, SocialLinksGlobal],
+  globals: [Navigation, ContactDetails, SocialLinksGlobal, PricingRules],
   endpoints: [siteLinks],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",

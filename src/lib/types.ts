@@ -139,8 +139,10 @@ export type RoomDetails = {
   name: string;
   /** Where it is, under the name, e.g. "Old Oak, Willesden Junction". */
   location: string;
-  /** Weekly price, e.g. "£245". */
+  /** Lowest weekly price, e.g. "£245". */
   price: string;
+  /** A weekly price (pence) for each membership length, e.g. { period: "12 months", months: 12, weekly: 24500 }. */
+  rates: { period: string; months: number; weekly: number }[];
   /** Gallery photos; the first is also the page's hero. */
   photos: GalleryImage[];
   features: { icon: ComponentType<{ className?: string }>; label: string }[];

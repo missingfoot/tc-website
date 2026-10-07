@@ -1,9 +1,7 @@
 // Room application: costs, payment plans and form options. Everything is worked out from the
-// room's weekly price; nothing here talks to a server.
-// TODO: confirm the business rules (joining fee, bond lengths, monthly rounding) and the plan copy.
-
-/** "£245" → 245 */
-export const parsePrice = (price: string) => Number(price.replace(/[^\d.]/g, ""));
+// room's weekly rate for the length picked and the pricing rules (/admin → Pricing rules); nothing
+// here talks to a server. Amounts are in pounds here (the rate is converted from pence once).
+// TODO: confirm the monthly rounding and the plan copy.
 
 /** 1234.5 → "£1,234.50" (pence only when there are any, unless `pence` is set). */
 export function formatMoney(amount: number, pence = false) {
@@ -18,18 +16,26 @@ export function formatMoney(amount: number, pence = false) {
 /** "12 months" → 12 */
 export const periodMonths = (period: string) => Number.parseInt(period, 10) || 12;
 
-export const JOINING_FEE = 100;
+/** The rules for a room application's costs (/admin → Pricing rules). Fee in pounds; the rest in weeks of the rate. */
+export type PricingRules = {
+  joiningFee: number;
+  holdingDepositWeeks: number;
+  bondWeeks: { guarantor: number; noGuarantor: number; upfront: number };
+};
 
-export function roomCosts(weeklyPrice: number) {
+/** The rules as they were in code: the fallback while Pricing rules isn't set up. */
+export const defaultPricingRules: PricingRules = { joiningFee: 100, holdingDepositWeeks: 1, bondWeeks: { guarantor: 2, noGuarantor: 5, upfront: 2 } };
+
+export function roomCosts(weeklyPrice: number, rules: PricingRules) {
   const monthly = Math.round((weeklyPrice * 52) / 12);
   return {
     weekly: weeklyPrice,
     monthly,
-    /** One week's licence fee; it later becomes part of the security bond. */
-    holdingDeposit: weeklyPrice,
-    joiningFee: JOINING_FEE,
+    /** Some weeks' licence fee; it later becomes part of the security bond. */
+    holdingDeposit: weeklyPrice * rules.holdingDepositWeeks,
+    joiningFee: rules.joiningFee,
     /** Paid today, to apply. */
-    dueToday: weeklyPrice + JOINING_FEE,
+    dueToday: weeklyPrice * rules.holdingDepositWeeks + rules.joiningFee,
   };
 }
 
@@ -44,18 +50,20 @@ export type PaymentPlan = {
   points: string[];
 };
 
-export function paymentPlans(weeklyPrice: number, months: number): PaymentPlan[] {
-  const { monthly } = roomCosts(weeklyPrice);
-  const bond = (weeks: number) => weeklyPrice * weeks;
+export function paymentPlans(weeklyPrice: number, months: number, rules: PricingRules): PaymentPlan[] {
+  const { monthly } = roomCosts(weeklyPrice, rules);
+  const { guarantor, noGuarantor, upfront } = rules.bondWeeks;
+  const bond = (n: number) => weeklyPrice * n;
+  const weeks = (n: number) => `${n} week${n === 1 ? "" : "s"}`;
   return [
     {
       id: "guarantor",
       name: "Option 1",
       headline: `Monthly licence fee ${formatMoney(monthly)}`,
       licenceFee: monthly,
-      securityBond: bond(2),
+      securityBond: bond(guarantor),
       points: [
-        `${formatMoney(bond(2))} security bond (2 weeks)`,
+        `${formatMoney(bond(guarantor))} security bond (${weeks(guarantor)})`,
         "Pay a single monthly bill",
         "Qualified UK-based guarantor needed",
         "Affordability check",
@@ -66,16 +74,16 @@ export function paymentPlans(weeklyPrice: number, months: number): PaymentPlan[]
       name: "Option 2",
       headline: `Monthly licence fee ${formatMoney(monthly)}`,
       licenceFee: monthly,
-      securityBond: bond(5),
-      points: [`${formatMoney(bond(5))} security bond (5 weeks)`, "Pay a single monthly bill", "No guarantor needed", "No affordability check"],
+      securityBond: bond(noGuarantor),
+      points: [`${formatMoney(bond(noGuarantor))} security bond (${weeks(noGuarantor)})`, "Pay a single monthly bill", "No guarantor needed", "No affordability check"],
     },
     {
       id: "upfront",
       name: "Option 3",
       headline: `All up front ${formatMoney(monthly * months)}`,
       licenceFee: monthly * months,
-      securityBond: bond(2),
-      points: [`${formatMoney(bond(2))} security bond (2 weeks)`, "Pay the full licence fee up front", "No guarantor needed", "No affordability check"],
+      securityBond: bond(upfront),
+      points: [`${formatMoney(bond(upfront))} security bond (${weeks(upfront)})`, "Pay the full licence fee up front", "No guarantor needed", "No affordability check"],
     },
   ];
 }
@@ -123,4 +131,5 @@ export type ApplicationRoom = {
   moveIn: string;
   /** Membership period picked on the room page, e.g. "12 months". */
   period: string;
+  rules: PricingRules;
 };

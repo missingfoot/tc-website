@@ -26,6 +26,44 @@ export const iconField = (description: string, required = false): Field => ({
   admin: { description, components: { Field: "/payload/fields/IconPicker#IconPicker" } },
 });
 
+/** An amount of money: typed in pounds, stored as whole pence (MoneyField.tsx). */
+export const moneyField = (name: string, label: string, description?: string): Field => ({
+  name,
+  label,
+  type: "number",
+  required: true,
+  min: 0,
+  admin: { description, components: { Field: "/payload/fields/MoneyField#MoneyField" } },
+});
+
+/** What a price is for, and how VAT applies to it (lib/pricing.ts writes the words from these). */
+export const priceTerms: Field[] = [
+  {
+    name: "per",
+    type: "select",
+    required: true,
+    defaultValue: "month",
+    options: [
+      { label: "Per night", value: "night" },
+      { label: "Per week", value: "week" },
+      { label: "Per month", value: "month" },
+      { label: "One-off", value: "once" },
+    ],
+  },
+  {
+    name: "vat",
+    label: "VAT",
+    type: "select",
+    required: true,
+    defaultValue: "included",
+    options: [
+      { label: "Included in the price", value: "included" },
+      { label: "Added on top (shows “+VAT”)", value: "excluded" },
+      { label: "Not charged", value: "none" },
+    ],
+  },
+];
+
 /** A URL slug: lowercase letters, numbers and hyphens. */
 export const slugField = (description: string): Field => ({
   name: "slug",

@@ -1,6 +1,6 @@
 import type { CollectionConfig, Field } from "payload";
 import { revalidatePath } from "next/cache";
-import { iconField, itemLabel, slugField, travelModes } from "../fields/shared";
+import { iconField, itemLabel, moneyField, priceTerms, slugField, travelModes } from "../fields/shared";
 
 /** Where each type of location's listing and pages live. */
 export const locationPaths = { working: "/working", serviced: "/serviced-living", venue: "/event-spaces" } as const;
@@ -39,7 +39,7 @@ export const Locations: CollectionConfig = {
   orderable: true,
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "type", "area", "fromPrice"],
+    defaultColumns: ["name", "type", "area", "updatedAt"],
     description: "Working spaces, serviced living houses and event venues: their cards and their own pages.",
   },
   access: { read: () => true },
@@ -65,7 +65,12 @@ export const Locations: CollectionConfig = {
           description: "How it shows on its type's page, and the top of its own page.",
           fields: [
             { type: "row", fields: [{ name: "area", type: "text", required: true, admin: { description: "Neighbourhood, e.g. Bloomsbury" } }, { name: "postcode", type: "text", required: true }] },
-            { name: "fromPrice", label: "Price pill", type: "text", required: true, admin: { description: "e.g. “From £150 per month”, or a venue's capacity." } },
+            {
+              name: "pill",
+              label: "Card pill",
+              type: "text",
+              admin: { description: "Leave empty to show its lowest price (e.g. “From £150 per month”). Fill in for something else, like a venue's capacity (“Up to 225 guests”)." },
+            },
             { name: "image", type: "upload", relationTo: "media", required: true },
             iconItems("features", "Highlights", { labels: { singular: "Highlight", plural: "Highlights" }, maxRows: 4, minRows: 1, admin: { ...itemLabel("Highlight"), description: "Transport and key facilities: the card's tiles and the page header's rows (up to 4)." } }),
           ],
@@ -87,8 +92,16 @@ export const Locations: CollectionConfig = {
             {
               name: "prices",
               type: "array",
-              admin: { ...itemLabel("Price"), description: "Pricing cards. Leave empty to leave pricing out (e.g. venues, priced on request)." },
-              fields: [{ type: "row", fields: [{ name: "label", type: "text", required: true }, { name: "amount", type: "text", required: true }, { name: "period", type: "text", required: true }] }],
+              labels: { singular: "Price", plural: "Prices" },
+              admin: {
+                ...itemLabel("Price"),
+                description: "Pricing cards, and the card pill's “From …”. Leave empty to leave pricing out (e.g. venues, priced on request).",
+              },
+              fields: [
+                { name: "label", type: "text", required: true, admin: { description: "e.g. “Hot Desk”" } },
+                { type: "row", fields: [moneyField("amount", "Amount"), ...priceTerms] },
+                { name: "note", label: "Small print", type: "text", admin: { description: "Optional, after the period, e.g. “all bills included”." } },
+              ],
             },
             {
               name: "included",

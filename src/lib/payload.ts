@@ -11,6 +11,8 @@ import type { Location, Media, Page, Room as RoomDoc, Template } from "@/payload
 import type { CircleImage, Cta, GalleryImage, LocationDetails, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
 import { roomsPath } from "@/payload/collections/Rooms";
+import { formatPence, fromPill, lowest, periodLine, type PriceItem } from "@/lib/pricing";
+import { defaultPricingRules, type PricingRules } from "@/lib/application";
 
 /**
  * Reading Payload content on the server, through Payload's local API (no HTTP round trip: Payload
@@ -75,12 +77,19 @@ export function galleryImage(media: number | Media, name?: string | null): Galle
   return { src: image.src, thumb: image.src, alt: name || image.alt, position: image.position, blur: image.blur };
 }
 
+/** A location's prices, as amounts in pence with what they're per. */
+const locationPrices = (location: Location): PriceItem[] =>
+  (location.prices ?? []).map((p) => ({ label: p.label, amount: p.amount, per: p.per, vat: p.vat, note: p.note ?? undefined }));
+
+/** A location's card pill: its own text (e.g. a venue's capacity), or its lowest price. */
+const locationPill = (location: Location) => location.pill || fromPill(locationPrices(location)) || "";
+
 /** A location as its card: on its type's page, linking to its own. */
 export function locationCard(location: Location): Room {
   return {
     name: location.name,
     subtitle: `${location.area}, ${location.postcode}`,
-    price: location.fromPrice,
+    price: locationPill(location),
     image: mediaImage(location.image),
     features: iconItems(location.features),
     href: `${locationPaths[location.type]}/${location.slug}`,
@@ -94,12 +103,12 @@ export function locationDetails(location: Location): LocationDetails {
     name: location.name,
     area: location.area,
     postcode: location.postcode,
-    fromPrice: location.fromPrice,
+    fromPrice: locationPill(location),
     image: mediaImage(location.image),
     features: iconItems(location.features),
     intro: paragraphs(location.intro),
     gallery: (location.gallery ?? []).map((photo) => galleryImage(photo.image, photo.name)),
-    prices: (location.prices ?? []).map(({ label, amount, period }) => ({ label, amount, period })),
+    prices: locationPrices(location).map((p) => ({ label: p.label, amount: formatPence(p.amount), period: periodLine(p) })),
     address: location.address ?? undefined,
     directionsIntro: location.directionsIntro,
     travelModes: travelModes(location.travelModes),
@@ -123,9 +132,21 @@ export const getRoom = cache(async (slug: string): Promise<RoomDoc | null> => (a
 export const travelModes = (modes?: { label: string; icon: TravelMode["icon"]; steps: string; mapsUrl: string }[] | null): TravelMode[] =>
   (modes ?? []).map((mode) => ({ label: mode.label, icon: mode.icon, steps: lines(mode.steps), mapsUrl: mode.mapsUrl }));
 
+/** A room's rates: a weekly price (pence) per membership length, longest first as entered. */
+const roomRates = (room: RoomDoc) => (room.rates ?? []).map((rate) => ({ period: `${rate.months} months`, months: rate.months, weekly: rate.weekly }));
+
+/** A room's weekly price for its card: "£245 per week", or "From £245 per week" when its rates differ. */
+function roomPrice(room: RoomDoc) {
+  const rates = roomRates(room);
+  const min = lowest(rates.map((r) => ({ amount: r.weekly })));
+  if (!min) return "";
+  const varies = rates.some((r) => r.weekly !== min.amount);
+  return `${varies ? "From " : ""}${formatPence(min.amount)} per week`;
+}
+
 /** A room as its card on Old Oak's page, linking to its own. */
 export function roomCard(room: RoomDoc): Room {
-  return { name: room.name, price: `${room.price} per week`, image: mediaImage(room.image), features: iconItems(room.features), href: `${roomsPath}/rooms/${room.slug}` };
+  return { name: room.name, price: roomPrice(room), image: mediaImage(room.image), features: iconItems(room.features), href: `${roomsPath}/rooms/${room.slug}` };
 }
 
 /** A room as its own page's (and its booking's) content: its photo first in the gallery. */
@@ -135,12 +156,14 @@ export function roomDetails(room: RoomDoc): RoomDetails {
     slug: room.slug,
     name: room.name,
     location: room.location,
-    price: room.price,
+    // The lowest rate, e.g. "£245" (the booking card says "From £245 per week")
+    price: formatPence(lowest(roomRates(room).map((r) => ({ amount: r.weekly })))?.amount ?? 0),
+    rates: roomRates(room),
     photos: [galleryImage(room.image), ...(room.photos ?? []).map((photo) => galleryImage(photo.image, photo.name))],
     features: iconItems(room.features),
     about: paragraphs(room.about),
     floorPlan: floorPlan.src ? floorPlan : undefined,
-    booking: { moveIn: room.moveIn, floor: room.floor, periods: lines(room.periods) },
+    booking: { moveIn: room.moveIn, floor: room.floor, periods: roomRates(room).map((r) => r.period) },
   };
 }
 
@@ -233,3 +256,10 @@ export function roomColumn(template: Template) {
     coLivingAbout: paragraphs(column?.coLivingAbout ?? ""),
   };
 }
+
+/** The rules for a room application's costs (/admin → Pricing rules), falling back to lib/application.ts' while not set up. */
+export const getPricingRules = cache(async (): Promise<PricingRules> => {
+  const rules = await (await payload()).findGlobal({ slug: "pricingRules", depth: 0 });
+  if (rules.joiningFee == null || rules.holdingDepositWeeks == null || !rules.bondWeeks) return defaultPricingRules;
+  return { joiningFee: rules.joiningFee / 100, holdingDepositWeeks: rules.holdingDepositWeeks, bondWeeks: rules.bondWeeks as PricingRules["bondWeeks"] };
+});

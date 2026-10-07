@@ -66,6 +66,12 @@ npm run dev                            # then open http://localhost:3000/admin
   words those pages share; any other section shows the same on all of them. A room's main column
   (booking card, facts) is fixed, with its shared content in the room template. Templates come
   from the seed (from `content/location-pages.ts`): without one, that type's pages are not found.
+- **Prices** are amounts in pence with what they're per (night, week, month, one-off) and how VAT
+  applies, written into words by `lib/pricing.ts` only ("£150", "Per month +VAT", "From £150 per
+  month"). Admin money fields are typed in pounds (MoneyField). A location's card pill is worked
+  out from its lowest price unless it has its own text (venues' capacity). Rooms have a weekly rate
+  per membership length; the card, booking card and application use them. Pricing rules (/admin →
+  Pricing rules) hold the application's joining fee, holding deposit and bonds.
 - **Link fields** pick from the site's pages (by page, location, room or other page) or take a
   typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
 - **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.

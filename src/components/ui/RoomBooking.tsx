@@ -1,17 +1,22 @@
 import type { Cta, RoomDetails } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import { formatPence } from "@/lib/pricing";
 import { text } from "@/lib/styles";
 
 type RoomBookingProps = {
   price: string;
   booking: RoomDetails["booking"];
+  /** Each membership length's weekly rate: shown in the picker when they differ. */
+  rates?: RoomDetails["rates"];
   cta: Cta;
   className?: string;
 };
 
 /** Price, move-in details, a membership period picker and the apply button. A white card on desktop. */
-export default function RoomBooking({ price, booking, cta, className = "" }: RoomBookingProps) {
+export default function RoomBooking({ price, booking, rates = [], cta, className = "" }: RoomBookingProps) {
+  const ratesDiffer = rates.some((rate) => rate.weekly !== rates[0].weekly);
+  const periods = ratesDiffer ? rates.map((rate) => ({ value: rate.period, label: `${rate.period} · ${formatPence(rate.weekly)} per week` })) : booking.periods;
   return (
     <div id="booking" className={`lg:rounded-2xl lg:bg-white lg:p-6 lg:shadow-xl lg:shadow-black/10 ${className}`}>
       <p className="text-2xl font-bold text-ink">From {price} per week</p>
@@ -32,7 +37,7 @@ export default function RoomBooking({ price, booking, cta, className = "" }: Roo
         <label htmlFor="membership-period" className={`mt-6 block ${text.label}`}>
           Select membership period
         </label>
-        <Select id="membership-period" name="period" options={booking.periods} className="mt-2" />
+        <Select id="membership-period" name="period" options={periods} className="mt-2" />
 
         <Button type="submit" variant="dark" className="mt-6 w-full justify-center">
           {cta.label}

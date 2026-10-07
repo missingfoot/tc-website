@@ -99,11 +99,13 @@ export interface Config {
     navigation: Navigation;
     contactDetails: ContactDetail;
     socialLinks: SocialLink;
+    pricingRules: PricingRule;
   };
   globalsSelect: {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     contactDetails: ContactDetailsSelect<false> | ContactDetailsSelect<true>;
     socialLinks: SocialLinksSelect<false> | SocialLinksSelect<true>;
+    pricingRules: PricingRulesSelect<false> | PricingRulesSelect<true>;
   };
   locale: null;
   widgets: {
@@ -917,9 +919,9 @@ export interface Location {
   area: string;
   postcode: string;
   /**
-   * e.g. “From £150 per month”, or a venue's capacity.
+   * Leave empty to show its lowest price (e.g. “From £150 per month”). Fill in for something else, like a venue's capacity (“Up to 225 guests”).
    */
-  fromPrice: string;
+  pill?: string | null;
   image: number | Media;
   /**
    * Transport and key facilities: the card's tiles and the page header's rows (up to 4).
@@ -1024,13 +1026,21 @@ export interface Location {
       }[]
     | null;
   /**
-   * Pricing cards. Leave empty to leave pricing out (e.g. venues, priced on request).
+   * Pricing cards, and the card pill's “From …”. Leave empty to leave pricing out (e.g. venues, priced on request).
    */
   prices?:
     | {
+        /**
+         * e.g. “Hot Desk”
+         */
         label: string;
-        amount: string;
-        period: string;
+        amount: number;
+        per: 'night' | 'week' | 'month' | 'once';
+        vat: 'included' | 'excluded' | 'none';
+        /**
+         * Optional, after the period, e.g. “all bills included”.
+         */
+        note?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1163,10 +1173,6 @@ export interface Room {
    */
   slug: string;
   /**
-   * Weekly, e.g. “£245”. The card shows “£245 per week”.
-   */
-  price: string;
-  /**
    * Shown under the room's name.
    */
   location: string;
@@ -1292,9 +1298,15 @@ export interface Room {
    */
   floor: string;
   /**
-   * One per line, e.g. “12 months”. The first is picked to start with.
+   * A weekly price for each membership length people can pick, longest first (the first is picked to start with). The card and booking show the lowest as “From …”; applying uses the one picked.
    */
-  periods: string;
+  rates?:
+    | {
+        months: number;
+        weekly: number;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3339,7 +3351,7 @@ export interface LocationsSelect<T extends boolean = true> {
   type?: T;
   area?: T;
   postcode?: T;
-  fromPrice?: T;
+  pill?: T;
   image?: T;
   features?:
     | T
@@ -3361,7 +3373,9 @@ export interface LocationsSelect<T extends boolean = true> {
     | {
         label?: T;
         amount?: T;
-        period?: T;
+        per?: T;
+        vat?: T;
+        note?: T;
         id?: T;
       };
   included?:
@@ -3399,7 +3413,6 @@ export interface RoomsSelect<T extends boolean = true> {
   _order?: T;
   name?: T;
   slug?: T;
-  price?: T;
   location?: T;
   image?: T;
   features?:
@@ -3420,7 +3433,13 @@ export interface RoomsSelect<T extends boolean = true> {
   floorPlan?: T;
   moveIn?: T;
   floor?: T;
-  periods?: T;
+  rates?:
+    | T
+    | {
+        months?: T;
+        weekly?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3663,6 +3682,30 @@ export interface SocialLink {
   createdAt?: string | null;
 }
 /**
+ * What applying for an Old Oak room costs, besides its rate. Bonds and deposits are in weeks of the room's weekly rate.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricingRules".
+ */
+export interface PricingRule {
+  id: number;
+  /**
+   * Paid once, when applying.
+   */
+  joiningFee: number;
+  /**
+   * Paid when applying; it later becomes part of the security bond.
+   */
+  holdingDepositWeeks: number;
+  bondWeeks: {
+    guarantor: number;
+    noGuarantor: number;
+    upfront: number;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation_select".
  */
@@ -3756,6 +3799,24 @@ export interface SocialLinksSelect<T extends boolean = true> {
     | {
         label?: T;
         href?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricingRules_select".
+ */
+export interface PricingRulesSelect<T extends boolean = true> {
+  joiningFee?: T;
+  holdingDepositWeeks?: T;
+  bondWeeks?:
+    | T
+    | {
+        guarantor?: T;
+        noGuarantor?: T;
+        upfront?: T;
       };
   updatedAt?: T;
   createdAt?: T;

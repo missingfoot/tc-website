@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { revalidatePath } from "next/cache";
-import { iconField, itemLabel, slugField } from "../fields/shared";
+import { iconField, itemLabel, moneyField, slugField } from "../fields/shared";
 
 /** Where the rooms' building page and their own pages live. */
 export const roomsPath = "/locations/old-oak";
@@ -30,13 +30,7 @@ export const Rooms: CollectionConfig = {
   fields: [
     { name: "name", type: "text", required: true },
     slugField("The page's address: /locations/old-oak/rooms/ensuite for “ensuite”."),
-    {
-      type: "row",
-      fields: [
-        { name: "price", type: "text", required: true, admin: { description: "Weekly, e.g. “£245”. The card shows “£245 per week”." } },
-        { name: "location", type: "text", required: true, defaultValue: "Old Oak, Willesden Junction", admin: { description: "Shown under the room's name." } },
-      ],
-    },
+    { name: "location", type: "text", required: true, defaultValue: "Old Oak, Willesden Junction", admin: { description: "Shown under the room's name." } },
     {
       type: "tabs",
       tabs: [
@@ -78,7 +72,28 @@ export const Rooms: CollectionConfig = {
                 { name: "floor", type: "text", required: true, admin: { description: "e.g. “17–19”" } },
               ],
             },
-            { name: "periods", label: "Membership lengths", type: "textarea", required: true, admin: { description: "One per line, e.g. “12 months”. The first is picked to start with." } },
+            {
+              name: "rates",
+              label: "Rates",
+              labels: { singular: "Rate", plural: "Rates" },
+              type: "array",
+              minRows: 1,
+              admin: {
+                ...itemLabel("Rate"),
+                initCollapsed: false,
+                description:
+                  "A weekly price for each membership length people can pick, longest first (the first is picked to start with). The card and booking show the lowest as “From …”; applying uses the one picked.",
+              },
+              fields: [
+                {
+                  type: "row",
+                  fields: [
+                    { name: "months", label: "Membership length (months)", type: "number", required: true, min: 1 },
+                    moneyField("weekly", "Weekly price"),
+                  ],
+                },
+              ],
+            },
           ],
         },
       ],
