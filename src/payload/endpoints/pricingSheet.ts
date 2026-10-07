@@ -17,12 +17,14 @@ export type PricingRow = {
   amount: number;
   /** A room rate's membership length. */
   months?: number;
+  /** A pricing rule counted in weeks of a room's rate (deposit, bonds): these rows have no amount to edit. */
+  weeks?: number;
   /** Only location prices have these to edit; the rest are fixed (rooms are weekly). */
   per?: "night" | "week" | "month" | "once";
   vat?: "included" | "excluded" | "none";
   note?: string;
-  /** The admin page it comes from, to open it. */
-  href: string;
+  /** The admin page it comes from, to open it (none for the pricing rules, which are only edited here). */
+  href?: string;
 };
 
 /**
@@ -33,6 +35,7 @@ export type PricingChange = {
   key: string;
   amount?: number;
   months?: number;
+  weeks?: number;
   /** A location price's name, e.g. "Hot Desk". */
   label?: string;
   per?: PricingRow["per"];
@@ -94,7 +97,16 @@ async function sheet(req: PayloadRequest): Promise<{ rows: PricingRow[]; owners:
           href: `/admin/collections/locations/${location.id}`,
         });
   if (rules.joiningFee != null)
-    list.push({ key: "rules:joiningFee", group: "Pricing rules", item: "Joining fee", option: "Room applications", amount: rules.joiningFee, href: "/admin/globals/pricingRules" });
+    list.push({ key: "rules:joiningFee", group: "Pricing rules", item: "Joining fee", option: "Paid when applying for a room", amount: rules.joiningFee });
+  // The rules counted in weeks of the room's rate
+  const weekRules = [
+    ["holdingDepositWeeks", "Holding deposit", "Paid when applying; becomes part of the bond", rules.holdingDepositWeeks],
+    ["bondWeeks.guarantor", "Security bond", "Monthly payments, with a guarantor", rules.bondWeeks?.guarantor],
+    ["bondWeeks.noGuarantor", "Security bond", "Monthly payments, no guarantor", rules.bondWeeks?.noGuarantor],
+    ["bondWeeks.upfront", "Security bond", "Paying it all up front", rules.bondWeeks?.upfront],
+  ] as const;
+  for (const [field, item, option, weeks] of weekRules)
+    if (weeks != null) list.push({ key: `rules:${field}`, group: "Pricing rules", item, option, amount: 0, weeks });
   for (const v of variables.entries ?? [])
     if (v.kind !== "text") list.push({ key: `variable:${v.id}`, group: "Variables", item: `{${v.name}}`, option: v.about ?? "", amount: v.amount ?? 0, href: "/admin/globals/variables" });
   return { rows: list, owners };
@@ -152,11 +164,31 @@ async function save(req: PayloadRequest, changes: PricingChange[]) {
     await payload.update({ collection: "locations", id, data: { prices: [...kept, ...added] }, req });
   }
 
-  const fee = byKey.get("rules:joiningFee");
-  if (fee?.amount != null) {
+  const ruleChanges = pick("rules:");
+  if (ruleChanges.length) {
     const rules = await payload.findGlobal({ slug: "pricingRules", depth: 0, req });
-    await payload.updateGlobal({ slug: "pricingRules", data: { ...rules, joiningFee: fee.amount }, req });
-    count++;
+    const weeks = (field: string) => {
+      const n = byKey.get(`rules:${field}`)?.weeks;
+      if (n == null || !Number.isInteger(n) || n < 0) return undefined;
+      count++;
+      return n;
+    };
+    const fee = byKey.get("rules:joiningFee")?.amount;
+    if (fee != null) count++;
+    await payload.updateGlobal({
+      slug: "pricingRules",
+      data: {
+        ...rules,
+        joiningFee: fee ?? rules.joiningFee,
+        holdingDepositWeeks: weeks("holdingDepositWeeks") ?? rules.holdingDepositWeeks,
+        bondWeeks: {
+          guarantor: weeks("bondWeeks.guarantor") ?? rules.bondWeeks?.guarantor,
+          noGuarantor: weeks("bondWeeks.noGuarantor") ?? rules.bondWeeks?.noGuarantor,
+          upfront: weeks("bondWeeks.upfront") ?? rules.bondWeeks?.upfront,
+        },
+      },
+      req,
+    });
   }
 
   const variableChanges = pick("variable:");

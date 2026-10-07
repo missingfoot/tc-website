@@ -10,7 +10,8 @@ export const PricingRules: GlobalConfig = {
   slug: "pricingRules",
   label: "Pricing rules",
   access: { read: () => true },
-  admin: { description: "What applying for an Old Oak room costs, besides its rate. Bonds and deposits are in weeks of the room's weekly rate." },
+  // Edited on the Pricing page (/admin/pricing), with every other price
+  admin: { hidden: true, description: "What applying for an Old Oak room costs, besides its rate. Bonds and deposits are in weeks of the room's weekly rate." },
   fields: [
     moneyField("joiningFee", "Joining fee", "Paid once, when applying."),
     { name: "holdingDepositWeeks", label: "Holding deposit (weeks)", type: "number", required: true, min: 0, admin: { description: "Paid when applying; it later becomes part of the security bond." } },

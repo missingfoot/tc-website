@@ -73,7 +73,8 @@ npm run dev                            # then open http://localhost:3000/admin
   per membership length; the card, booking card and application use them. Pricing rules (/admin →
   Pricing rules) hold the application's joining fee, holding deposit and bonds.
 - **Pricing** (/admin/pricing, linked in the sidebar): every price in one table (rooms' rates,
-  locations' prices, the joining fee, money variables). Rates and prices are edited, added and
+  locations' prices, money variables, and the pricing rules: the joining fee and the deposit and
+  bonds in weeks; the Pricing rules global is hidden and only edited here). Rates and prices are edited, added and
   removed there (a room's form only shows its rates, with a link), saved together; or downloaded
   as a CSV for Excel and uploaded back (rows match by their Key; rows without one naming an
   existing room or location are added; removing is table-only). `src/payload/views/` and

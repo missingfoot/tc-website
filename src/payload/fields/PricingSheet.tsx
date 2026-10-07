@@ -54,7 +54,7 @@ function parseCsv(text: string): string[][] {
   return rows.filter((r) => r.some((c) => c.trim()));
 }
 
-const HEADERS = ["Key", "Group", "Item", "Option", "Months", "Price (£)", "Per", "VAT", "Small print"];
+const HEADERS = ["Key", "Group", "Item", "Option", "Months", "Price (£)", "Weeks", "Per", "VAT", "Small print"];
 
 type Owner = PricingOwner;
 
@@ -96,7 +96,7 @@ export function PricingSheet() {
 
   /** A saved row with its pending edit applied. */
   const current = (row: PricingRow) => ({ ...row, ...edits[row.key] }) as PricingRow & PricingChange;
-  const isChanged = (row: PricingRow, field: "amount" | "months" | "label" | "per" | "vat" | "note") => {
+  const isChanged = (row: PricingRow, field: "amount" | "months" | "weeks" | "label" | "per" | "vat" | "note") => {
     const edit = edits[row.key];
     if (!edit || edit[field] === undefined) return false;
     const saved = field === "label" ? row.option : row[field];
@@ -109,6 +109,7 @@ export function PricingSheet() {
       // Drop fields set back to what's saved, and the edit if nothing's left
       if (next.amount === row.amount) delete next.amount;
       if (next.months === row.months) delete next.months;
+      if (next.weeks === row.weeks) delete next.weeks;
       if (next.label === row.option) delete next.label;
       if (next.per === row.per) delete next.per;
       if (next.vat === row.vat) delete next.vat;
@@ -168,7 +169,18 @@ export function PricingSheet() {
   function download() {
     const lines = [
       HEADERS,
-      ...(rows ?? []).map((r) => [r.key, r.group, r.item, r.option, r.months?.toString() ?? "", pounds(r.amount), r.per ? PER[r.per] : "", r.vat ? VAT[r.vat] : "", r.note ?? ""]),
+      ...(rows ?? []).map((r) => [
+        r.key,
+        r.group,
+        r.item,
+        r.option,
+        r.months?.toString() ?? "",
+        r.weeks === undefined ? pounds(r.amount) : "",
+        r.weeks?.toString() ?? "",
+        r.per ? PER[r.per] : "",
+        r.vat ? VAT[r.vat] : "",
+        r.note ?? "",
+      ]),
     ];
     const blob = new Blob([lines.map((l) => l.map(csvCell).join(",")).join("\n")], { type: "text/csv" });
     const a = document.createElement("a");
@@ -184,7 +196,18 @@ export function PricingSheet() {
     if (!input || !rows) return;
     const [header, ...lines] = parseCsv(await input.text());
     const col = (name: string) => header.findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
-    const c = { key: col("Key"), group: col("Group"), item: col("Item"), option: col("Option"), months: col("Months"), price: col("Price (£)"), per: col("Per"), vat: col("VAT"), note: col("Small print") };
+    const c = {
+      key: col("Key"),
+      group: col("Group"),
+      item: col("Item"),
+      option: col("Option"),
+      months: col("Months"),
+      price: col("Price (£)"),
+      weeks: col("Weeks"),
+      per: col("Per"),
+      vat: col("VAT"),
+      note: col("Small print"),
+    };
     if (c.price < 0 || c.item < 0) return setMessage("That file needs Item and Price (£) columns: start from Download CSV.");
     const get = (line: string[], i: number) => (i >= 0 ? (line[i] ?? "").trim() : "");
     const fromLabel = <T extends string>(labels: Record<T, string>, text: string) => (Object.entries(labels) as [T, string][]).find(([, label]) => label === text)?.[0];
@@ -204,7 +227,10 @@ export function PricingSheet() {
       const row = byKey.get(get(line, c.key));
       if (row) {
         const change: PricingChange = { key: row.key };
-        if (values.amount !== undefined && values.amount !== row.amount) change.amount = values.amount;
+        if (row.weeks !== undefined) {
+          const weeks = Number.parseInt(get(line, c.weeks), 10);
+          if (Number.isInteger(weeks) && weeks >= 0 && weeks !== row.weeks) change.weeks = weeks;
+        } else if (values.amount !== undefined && values.amount !== row.amount) change.amount = values.amount;
         if (row.months !== undefined && months !== undefined && months !== row.months) change.months = months;
         if (row.vat !== undefined) {
           const label = get(line, c.option);
@@ -283,7 +309,7 @@ export function PricingSheet() {
     <div style={{ paddingBottom: 64 }}>
       <h1 style={{ margin: "24px 0 8px" }}>Pricing</h1>
       <p style={{ margin: "0 0 20px", maxWidth: 760, color: "var(--theme-elevation-600)" }}>
-        Every price on the site. Edit, add and remove rooms’ rates (each a membership length and weekly price) and locations’ prices here, or download a CSV, update it in Excel and upload it:
+        Every price on the site, and the pricing rules (the joining fee, and the deposit and bonds in weeks of a room’s rate). Edit, add and remove rooms’ rates (each a membership length and weekly price) and locations’ prices here, or download a CSV, update it in Excel and upload it:
         edited rows change, and new rows naming an existing room or location (Group and Item, with no Key) are added. Changes are highlighted and only saved when you press Save; cards,
         pages and sentences using a price follow it.
       </p>
@@ -378,7 +404,25 @@ export function PricingSheet() {
                             <span style={{ color: "var(--theme-elevation-600)" }}>{row.option}</span>
                           )}
                         </td>
-                        <td style={{ ...cell, width: 130, ...(isChanged(saved, "amount") && changedBg) }}>{priceInput(row.amount, (amount) => edit(saved, { amount }), `${saved.key}-${row.amount}`)}</td>
+                        <td style={{ ...cell, width: 130, ...((isChanged(saved, "amount") || isChanged(saved, "weeks")) && changedBg) }}>
+                          {saved.weeks !== undefined ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <input
+                                inputMode="numeric"
+                                defaultValue={row.weeks}
+                                key={`${saved.key}-w-${row.weeks}`}
+                                onBlur={(e) => {
+                                  const weeks = Number.parseInt(e.target.value, 10);
+                                  if (Number.isInteger(weeks) && weeks >= 0) edit(saved, { weeks });
+                                }}
+                                style={{ ...input, width: 64 }}
+                              />
+                              {row.weeks === 1 ? "week" : "weeks"}
+                            </div>
+                          ) : (
+                            priceInput(row.amount, (amount) => edit(saved, { amount }), `${saved.key}-${row.amount}`)
+                          )}
+                        </td>
                         <td style={{ ...cell, width: 130, ...(isChanged(saved, "per") && changedBg) }}>{isLocation ? select(PER, row.per, (per) => edit(saved, { per })) : row.per && PER[row.per]}</td>
                         <td style={{ ...cell, width: 130, ...(isChanged(saved, "vat") && changedBg) }}>{isLocation ? select(VAT, row.vat, (vat) => edit(saved, { vat })) : "—"}</td>
                         <td style={{ ...cell, ...(isChanged(saved, "note") && changedBg) }}>
@@ -390,7 +434,7 @@ export function PricingSheet() {
                               {removed ? "Undo" : "Remove"}
                             </button>
                           )}
-                          <Link href={saved.href}>Open</Link>
+                          {saved.href && <Link href={saved.href}>Open</Link>}
                         </td>
                       </tr>
                     );
