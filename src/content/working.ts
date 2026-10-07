@@ -5,7 +5,7 @@ import {
 } from "@/components/icons";
 import type { ChecklistItem } from "@/components/sections/Checklist";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
-import { bedfordSquareAddress, bedfordSquareTravelModes, oldOakAddress, oldOakTravelModes } from "@/content/directions";
+import { bedfordSquareAddress, bedfordSquareTravelModes, oldOakAddress, oldOakTravelModes, simpleTravelModes } from "@/content/directions";
 import type { GalleryImage, LocationDetails, Price, Room } from "@/lib/types";
 
 const img = "/images/working";
@@ -68,7 +68,8 @@ const denIntro = [
   "Our aim is to help every person that enters our space succeed, by providing the space, services, community and support needed to let them focus on the work they love.",
 ];
 
-// TODO: addresses for Kings Cross and the Doughnut Factory (their pages leave out the map until then)
+const kingsCrossAddress = "17-19 Chalton Street, London NW1 1JD";
+const doughnutFactoryAddress = "10 Warple Mews, Warple Way, Acton, London W3 0RF";
 
 const deskPrices: Price[] = [
   { label: "Hot Desk", amount: "£150", period: "Per month +VAT" },
@@ -122,7 +123,7 @@ export const workingLocationPages: LocationDetails[] = [
     slug: "kings-cross",
     name: "Kings Cross",
     area: "Kings Cross",
-    postcode: "WC1B",
+    postcode: "NW1",
     fromPrice: "From £150 per month",
     image: { src: `${img}/locations/kings-cross.jpg`, alt: "Desks at Kings Cross" },
     features: [
@@ -134,15 +135,16 @@ export const workingLocationPages: LocationDetails[] = [
     intro: denIntro,
     gallery: workingSpaces,
     prices: deskPrices,
+    address: kingsCrossAddress,
     directionsIntro:
       "Just 40m from Kings Cross station, with the Underground, national rail and Eurostar on the doorstep.",
-    travelModes: [],
+    travelModes: simpleTravelModes(kingsCrossAddress, "King’s Cross St Pancras"),
   },
   {
     slug: "doughnut-factory",
     name: "The Doughnut Factory",
-    area: "London",
-    postcode: "WC1B",
+    area: "Acton",
+    postcode: "W3",
     fromPrice: "From £150 per month",
     image: { src: `${img}/locations/doughnut-factory.jpg`, alt: "The open-plan workspace at the Doughnut Factory" },
     features: [
@@ -154,9 +156,10 @@ export const workingLocationPages: LocationDetails[] = [
     intro: denIntro,
     gallery: workingSpaces,
     prices: deskPrices,
+    address: doughnutFactoryAddress,
     directionsIntro:
       "On the Piccadilly line, the Doughnut Factory is easy to reach from across London.",
-    travelModes: [],
+    travelModes: simpleTravelModes(doughnutFactoryAddress, "Acton Town"),
   },
 ];
 
