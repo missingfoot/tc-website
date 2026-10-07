@@ -1,7 +1,7 @@
 import {
   Basin, Bed, Bill, CalendarCheck, Desk, Dumbbell, Guard, Hob, Router, Sofa, SprayBottle, TapeMeasure, WashingMachine,
 } from "@/components/icons";
-import type { CircleImage, GalleryImage, PromoCard, Review, Room, RoomDetails, Testimonial } from "@/lib/types";
+import type { CircleImage, GalleryImage, PromoCard, Review, Room, RoomDetails, RoomPrice, Testimonial } from "@/lib/types";
 import { site } from "@/config/site";
 
 const gallery = "/images/old-oak/gallery";
@@ -46,14 +46,53 @@ export const oldOakCommunityCards: PromoCard[] = [
 
 const rooms = "/images/old-oak/rooms";
 
+/**
+ * Prices for Old Oak's 12, 6 and 3 month memberships, from the 12 month weekly rate. Shorter stays
+ * cost more by the same proportions as Canary Wharf's archived price table: 6 months averages 13.5%
+ * more there and 4 months 21.6% (rising about 5.4 points a month below 6), so 3 months is taken as
+ * 27%. Rounded to £5; monthly is weekly × 52 ÷ 12, as on Canary Wharf's table and Old Oak's design.
+ * TODO: Old Oak's real price table, if one turns up.
+ */
+const pricesFrom = (twelveMonths: number): RoomPrice[] =>
+  ([[12, 1], [6, 1.14], [3, 1.27]] as const).map(([months, factor]) => {
+    const weekly = Math.round((twelveMonths * factor) / 5) * 5;
+    return { months, weekly, monthly: Math.round((weekly * 52) / 12) };
+  });
+
+const roomPhoto = (room: string, file: string, alt: string): GalleryImage => ({ src: `${rooms}/${room}/${file}.jpg`, thumb: `${rooms}/${room}/thumbs/${file}.jpg`, alt });
+
+/** Each room's own photos and floor plan: the same set on its card and its page. */
+const ensuiteMedia = {
+  photos: [
+    // The original photo first
+    { src: `${rooms}/ensuite.jpg`, thumb: `${rooms}/thumbs/ensuite.jpg`, alt: "Ensuite bedroom with a double bed and window" },
+    roomPhoto("ensuite", "01-bed-and-desk", "Ensuite room with a desk, a double bed and a tall window"),
+    roomPhoto("ensuite", "02-kitchenette", "The shared kitchenette, with the room beyond"),
+    roomPhoto("ensuite", "03-breakfast-bar", "Breakfast bar with two stools"),
+  ],
+  floorPlan: { src: "/images/old-oak/floor-plans/ensuite.png", alt: "Floor plan: your room and private bathroom, a kitchenette shared with your neighbour, and your neighbour’s room" },
+};
+const studioMedia = {
+  photos: [
+    // The original photo first
+    { src: `${rooms}/studio.jpg`, thumb: `${rooms}/thumbs/studio.jpg`, alt: "Studio room with a bed by a large window" },
+    roomPhoto("studio", "01-bed-and-desk", "Studio with a long desk, a double bed and a tall window"),
+    roomPhoto("studio", "02-kitchenette-and-bedroom", "The private kitchenette, with the bedroom through the door"),
+    roomPhoto("studio", "03-desk-and-tv", "Desk, chair and wall-mounted TV"),
+  ],
+  floorPlan: { src: "/images/old-oak/floor-plans/studio.png", alt: "Floor plan: your room with a private bathroom and a private kitchenette" },
+};
+
 export const oldOakRooms: Room[] = [
   {
     name: "Ensuite",
     price: "£245 per week",
-    image: { src: `${rooms}/ensuite.jpg`, alt: "Ensuite bedroom with a double bed and window" },
+    prices: pricesFrom(245),
+    image: { src: ensuiteMedia.photos[0].src!, alt: ensuiteMedia.photos[0].alt },
+    ...ensuiteMedia,
     features: [
       { icon: Basin, label: "Private Bathroom" },
-      { icon: Hob, label: "Private Kitchenette" },
+      { icon: Hob, label: "Shared Kitchenette" },
       { icon: TapeMeasure, label: "11.6 Square Metres" },
       { icon: Bed, label: "Single Room" },
     ],
@@ -62,10 +101,12 @@ export const oldOakRooms: Room[] = [
   {
     name: "Studio",
     price: "£290 per week",
-    image: { src: `${rooms}/studio.jpg`, alt: "Studio room with a bed by a large window" },
+    prices: pricesFrom(290),
+    image: { src: studioMedia.photos[0].src!, alt: studioMedia.photos[0].alt },
+    ...studioMedia,
     features: [
       { icon: Basin, label: "Private Bathroom" },
-      { icon: Hob, label: "Shared Kitchen" },
+      { icon: Hob, label: "Private Kitchenette" },
       { icon: TapeMeasure, label: "12 Square Metres" },
       { icon: Bed, label: "Double Room" },
     ],
@@ -74,6 +115,7 @@ export const oldOakRooms: Room[] = [
   {
     name: "One Bed Flat",
     price: "£365 per week",
+    prices: pricesFrom(365),
     image: { src: `${rooms}/one-bed-flat.jpg`, alt: "One bed flat with a kitchen and living space" },
     features: [
       { icon: Basin, label: "Private Bathroom" },
@@ -87,13 +129,21 @@ export const oldOakRooms: Room[] = [
 
 const buildingPhotos = [3, 2, 4, 8].map((i) => oldOakGallery[i - 1]);
 
-// TODO: each room's own photos (for now its card photo, then shared building photos), about
-// copy for the Studio and One Bed Flat (they reuse the Ensuite's), and real move-in dates,
-// floors and membership periods.
-const ensuiteAbout = [
-  "Our ensuite rooms are fully equipped with a comfy queen-size bed, bedding and bed linen, desk and desk chair, 24 inch television, ample storage and of course, free wi-fi. Cosy, thoughtfully-designed and all yours.",
-  "For the days you want to kick back and relax, the shared kitchenette offers the perfect place to rustle up a quick meal before curling up with a book or catching up on some netflix.",
-];
+// TODO: the One Bed Flat's own photos and floor plan, and real move-in dates, floors and membership periods.
+const about: Record<string, string[]> = {
+  ensuite: [
+    "Our ensuite rooms are fully equipped with a comfy queen-size bed, bedding and bed linen, desk and desk chair, 24 inch television, ample storage and of course, free wi-fi. Cosy, thoughtfully-designed and all yours.",
+    "For the days you want to kick back and relax, the kitchenette you share with your neighbour offers the perfect place to rustle up a quick meal before curling up with a book or catching up on some netflix.",
+  ],
+  studio: [
+    "Our studios have everything in one private space: a double bed by a tall window, a long desk, a wall-mounted TV, ample storage and free wi-fi, plus your own bathroom.",
+    "Your private kitchenette, with a hob, microwave and sink, is just inside the door, so you can cook whenever you like without sharing.",
+  ],
+  "one-bed-flat": [
+    "A self-contained flat with room to spread out: a double bed, a living space, your own bathroom and a private kitchenette, across 28 square metres.",
+    "Fully furnished, with bedding, storage and free wi-fi, so you can settle straight in.",
+  ],
+};
 
 const booking: RoomDetails["booking"] = {
   moveIn: "Available now",
@@ -101,19 +151,22 @@ const booking: RoomDetails["booking"] = {
   periods: ["12 months", "6 months", "3 months"],
 };
 
-export const oldOakRoomDetails: RoomDetails[] = oldOakRooms.map((room) => ({
-  slug: room.href.split("/").pop()!,
-  name: room.name,
-  location: "Old Oak, Willesden Junction",
-  price: room.price.replace(" per week", ""),
-  // No separate thumbnail for the room photo yet: the full image doubles as one
-  photos: [{ src: room.image.src, thumb: room.image.src, alt: room.image.alt }, ...buildingPhotos],
-  features: room.features,
-  about: [...ensuiteAbout, `Rooms start from ${room.price}.`],
-  // TODO: each room's own plan; the labelled Ensuite plan stands in for all of them for now
-  floorPlan: { src: "/images/old-oak/floor-plans/ensuite-labelled-2200.png", alt: "Floor plan showing your room, the shared bathroom and your neighbour’s room" },
-  booking,
-}));
+export const oldOakRoomDetails: RoomDetails[] = oldOakRooms.map((room) => {
+  const slug = room.href.split("/").pop()!;
+  return {
+    slug,
+    name: room.name,
+    location: "Old Oak, Willesden Junction",
+    price: room.price.replace(" per week", ""),
+    prices: room.prices,
+    // The room's own photos (or its card photo, doubling as its thumbnail), then shared building photos
+    photos: [...(room.photos ?? [{ src: room.image.src, thumb: room.image.src, alt: room.image.alt }]), ...buildingPhotos],
+    features: room.features,
+    about: [...about[slug], `Rooms start from ${room.price}.`],
+    floorPlan: room.floorPlan,
+    booking,
+  };
+});
 
 /** "What's included" on each Old Oak room page. */
 export const oldOakRoomIncluded: RoomDetails["features"] = [

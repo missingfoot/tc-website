@@ -28,7 +28,8 @@ export default function RoomCards({ heading, intro, rooms, ctaLabel = "View Room
     <>
       <SectionIntro heading={heading} intro={intro} />
       {lengths.length > 0 && (
-        <div className="mt-10 flex w-full lg:justify-center">
+        // As wide as the cards below, so it lines up with their edges
+        <div className={`mt-10 w-full ${rooms.length % 3 === 0 ? "" : "mx-auto max-w-4xl"}`}>
           <RoomPricingControl lengths={lengths} />
         </div>
       )}

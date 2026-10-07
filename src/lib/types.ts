@@ -144,6 +144,8 @@ export type RoomDetails = {
   location: string;
   /** Weekly price, e.g. "£245". */
   price: string;
+  /** Prices by membership length: the booking card shows the chosen length's. */
+  prices?: RoomPrice[];
   /** Gallery photos; the first is also the page's hero. */
   photos: GalleryImage[];
   features: { icon: ComponentType<{ className?: string }>; label: string }[];

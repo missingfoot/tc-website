@@ -48,7 +48,8 @@ export default async function ApplyForRoom({ params, searchParams }: PageProps<"
               location: room.location,
               floor: room.booking.floor ?? "To be confirmed",
               photo: { src: room.photos[0].src!, alt: room.photos[0].alt },
-              weeklyPrice: parsePrice(room.price),
+              // The chosen length's rate (shorter memberships cost more), or the room's base price
+              weeklyPrice: room.prices?.find((p) => `${p.months} months` === chosenPeriod)?.weekly ?? parsePrice(room.price),
               moveIn: room.booking.moveIn,
               period: chosenPeriod,
             }}

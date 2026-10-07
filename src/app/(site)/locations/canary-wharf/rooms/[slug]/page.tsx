@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import RoomDetail from "@/components/sections/RoomDetail";
-import { canaryWharfAbout, canaryWharfPromos, canaryWharfRoomDetails, canaryWharfRoomIncluded } from "@/content/canary-wharf";
+import { canaryWharfAbout, canaryWharfPromos, canaryWharfRoomDetails, canaryWharfRoomIncluded, canaryWharfRooms } from "@/content/canary-wharf";
 
 export function generateStaticParams() {
   return canaryWharfRoomDetails.map(({ slug }) => ({ slug }));
@@ -35,6 +35,7 @@ export default async function CanaryWharfRoom({ params }: PageProps<"/locations/
       included={canaryWharfRoomIncluded}
       about={canaryWharfAbout}
       promos={canaryWharfPromos}
+      rooms={canaryWharfRooms}
     />
   );
 }

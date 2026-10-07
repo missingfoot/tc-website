@@ -27,30 +27,11 @@ export function RoomPricingControl({ lengths }: { lengths: number[] }) {
   const { months, setMonths, unit, setUnit } = pricing;
 
   return (
-    // Mobile: the label above a full-width dropdown, then a full-width switch. Desktop: all on one line
-    <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-center">
-      <label htmlFor="room-length" className="text-base font-medium text-ink">
-        Membership
-      </label>
-      {/* A pill like the switch beside it, rather than a form field */}
-      <div className="relative w-full lg:w-auto">
-        <select
-          id="room-length"
-          value={months}
-          onChange={(e) => setMonths(Number(e.target.value))}
-          className="h-12 w-full cursor-pointer appearance-none rounded-full bg-white pr-12 pl-5 text-base font-medium text-ink"
-        >
-          {lengths.map((m) => (
-            <option key={m} value={m}>
-              {m} months
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink" />
-      </div>
-
+    // Desktop: the switch on the left, the length on the right, across the cards' width. Mobile: stacked,
+    // the length first
+    <div className="flex w-full flex-col-reverse gap-3 md:flex-row md:items-center md:justify-between">
       {/* Weekly or monthly prices */}
-      <div role="radiogroup" aria-label="Show prices" className="mt-2 flex h-12 w-full rounded-full bg-white p-1 lg:mt-0 lg:ml-3 lg:w-auto">
+      <div role="radiogroup" aria-label="Show prices" className="flex h-12 w-full rounded-full bg-white p-1 md:w-auto">
         {(["week", "month"] as const).map((option) => (
           <button
             key={option}
@@ -63,6 +44,29 @@ export function RoomPricingControl({ lengths }: { lengths: number[] }) {
             {option === "week" ? "Weekly" : "Monthly"}
           </button>
         ))}
+      </div>
+
+      {/* The label beside the dropdown, which fills the rest of the row on mobile */}
+      <div className="flex items-center gap-8">
+        <label htmlFor="room-length" className="text-base font-medium whitespace-nowrap text-ink">
+          Membership length
+        </label>
+        {/* A pill like the switch, rather than a form field */}
+        <div className="relative flex-1 md:flex-none">
+          <select
+            id="room-length"
+            value={months}
+            onChange={(e) => setMonths(Number(e.target.value))}
+            className="h-12 w-full cursor-pointer appearance-none rounded-full bg-white pr-12 pl-5 text-base font-medium text-ink"
+          >
+            {lengths.map((m) => (
+              <option key={m} value={m}>
+                {m} months
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink" />
+        </div>
       </div>
     </div>
   );

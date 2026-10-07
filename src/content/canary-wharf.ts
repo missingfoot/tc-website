@@ -218,6 +218,7 @@ export const canaryWharfRoomDetails: RoomDetails[] = roomTypes.map((room) => ({
   name: room.name,
   location: "Canary Wharf, Crossharbour",
   price: `£${room.prices[0].weekly}`,
+  prices: room.prices,
   ...roomMedia[room.slug],
   features: room.features,
   about: room.about,

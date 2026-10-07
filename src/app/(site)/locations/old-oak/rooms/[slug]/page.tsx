@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import RoomDetail from "@/components/sections/RoomDetail";
-import { oldOakAbout, oldOakPromos, oldOakRoomDetails, oldOakRoomIncluded } from "@/content/old-oak";
+import { oldOakAbout, oldOakPromos, oldOakRoomDetails, oldOakRoomIncluded, oldOakRooms } from "@/content/old-oak";
 
 export function generateStaticParams() {
   return oldOakRoomDetails.map(({ slug }) => ({ slug }));
@@ -25,5 +25,5 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
   const room = findRoom(slug);
   const apply = { label: "Apply now", href: `/locations/old-oak/rooms/${room.slug}/apply` };
 
-  return <RoomDetail room={room} cta={apply} included={oldOakRoomIncluded} about={oldOakAbout} promos={oldOakPromos} />;
+  return <RoomDetail room={room} cta={apply} included={oldOakRoomIncluded} about={oldOakAbout} promos={oldOakPromos} rooms={oldOakRooms} />;
 }

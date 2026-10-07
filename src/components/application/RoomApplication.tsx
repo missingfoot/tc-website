@@ -45,7 +45,8 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
   const [answers, setAnswers] = useState<Answers[]>([{}, {}, {}, {}]);
   const [done, setDone] = useState([false, false, false, false]);
   const [active, setActive] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
+  // The steps, then a last look at everything before it's sent, then the confirmation
+  const [stage, setStage] = useState<"steps" | "review" | "sent">("steps");
   const [summaryOpen, setSummaryOpen] = useState(false);
 
   const costs = roomCosts(room.weeklyPrice);
@@ -60,7 +61,7 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
     setAnswers(nextAnswers);
     setDone(nextDone);
     if (step === STEPS.length - 1) {
-      setSubmitted(true);
+      setStage("review");
       return;
     }
     // Carry on with the first step that still needs doing
@@ -73,19 +74,32 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
   const stateOf = (step: number): StepState => (step === active ? "active" : done[step] ? "done" : "upcoming");
   const edit = (step: number) => () => setActive(step);
 
-  // Once the confirmation replaces the steps, start it from the top of the page. Done after it has
-  // rendered (and instantly): scrolling while the much longer form was still there left people at the bottom.
+  // Once the review or confirmation replaces the steps, start it from the top of the page. Done after
+  // it has rendered (and instantly): scrolling while the much longer form was still there left people at the bottom.
   useEffect(() => {
-    if (submitted) window.scrollTo({ top: 0, behavior: "instant" });
-  }, [submitted]);
+    if (stage !== "steps") window.scrollTo({ top: 0, behavior: "instant" });
+  }, [stage]);
 
-  if (submitted)
+  if (stage !== "steps")
     return (
       <div className="grid items-start gap-16 lg:grid-cols-[1fr_24rem] lg:gap-x-12 xl:gap-x-16">
-        <Confirmation room={room} answers={answers} />
-        <aside aria-label="Next step" className="lg:sticky lg:top-28">
-          <NextStep />
-        </aside>
+        <Confirmation
+          room={room}
+          answers={answers}
+          review={stage === "review"}
+          onSend={() => setStage("sent")}
+          // Back to the steps, on the payment step (the answers are kept)
+          onEdit={() => setStage("steps")}
+        />
+        {stage === "review" ? (
+          <aside aria-label="Your room" className="hidden lg:sticky lg:top-28 lg:block">
+            <ApplicationSummary room={room} />
+          </aside>
+        ) : (
+          <aside aria-label="Next step" className="lg:sticky lg:top-28">
+            <NextStep />
+          </aside>
+        )}
       </div>
     );
 
@@ -250,7 +264,7 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
           </ApplicationStep>
 
           <ApplicationStep number={4} total={4} title={STEPS[3]} state={stateOf(3)}>
-            <PaymentForm total={costs.dueToday} onSubmit={complete(3)} />
+            <PaymentForm total={costs.dueToday} defaultMethod={answers[3].method} onSubmit={complete(3)} />
           </ApplicationStep>
         </div>
 
@@ -269,9 +283,9 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
   );
 }
 
-/** Step 4: card or in-person payment, terms, and the button that sends the application. */
-function PaymentForm({ total, onSubmit }: { total: number; onSubmit: (e: FormEvent<HTMLFormElement>) => void }) {
-  const [method, setMethod] = useState("Card payment");
+/** Step 4: card or in-person payment, terms, and the button on to the review. */
+function PaymentForm({ total, defaultMethod, onSubmit }: { total: number; defaultMethod?: string; onSubmit: (e: FormEvent<HTMLFormElement>) => void }) {
+  const [method, setMethod] = useState(defaultMethod ?? "Card payment");
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-8">
       <fieldset>
@@ -316,7 +330,7 @@ function PaymentForm({ total, onSubmit }: { total: number; onSubmit: (e: FormEve
         </p>
       </div>
 
-      <StepSubmit>{method === "Card payment" ? `Pay ${formatMoney(total, true)} and apply` : "Send application"}</StepSubmit>
+      <StepSubmit>Review application</StepSubmit>
     </form>
   );
 }
@@ -361,8 +375,11 @@ function SummarySheet({ room, open, onClose }: { room: ApplicationRoom; open: bo
   );
 }
 
-/** Shown in place of the steps once the application is sent: everything entered, and what was paid. */
-function Confirmation({ room, answers }: { room: ApplicationRoom; answers: Answers[] }) {
+/**
+ * Shown in place of the steps: first as a review of everything entered, with the button that sends
+ * it (and takes the payment), then as the confirmation once it's sent.
+ */
+function Confirmation({ room, answers, review, onSend, onEdit }: { room: ApplicationRoom; answers: Answers[]; review: boolean; onSend: () => void; onEdit: () => void }) {
   const [contact, personal, planAnswers, payment] = answers;
   const costs = roomCosts(room.weeklyPrice);
   const plan = paymentPlans(room.weeklyPrice, periodMonths(room.period)).find((p) => p.id === planAnswers.plan);
@@ -379,14 +396,23 @@ function Confirmation({ room, answers }: { room: ApplicationRoom; answers: Answe
 
   return (
     <div className="lg:rounded-2xl lg:bg-white lg:p-10 lg:shadow-xl lg:shadow-black/5">
-      <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-sage/20 text-sage">
-        <Check strokeWidth={3} />
-      </span>
-      <h2 className={`mt-6 ${text.subheading}`}>{paidByCard ? "Payment successful" : "Application sent"}</h2>
-      <p className={`mt-3 ${text.body}`}>
-        {paidByCard ? "Your holding deposit and joining fee have been paid." : `We’ll be in touch to arrange paying the ${formatMoney(costs.dueToday, true)} in person.`} We’ve sent a
-        confirmation to <span className="font-medium text-ink">{contact.email}</span>.
-      </p>
+      {review ? (
+        <>
+          <h2 className={text.subheading}>Check your application</h2>
+          <p className={`mt-3 ${text.body}`}>Have a look over everything before you send it. You can go back and change anything.</p>
+        </>
+      ) : (
+        <>
+          <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-sage/20 text-sage">
+            <Check strokeWidth={3} />
+          </span>
+          <h2 className={`mt-6 ${text.subheading}`}>{paidByCard ? "Payment successful" : "Application sent"}</h2>
+          <p className={`mt-3 ${text.body}`}>
+            {paidByCard ? "Your holding deposit and joining fee have been paid." : `We’ll be in touch to arrange paying the ${formatMoney(costs.dueToday, true)} in person.`} We’ve sent a
+            confirmation to <span className="font-medium text-ink">{contact.email}</span>.
+          </p>
+        </>
+      )}
 
       <div className="mt-8">
         {block("Your room", [
@@ -407,19 +433,30 @@ function Confirmation({ room, answers }: { room: ApplicationRoom; answers: Answe
             ["Security bond", formatMoney(plan.securityBond, true)],
             ...(planAnswers.referral ? [["Referral code", planAnswers.referral] as [string, string]] : []),
           ])}
-        {block(paidByCard ? "You’ve paid" : "To pay in person", [
+        {block(review ? (paidByCard ? "To pay now by card" : "To pay in person") : paidByCard ? "You’ve paid" : "To pay in person", [
           ["Holding deposit", formatMoney(costs.holdingDeposit, true)],
           ["Joining fee", formatMoney(costs.joiningFee, true)],
         ])}
         <p className="flex items-baseline justify-between gap-4 border-t border-ink/10 pt-6 text-2xl font-bold text-ink">
-          <span>{paidByCard ? "Total paid" : "Total to pay"}</span>
+          <span>{paidByCard && !review ? "Total paid" : "Total to pay"}</span>
           <span>{formatMoney(costs.dueToday, true)}</span>
         </p>
       </div>
 
-      <Button variant="outline" onClick={() => window.print()} className="mt-10 w-full justify-center lg:w-auto">
-        Print receipt
-      </Button>
+      {review ? (
+        <div className="mt-10 flex flex-col gap-4 lg:flex-row-reverse lg:justify-start">
+          <Button variant="dark" onClick={onSend} className="w-full justify-center lg:w-auto lg:min-w-40">
+            {paidByCard ? `Pay ${formatMoney(costs.dueToday, true)} and apply` : "Send application"}
+          </Button>
+          <Button variant="outline" onClick={onEdit} className="w-full justify-center lg:w-auto">
+            Go back and edit
+          </Button>
+        </div>
+      ) : (
+        <Button variant="outline" onClick={() => window.print()} className="mt-10 w-full justify-center lg:w-auto">
+          Print receipt
+        </Button>
+      )}
     </div>
   );
 }

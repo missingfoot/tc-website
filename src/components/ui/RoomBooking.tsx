@@ -1,10 +1,16 @@
-import type { Cta, RoomDetails } from "@/lib/types";
+"use client";
+
+import { useState } from "react";
+import type { Cta, RoomDetails, RoomPrice } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import { text } from "@/lib/styles";
 
 type RoomBookingProps = {
+  /** The lowest weekly price, e.g. "£245": shown as "From …" when the chosen period has no price of its own. */
   price: string;
+  /** Prices by membership length, matched to periods like "6 months". */
+  prices?: RoomPrice[];
   booking: RoomDetails["booking"];
   cta: Cta;
   /** Sent with the form as hidden fields (a GET form drops any query string in `cta.href`), e.g. { location: "canary-wharf" }. */
@@ -12,11 +18,24 @@ type RoomBookingProps = {
   className?: string;
 };
 
+const pounds = (amount: number) => `£${amount.toLocaleString("en-GB")}`;
+
 /** Price, move-in details, a membership period picker and the apply button. A white card on desktop. */
-export default function RoomBooking({ price, booking, cta, fields = {}, className = "" }: RoomBookingProps) {
+export default function RoomBooking({ price, prices = [], booking, cta, fields = {}, className = "" }: RoomBookingProps) {
+  const [period, setPeriod] = useState(booking.periods[0]);
+  // "6 months" → its price; a period without one (e.g. "A short stay") keeps the "From" price
+  const chosen = prices.find((p) => `${p.months} months` === period);
+
   return (
     <div id="booking" className={`lg:rounded-2xl lg:bg-white lg:p-6 lg:shadow-xl lg:shadow-black/10 ${className}`}>
-      <p className="text-2xl font-bold text-ink">From {price} per week</p>
+      {chosen ? (
+        <>
+          <p className="text-2xl font-bold text-ink">{pounds(chosen.weekly)} per week</p>
+          <p className="mt-1 text-base text-stone">{pounds(chosen.monthly)} per month</p>
+        </>
+      ) : (
+        <p className="text-2xl font-bold text-ink">From {price} per week</p>
+      )}
 
       <dl className="mt-5 flex flex-col gap-2 text-base">
         <div className="flex justify-between gap-4">
@@ -39,7 +58,7 @@ export default function RoomBooking({ price, booking, cta, fields = {}, classNam
         <label htmlFor="membership-period" className={`mt-6 block ${text.label}`}>
           Select membership period
         </label>
-        <Select id="membership-period" name="period" options={booking.periods} className="mt-2" />
+        <Select id="membership-period" name="period" options={booking.periods} value={period} onChange={(e) => setPeriod(e.target.value)} className="mt-2" />
 
         <Button type="submit" variant="dark" className="mt-6 w-full justify-center">
           {cta.label}
