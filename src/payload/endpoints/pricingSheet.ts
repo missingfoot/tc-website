@@ -1,208 +1,130 @@
 import type { Endpoint, PayloadRequest } from "payload";
-import { locationPaths } from "../collections/Locations";
-import type { Location, Room } from "@/payload-types";
+import type { PricePlan } from "@/lib/pricing";
 
 /**
- * Every price on the site as one list, for the admin's Pricing page (fields/PricingSheet.tsx):
- * GET lists them, POST saves changes to them. Each row's key says where it lives, so a sheet
- * downloaded, edited in Excel and uploaded still lands on the right prices. Signed-in editors only.
+ * The admin's Pricing page (fields/PricingSheet.tsx) reads and saves every price through these:
+ * GET returns each kind's structure and grid, POST saves the sections it's sent. Signed-in only.
+ *
+ * - Rooms: the membership lengths (the grid's columns) and each room's weekly rate per length.
+ * - Working spaces and serviced living: the plans (columns, with optional standard prices) and
+ *   each place's entries: its own price, the standard one (amount null), or not offered (none).
+ * - Rules: the joining fee and the deposit and bonds in weeks. Variables: the money ones.
  */
 
-export type PricingRow = {
-  key: string;
-  group: string;
-  item: string;
-  option: string;
-  /** In pence. */
-  amount: number;
-  /** A room rate's membership length. */
-  months?: number;
-  /** A pricing rule counted in weeks of a room's rate (deposit, bonds): these rows have no amount to edit. */
-  weeks?: number;
-  /** Only location prices have these to edit; the rest are fixed (rooms are weekly). */
-  per?: "night" | "week" | "month" | "once";
-  vat?: "included" | "excluded" | "none";
-  note?: string;
-  /** The admin page it comes from, to open it (none for the pricing rules, which are only edited here). */
-  href?: string;
+export type RoomRow = { id: number; name: string; href: string; rates: { months: number; weekly: number }[] };
+export type LocationRow = { id: number; name: string; href: string; prices: { plan: string; amount: number | null }[] };
+export type PlanGrid = { plans: (PricePlan & { id: string })[]; rows: LocationRow[] };
+export type Rules = { joiningFee: number; holdingDepositWeeks: number; bondWeeks: { guarantor: number; noGuarantor: number; upfront: number } };
+export type MoneyVariable = { id: string; name: string; about: string; amount: number };
+
+export type PricingData = {
+  rooms: { lengths: number[]; rows: RoomRow[] };
+  working: PlanGrid;
+  serviced: PlanGrid;
+  rules: Rules;
+  variables: MoneyVariable[];
 };
 
-/**
- * A change to a row: new values, or `remove`. A new rate or price has a key ending in ":new:<anything>"
- * after its room's or location's ("room:12:new:1") and carries all its values.
- */
-export type PricingChange = {
-  key: string;
-  amount?: number;
-  months?: number;
-  weeks?: number;
-  /** A location price's name, e.g. "Hot Desk". */
-  label?: string;
-  per?: PricingRow["per"];
-  vat?: PricingRow["vat"];
-  note?: string;
-  remove?: boolean;
-};
+/** What a save sends: any of the sections, whole. */
+export type PricingSave = Partial<PricingData>;
 
-/** A room or location that can have prices, so one with none yet can still get its first. */
-export type PricingOwner = { prefix: string; kind: "room" | "location"; group: string; item: string; href: string };
-
-/** Where a row lives: "room:12:<rate id>" → room 12, that rate; "room:12:new:1" → room 12, new. */
-const parseKey = (key: string) => {
-  const [kind, id, row, ...rest] = key.split(":");
-  return { kind, id: Number(id), row, isNew: row === "new" && rest.length > 0 };
-};
-
-const groupNames: Record<keyof typeof locationPaths, string> = { working: "Working spaces", serviced: "Serviced living", venue: "Venues" };
-
-async function sheet(req: PayloadRequest): Promise<{ rows: PricingRow[]; owners: PricingOwner[] }> {
+async function read(req: PayloadRequest): Promise<PricingData> {
   const { payload } = req;
-  const [rooms, locations, rules, variables] = await Promise.all([
+  const [rooms, locations, structure, rules, variables] = await Promise.all([
     payload.find({ collection: "rooms", sort: "_order", pagination: false, depth: 0, req }),
     payload.find({ collection: "locations", sort: "_order", pagination: false, depth: 0, req }),
+    payload.findGlobal({ slug: "pricingStructure", depth: 0, req }),
     payload.findGlobal({ slug: "pricingRules", depth: 0, req }),
     payload.findGlobal({ slug: "variables", depth: 0, req }),
   ]);
-  const list: PricingRow[] = [];
-  const owners: PricingOwner[] = [];
-  for (const room of rooms.docs) owners.push({ prefix: `room:${room.id}`, kind: "room", group: "Old Oak rooms", item: room.name, href: `/admin/collections/rooms/${room.id}` });
-  // Venues are priced on request, so only working spaces and serviced living houses can have prices added
-  for (const type of ["working", "serviced"] as const)
-    for (const l of locations.docs.filter((l) => l.type === type))
-      owners.push({ prefix: `location:${l.id}`, kind: "location", group: groupNames[type], item: l.name, href: `/admin/collections/locations/${l.id}` });
-  for (const room of rooms.docs)
-    for (const rate of room.rates ?? [])
-      list.push({
-        key: `room:${room.id}:${rate.id}`,
-        group: "Old Oak rooms",
-        item: room.name,
-        option: `${rate.months} months`,
-        months: rate.months,
-        amount: rate.weekly,
-        per: "week",
-        href: `/admin/collections/rooms/${room.id}`,
-      });
-  for (const type of Object.keys(groupNames) as (keyof typeof groupNames)[])
-    for (const location of locations.docs.filter((l) => l.type === type))
-      for (const price of location.prices ?? [])
-        list.push({
-          key: `location:${location.id}:${price.id}`,
-          group: groupNames[type],
-          item: location.name,
-          option: price.label,
-          amount: price.amount,
-          per: price.per,
-          vat: price.vat,
-          note: price.note ?? "",
-          href: `/admin/collections/locations/${location.id}`,
-        });
-  if (rules.joiningFee != null)
-    list.push({ key: "rules:joiningFee", group: "Pricing rules", item: "Joining fee", option: "Paid when applying for a room", amount: rules.joiningFee });
-  // The rules counted in weeks of the room's rate
-  const weekRules = [
-    ["holdingDepositWeeks", "Holding deposit", "Paid when applying; becomes part of the bond", rules.holdingDepositWeeks],
-    ["bondWeeks.guarantor", "Security bond", "Monthly payments, with a guarantor", rules.bondWeeks?.guarantor],
-    ["bondWeeks.noGuarantor", "Security bond", "Monthly payments, no guarantor", rules.bondWeeks?.noGuarantor],
-    ["bondWeeks.upfront", "Security bond", "Paying it all up front", rules.bondWeeks?.upfront],
-  ] as const;
-  for (const [field, item, option, weeks] of weekRules)
-    if (weeks != null) list.push({ key: `rules:${field}`, group: "Pricing rules", item, option, amount: 0, weeks });
-  for (const v of variables.entries ?? [])
-    if (v.kind !== "text") list.push({ key: `variable:${v.id}`, group: "Variables", item: `{${v.name}}`, option: v.about ?? "", amount: v.amount ?? 0, href: "/admin/globals/variables" });
-  return { rows: list, owners };
+  const grid = (type: "working" | "serviced"): PlanGrid => ({
+    plans: (structure[type] ?? []).map((p) => ({ id: p.id!, label: p.label, amount: p.amount ?? null, per: p.per, vat: p.vat, note: p.note ?? null })),
+    rows: locations.docs
+      .filter((l) => l.type === type)
+      .map((l) => ({ id: l.id, name: l.name, href: `/admin/collections/locations/${l.id}`, prices: (l.prices ?? []).map((p) => ({ plan: p.plan, amount: p.amount ?? null })) })),
+  });
+  return {
+    rooms: {
+      lengths: (structure.roomLengths ?? []).map((l) => l.months),
+      rows: rooms.docs.map((r) => ({ id: r.id, name: r.name, href: `/admin/collections/rooms/${r.id}`, rates: (r.rates ?? []).map(({ months, weekly }) => ({ months, weekly })) })),
+    },
+    working: grid("working"),
+    serviced: grid("serviced"),
+    rules: {
+      joiningFee: rules.joiningFee ?? 0,
+      holdingDepositWeeks: rules.holdingDepositWeeks ?? 0,
+      bondWeeks: { guarantor: rules.bondWeeks?.guarantor ?? 0, noGuarantor: rules.bondWeeks?.noGuarantor ?? 0, upfront: rules.bondWeeks?.upfront ?? 0 },
+    },
+    variables: (variables.entries ?? []).filter((v) => v.kind !== "text").map((v) => ({ id: v.id!, name: v.name, about: v.about ?? "", amount: v.amount ?? 0 })),
+  };
 }
 
-/** Applies changes, one save per document (so each refreshes its pages once). Returns how many prices changed. */
-async function save(req: PayloadRequest, changes: PricingChange[]) {
+const pence = (n: unknown) => (typeof n === "number" && Number.isInteger(n) && n >= 0 ? n : undefined);
+const count = (n: unknown) => (typeof n === "number" && Number.isInteger(n) && n >= 0 ? n : undefined);
+
+/** Saves the sections sent: structure first (so places' entries can name new plans), then places, rules, variables. */
+async function save(req: PayloadRequest, data: PricingSave) {
   const { payload } = req;
-  const byKey = new Map(changes.map((c) => [c.key, c]));
-  const pick = (prefix: string) => changes.filter((c) => c.key.startsWith(prefix));
-  let count = 0;
-
-  const roomIds = new Set(pick("room:").map((c) => parseKey(c.key).id));
-  for (const id of roomIds) {
-    const room: Room = await payload.findByID({ collection: "rooms", id, depth: 0, req });
-    const kept = (room.rates ?? []).flatMap((rate) => {
-      const change = byKey.get(`room:${id}:${rate.id}`);
-      if (!change) return [rate];
-      count++;
-      if (change.remove) return [];
-      return [{ ...rate, ...(change.amount != null && { weekly: change.amount }), ...(change.months != null && { months: change.months }) }];
+  const structure = await payload.findGlobal({ slug: "pricingStructure", depth: 0, req });
+  const plans = (grid?: PlanGrid) =>
+    grid?.plans
+      .filter((p) => p.label?.trim())
+      .map((p) => ({ id: p.id, label: p.label.trim(), amount: pence(p.amount) ?? null, per: p.per, vat: p.vat, note: p.note?.trim() || null }));
+  const lengths = data.rooms?.lengths.filter((m) => Number.isInteger(m) && m >= 1);
+  if (lengths || data.working || data.serviced)
+    await payload.updateGlobal({
+      slug: "pricingStructure",
+      data: {
+        roomLengths: lengths ? [...new Set(lengths)].sort((a, b) => b - a).map((months) => ({ months })) : structure.roomLengths,
+        working: plans(data.working) ?? structure.working,
+        serviced: plans(data.serviced) ?? structure.serviced,
+      },
+      req,
     });
-    const added = pick(`room:${id}:new:`)
-      .filter((c) => !c.remove && c.amount != null && c.months != null)
-      .map((c) => ({ months: c.months!, weekly: c.amount! }));
-    count += added.length;
-    // Longest first: the booking picker starts on the first
-    const rates = [...kept, ...added].sort((a, b) => b.months - a.months);
-    await payload.update({ collection: "rooms", id, data: { rates }, req });
+
+  // Rooms: a rate for each length offered, longest first (the booking picker starts on the first)
+  for (const row of data.rooms?.rows ?? []) {
+    const rates = row.rates
+      .filter((r) => (lengths ?? [r.months]).includes(r.months) && pence(r.weekly) !== undefined)
+      .sort((a, b) => b.months - a.months)
+      .map(({ months, weekly }) => ({ months, weekly }));
+    await payload.update({ collection: "rooms", id: row.id, data: { rates }, req });
   }
 
-  const locationIds = new Set(pick("location:").map((c) => parseKey(c.key).id));
-  for (const id of locationIds) {
-    const location: Location = await payload.findByID({ collection: "locations", id, depth: 0, req });
-    const kept = (location.prices ?? []).flatMap((price) => {
-      const change = byKey.get(`location:${id}:${price.id}`);
-      if (!change) return [price];
-      count++;
-      if (change.remove) return [];
-      return [
-        {
-          ...price,
-          ...(change.amount != null && { amount: change.amount }),
-          ...(change.label && { label: change.label }),
-          ...(change.per && { per: change.per }),
-          ...(change.vat && { vat: change.vat }),
-          ...(change.note !== undefined && { note: change.note || null }),
-        },
-      ];
-    });
-    const added = pick(`location:${id}:new:`)
-      .filter((c) => !c.remove && c.amount != null && c.label)
-      .map((c) => ({ label: c.label!, amount: c.amount!, per: c.per ?? "month", vat: c.vat ?? "included", note: c.note || null }));
-    count += added.length;
-    await payload.update({ collection: "locations", id, data: { prices: [...kept, ...added] }, req });
+  // Locations: entries for plans that exist, each its own price or the standard one (null)
+  for (const grid of [data.working, data.serviced]) {
+    if (!grid) continue;
+    const planIds = new Set(grid.plans.map((p) => p.id));
+    for (const row of grid.rows) {
+      const prices = row.prices.filter((p) => planIds.has(p.plan)).map((p) => ({ plan: p.plan, amount: pence(p.amount) ?? null }));
+      await payload.update({ collection: "locations", id: row.id, data: { prices }, req });
+    }
   }
 
-  const ruleChanges = pick("rules:");
-  if (ruleChanges.length) {
-    const rules = await payload.findGlobal({ slug: "pricingRules", depth: 0, req });
-    const weeks = (field: string) => {
-      const n = byKey.get(`rules:${field}`)?.weeks;
-      if (n == null || !Number.isInteger(n) || n < 0) return undefined;
-      count++;
-      return n;
-    };
-    const fee = byKey.get("rules:joiningFee")?.amount;
-    if (fee != null) count++;
+  if (data.rules) {
+    const r = data.rules;
+    const current = await payload.findGlobal({ slug: "pricingRules", depth: 0, req });
     await payload.updateGlobal({
       slug: "pricingRules",
       data: {
-        ...rules,
-        joiningFee: fee ?? rules.joiningFee,
-        holdingDepositWeeks: weeks("holdingDepositWeeks") ?? rules.holdingDepositWeeks,
+        joiningFee: pence(r.joiningFee) ?? current.joiningFee,
+        holdingDepositWeeks: count(r.holdingDepositWeeks) ?? current.holdingDepositWeeks,
         bondWeeks: {
-          guarantor: weeks("bondWeeks.guarantor") ?? rules.bondWeeks?.guarantor,
-          noGuarantor: weeks("bondWeeks.noGuarantor") ?? rules.bondWeeks?.noGuarantor,
-          upfront: weeks("bondWeeks.upfront") ?? rules.bondWeeks?.upfront,
+          guarantor: count(r.bondWeeks?.guarantor) ?? current.bondWeeks?.guarantor,
+          noGuarantor: count(r.bondWeeks?.noGuarantor) ?? current.bondWeeks?.noGuarantor,
+          upfront: count(r.bondWeeks?.upfront) ?? current.bondWeeks?.upfront,
         },
       },
       req,
     });
   }
 
-  const variableChanges = pick("variable:");
-  if (variableChanges.length) {
-    const variables = await payload.findGlobal({ slug: "variables", depth: 0, req });
-    const entries = (variables.entries ?? []).map((v) => {
-      const change = byKey.get(`variable:${v.id}`);
-      if (change?.amount == null) return v;
-      count++;
-      return { ...v, amount: change.amount };
-    });
+  if (data.variables) {
+    const current = await payload.findGlobal({ slug: "variables", depth: 0, req });
+    const amounts = new Map(data.variables.map((v) => [v.id, pence(v.amount)]));
+    const entries = (current.entries ?? []).map((v) => (amounts.get(v.id!) !== undefined ? { ...v, amount: amounts.get(v.id!) } : v));
     await payload.updateGlobal({ slug: "variables", data: { entries }, req });
   }
-  return count;
 }
 
 export const pricingSheet: Endpoint[] = [
@@ -211,7 +133,7 @@ export const pricingSheet: Endpoint[] = [
     method: "get",
     handler: async (req) => {
       if (!req.user) return Response.json({ error: "Sign in first" }, { status: 401 });
-      return Response.json(await sheet(req));
+      return Response.json(await read(req));
     },
   },
   {
@@ -219,15 +141,9 @@ export const pricingSheet: Endpoint[] = [
     method: "post",
     handler: async (req) => {
       if (!req.user) return Response.json({ error: "Sign in first" }, { status: 401 });
-      const body = (await req.json?.()) as { changes?: PricingChange[] } | undefined;
-      const changes = (body?.changes ?? []).filter(
-        (c) =>
-          typeof c?.key === "string" &&
-          (c.amount == null || (Number.isInteger(c.amount) && c.amount >= 0)) &&
-          (c.months == null || (Number.isInteger(c.months) && c.months >= 1)),
-      );
-      const saved = await save(req, changes);
-      return Response.json({ saved, ...(await sheet(req)) });
+      const data = ((await req.json?.()) ?? {}) as PricingSave;
+      await save(req, data);
+      return Response.json(await read(req));
     },
   },
 ];

@@ -1,5 +1,5 @@
 import type { Payload } from "payload";
-import { formatPence, lowest } from "@/lib/pricing";
+import { formatPence, lowest, resolvePrices } from "@/lib/pricing";
 
 export type VariableInfo = { name: string; value: string; about: string };
 
@@ -10,11 +10,12 @@ export type VariableInfo = { name: string; value: string; about: string };
  * of whichever room or location the text belongs to.
  */
 export async function collectVariables(payload: Payload): Promise<VariableInfo[]> {
-  const [rooms, locations, rules, custom] = await Promise.all([
+  const [rooms, locations, rules, custom, structure] = await Promise.all([
     payload.find({ collection: "rooms", sort: "_order", pagination: false, depth: 0 }),
     payload.find({ collection: "locations", sort: "_order", pagination: false, depth: 0 }),
     payload.findGlobal({ slug: "pricingRules", depth: 0 }),
     payload.findGlobal({ slug: "variables", depth: 0 }),
+    payload.findGlobal({ slug: "pricingStructure", depth: 0 }),
   ]);
   const list: VariableInfo[] = [];
 
@@ -25,7 +26,8 @@ export async function collectVariables(payload: Payload): Promise<VariableInfo[]
     if (low) list.push({ name: `lowest-price:room:${room.slug}`, value: formatPence(low.amount), about: `The ${room.name}'s lowest weekly rate` });
 
   for (const location of locations.docs) {
-    const low = lowest(location.prices ?? []);
+    const plans = location.type === "working" ? structure.working : location.type === "serviced" ? structure.serviced : [];
+    const low = lowest(resolvePrices(location.prices, plans));
     if (low) list.push({ name: `lowest-price:${location.type}:${location.slug}`, value: formatPence(low.amount), about: `${location.name}'s lowest price (per ${low.per})` });
   }
 

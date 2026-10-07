@@ -100,6 +100,7 @@ export interface Config {
     contactDetails: ContactDetail;
     socialLinks: SocialLink;
     pricingRules: PricingRule;
+    pricingStructure: PricingStructure;
     variables: Variable;
   };
   globalsSelect: {
@@ -107,6 +108,7 @@ export interface Config {
     contactDetails: ContactDetailsSelect<false> | ContactDetailsSelect<true>;
     socialLinks: SocialLinksSelect<false> | SocialLinksSelect<true>;
     pricingRules: PricingRulesSelect<false> | PricingRulesSelect<true>;
+    pricingStructure: PricingStructureSelect<false> | PricingStructureSelect<true>;
     variables: VariablesSelect<false> | VariablesSelect<true>;
   };
   locale: null;
@@ -1027,22 +1029,10 @@ export interface Location {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Pricing cards, and the card pill's “From …”. Leave empty to leave pricing out (e.g. venues, priced on request).
-   */
   prices?:
     | {
-        /**
-         * e.g. “Hot Desk”
-         */
-        label: string;
-        amount: number;
-        per: 'night' | 'week' | 'month' | 'once';
-        vat: 'included' | 'excluded' | 'none';
-        /**
-         * Optional, after the period, e.g. “all bills included”.
-         */
-        note?: string | null;
+        plan: string;
+        amount?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -3367,11 +3357,8 @@ export interface LocationsSelect<T extends boolean = true> {
   prices?:
     | T
     | {
-        label?: T;
+        plan?: T;
         amount?: T;
-        per?: T;
-        vat?: T;
-        note?: T;
         id?: T;
       };
   included?:
@@ -3702,6 +3689,47 @@ export interface PricingRule {
   createdAt?: string | null;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricingStructure".
+ */
+export interface PricingStructure {
+  id: number;
+  roomLengths?:
+    | {
+        months: number;
+        id?: string | null;
+      }[]
+    | null;
+  working?:
+    | {
+        label: string;
+        /**
+         * In pence. Places without their own price use it; leave empty for none.
+         */
+        amount?: number | null;
+        per: 'night' | 'week' | 'month' | 'once';
+        vat: 'included' | 'excluded' | 'none';
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  serviced?:
+    | {
+        label: string;
+        /**
+         * In pence. Places without their own price use it; leave empty for none.
+         */
+        amount?: number | null;
+        per: 'night' | 'week' | 'month' | 'once';
+        vat: 'included' | 'excluded' | 'none';
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * Write {name} in any text (pages, locations, rooms, templates) and the value goes in, so prices in sentences never go out of date. Your own are below; the ones worked out from the real prices are listed underneath.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3843,6 +3871,41 @@ export interface PricingRulesSelect<T extends boolean = true> {
         guarantor?: T;
         noGuarantor?: T;
         upfront?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricingStructure_select".
+ */
+export interface PricingStructureSelect<T extends boolean = true> {
+  roomLengths?:
+    | T
+    | {
+        months?: T;
+        id?: T;
+      };
+  working?:
+    | T
+    | {
+        label?: T;
+        amount?: T;
+        per?: T;
+        vat?: T;
+        note?: T;
+        id?: T;
+      };
+  serviced?:
+    | T
+    | {
+        label?: T;
+        amount?: T;
+        per?: T;
+        vat?: T;
+        note?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

@@ -7,11 +7,11 @@ import { footerNav, mainNav, mobileNav, type MobileNavGroup, type NavLink } from
 import { site } from "@/config/site";
 import type { SocialLink } from "@/components/sections/SocialLinks";
 import { socialLinks } from "@/content/old-oak";
-import type { Location, Media, Page, Room as RoomDoc, Template } from "@/payload-types";
+import type { Location, Media, Page, PricingStructure, Room as RoomDoc, Template } from "@/payload-types";
 import type { CircleImage, Cta, GalleryImage, LocationDetails, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
 import { locationPaths, type LocationType } from "@/payload/collections/Locations";
 import { roomsPath } from "@/payload/collections/Rooms";
-import { formatPence, fromPill, lowest, periodLine, type PriceItem } from "@/lib/pricing";
+import { formatPence, fromPill, lowest, monthsLabel, periodLine, resolvePrices, type PriceItem, type PricePlan } from "@/lib/pricing";
 import { defaultPricingRules, type PricingRules } from "@/lib/application";
 import { fillVariables, type Variables } from "@/lib/variables";
 import { collectVariables } from "@/payload/variables";
@@ -28,7 +28,30 @@ export const getVariables = cache(async (): Promise<Variables> => new Map((await
 /** The Payload page with this slug, if there is one, with the variables in its text filled in. */
 export const getPage = cache(async (slug: string): Promise<Page | null> => {
   const { docs } = await (await payload()).find({ collection: "pages", where: { slug: { equals: slug } }, limit: 1, depth: 2 });
-  return docs[0] ? fillVariables(docs[0], await getVariables()) : null;
+  if (!docs[0]) return null;
+  // Location cards' locations, with their prices worked out (for their pills)
+  const structure = await getPricingStructure();
+  const page = {
+    ...docs[0],
+    layout: docs[0].layout.map((block) =>
+      block.blockType === "locationCards"
+        ? { ...block, locations: block.locations.map((l) => (typeof l === "object" ? withPrices(l, structure) : l)) }
+        : block,
+    ),
+  };
+  return fillVariables(page, await getVariables());
+});
+
+/** The pricing structure (/admin/pricing): room lengths, and working and serviced living plans. */
+export const getPricingStructure = cache(async (): Promise<PricingStructure> => (await payload()).findGlobal({ slug: "pricingStructure", depth: 0 }));
+
+/** A location with its prices worked out from its type's plans (its own price, or the standard one). */
+export type PricedLocation = Location & { priceItems: PriceItem[] };
+const plansFor = (structure: PricingStructure, type: Location["type"]): PricePlan[] =>
+  (type === "working" ? structure.working : type === "serviced" ? structure.serviced : null) ?? [];
+const withPrices = (location: Location, structure: PricingStructure): PricedLocation => ({
+  ...location,
+  priceItems: resolvePrices(location.prices, plansFor(structure, location.type)),
 });
 
 /** Every Payload page's slug, for pre-building them. */
@@ -59,20 +82,23 @@ export const paragraphs = (text: string) =>
  * The locations of one type (working spaces, serviced living houses or venues), in their admin
  * order, with the variables in their text filled in ({lowest-price} as each one's own).
  */
-export const getLocations = cache(async (type: LocationType): Promise<Location[]> => {
+export const getLocations = cache(async (type: LocationType): Promise<PricedLocation[]> => {
   const { docs } = await (await payload()).find({ collection: "locations", where: { type: { equals: type } }, sort: "_order", limit: 1000, depth: 1 });
-  const variables = await getVariables();
-  return docs.map((location) => fillVariables(location, variables, locationLowestPrice(location)));
+  const [variables, structure] = await Promise.all([getVariables(), getPricingStructure()]);
+  return docs.map((doc) => {
+    const location = withPrices(doc, structure);
+    return fillVariables(location, variables, locationLowestPrice(location));
+  });
 });
 
 /** A location's lowest price, e.g. "£150" ({lowest-price} in its text, and its template's). */
-export const locationLowestPrice = (location: Location) => {
-  const low = lowest(location.prices ?? []);
+export const locationLowestPrice = (location: PricedLocation) => {
+  const low = lowest(location.priceItems);
   return low && formatPence(low.amount);
 };
 
 /** One location, by its type and slug. */
-export const getLocation = cache(async (type: LocationType, slug: string): Promise<Location | null> => (await getLocations(type)).find((l) => l.slug === slug) ?? null);
+export const getLocation = cache(async (type: LocationType, slug: string): Promise<PricedLocation | null> => (await getLocations(type)).find((l) => l.slug === slug) ?? null);
 
 const icon = (name: string) => icons[name as keyof typeof icons];
 /** Icon-and-label items, with each icon's name swapped for its component. */
@@ -92,15 +118,12 @@ export function galleryImage(media: number | Media, name?: string | null): Galle
   return { src: image.src, thumb: image.src, alt: name || image.alt, position: image.position, blur: image.blur };
 }
 
-/** A location's prices, as amounts in pence with what they're per. */
-const locationPrices = (location: Location): PriceItem[] =>
-  (location.prices ?? []).map((p) => ({ label: p.label, amount: p.amount, per: p.per, vat: p.vat, note: p.note ?? undefined }));
 
 /** A location's card pill: its own text (e.g. a venue's capacity), or its lowest price. */
-const locationPill = (location: Location) => location.pill || fromPill(locationPrices(location)) || "";
+const locationPill = (location: PricedLocation) => location.pill || fromPill(location.priceItems) || "";
 
 /** A location as its card: on its type's page, linking to its own. */
-export function locationCard(location: Location): Room {
+export function locationCard(location: PricedLocation): Room {
   return {
     name: location.name,
     subtitle: `${location.area}, ${location.postcode}`,
@@ -112,7 +135,7 @@ export function locationCard(location: Location): Room {
 }
 
 /** A location as its own page's content. */
-export function locationDetails(location: Location): LocationDetails {
+export function locationDetails(location: PricedLocation): LocationDetails {
   return {
     slug: location.slug,
     name: location.name,
@@ -123,7 +146,7 @@ export function locationDetails(location: Location): LocationDetails {
     features: iconItems(location.features),
     intro: paragraphs(location.intro),
     gallery: (location.gallery ?? []).map((photo) => galleryImage(photo.image, photo.name)),
-    prices: locationPrices(location).map((p) => ({ label: p.label, amount: formatPence(p.amount), period: periodLine(p) })),
+    prices: location.priceItems.map((p) => ({ label: p.label, amount: formatPence(p.amount), period: periodLine(p) })),
     address: location.address ?? undefined,
     directionsIntro: location.directionsIntro,
     travelModes: travelModes(location.travelModes),
@@ -155,7 +178,7 @@ export const travelModes = (modes?: { label: string; icon: TravelMode["icon"]; s
   (modes ?? []).map((mode) => ({ label: mode.label, icon: mode.icon, steps: lines(mode.steps), mapsUrl: mode.mapsUrl }));
 
 /** A room's rates: a weekly price (pence) per membership length, longest first as entered. */
-const roomRates = (room: RoomDoc) => (room.rates ?? []).map((rate) => ({ period: `${rate.months} months`, months: rate.months, weekly: rate.weekly }));
+const roomRates = (room: RoomDoc) => (room.rates ?? []).map((rate) => ({ period: monthsLabel(rate.months), months: rate.months, weekly: rate.weekly }));
 
 /** A room's weekly price for its card: "£245 per week", or "From £245 per week" when its rates differ. */
 function roomPrice(room: RoomDoc) {

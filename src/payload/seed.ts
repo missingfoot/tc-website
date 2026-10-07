@@ -321,6 +321,44 @@ function priceFromText(price: { label: string; amount: string; period: string })
   return { label: price.label, amount: penceFromText(price.amount), per, vat: /\+\s*VAT/i.test(price.period) ? "excluded" : "included", note: price.period.split(", ")[1] };
 }
 
+// The pricing structure, from the content files' prices, unless it's set up already: room
+// lengths, and each location type's plans (a plan per price name; a standard price where all of
+// that type's locations charge the same, as the working spaces do)
+{
+  const structure = await payload.findGlobal({ slug: "pricingStructure", depth: 0 });
+  if (structure.roomLengths?.length || structure.working?.length || structure.serviced?.length) console.log("pricing structure: already set up, left as it is");
+  else {
+    const plansOf = (locations: LocationDetails[]) => {
+      const byLabel = new Map<string, ReturnType<typeof priceFromText>[]>();
+      for (const price of locations.flatMap((l) => l.prices.map(priceFromText))) byLabel.set(price.label, [...(byLabel.get(price.label) ?? []), price]);
+      return [...byLabel.values()].map((prices) => {
+        const first = prices[0];
+        const everywhere = prices.length === locations.length && prices.every((p) => p.amount === first.amount);
+        return { label: first.label, amount: everywhere ? first.amount : null, per: first.per, vat: first.vat, note: first.note };
+      });
+    };
+    await payload.updateGlobal({
+      slug: "pricingStructure",
+      data: {
+        roomLengths: oldOakRoomDetails[0].booking.periods.map((p) => ({ months: Number.parseInt(p, 10) })),
+        working: plansOf(workingLocationPages),
+        serviced: plansOf(servicedLocationPages),
+      } as never,
+    });
+    console.log("pricing structure: created");
+  }
+}
+const pricingStructure = await payload.findGlobal({ slug: "pricingStructure", depth: 0 });
+
+/** A location's prices as entries for its type's plans: the standard price (null) where it matches, else its own. */
+function planEntries(type: "working" | "serviced" | "venue", location: LocationDetails) {
+  const plans = (type === "working" ? pricingStructure.working : type === "serviced" ? pricingStructure.serviced : []) ?? [];
+  return location.prices.map(priceFromText).flatMap((price) => {
+    const plan = plans.find((p) => p.label === price.label);
+    return plan ? [{ plan: plan.id!, amount: plan.amount === price.amount ? null : price.amount }] : [];
+  });
+}
+
 /** Creates a location unless one of this type and slug exists. */
 async function seedLocation(type: "working" | "serviced" | "venue", location: LocationDetails, included: FeatureGroup[] = []) {
   const existing = await payload.find({ collection: "locations", where: { and: [{ type: { equals: type } }, { slug: { equals: location.slug } }] }, limit: 1 });
@@ -340,7 +378,7 @@ async function seedLocation(type: "working" | "serviced" | "venue", location: Lo
       features: iconItems(location.features),
       intro: location.intro.join("\n\n"),
       gallery: await Promise.all(location.gallery.map(async (g) => ({ image: await media(g.src ?? g.thumb, g.alt, g.position), name: g.alt }))),
-      prices: location.prices.map(priceFromText),
+      prices: planEntries(type, location),
       included: included.map((group) => ({ label: group.label, items: iconItems(group.items) })),
       address: location.address,
       directionsIntro: location.directionsIntro,

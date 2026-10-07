@@ -29,7 +29,7 @@ import Button from "@/components/ui/Button";
 import FloatingButton from "@/components/ui/FloatingButton";
 import { jobs } from "@/content/careers";
 import { pressLogos, pressPhotos } from "@/content/press";
-import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes } from "@/lib/payload";
+import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes, type PricedLocation } from "@/lib/payload";
 import type { Page, Template } from "@/payload-types";
 import { fillVariables } from "@/lib/variables";
 import LocationIntro from "@/components/sections/LocationIntro";
@@ -251,7 +251,8 @@ export default function RenderBlocks({ blocks, place }: { blocks: Block[]; place
             intro={block.intro ?? undefined}
             tone={block.tone ?? "cream"}
             ctaLabel={block.ctaLabel ?? undefined}
-            rooms={block.locations.filter((l) => typeof l === "object").map(locationCard)}
+            // getPage has worked out their prices
+            rooms={block.locations.filter((l) => typeof l === "object").map((l) => locationCard(l as PricedLocation))}
           />
         );
       case "roomCards":

@@ -17,6 +17,7 @@ import { pricingSheet } from "./payload/endpoints/pricingSheet";
 import { ContactDetails } from "./payload/globals/ContactDetails";
 import { Navigation } from "./payload/globals/Navigation";
 import { PricingRules } from "./payload/globals/PricingRules";
+import { PricingStructure } from "./payload/globals/PricingStructure";
 import { Variables } from "./payload/globals/Variables";
 import { SocialLinksGlobal } from "./payload/globals/SocialLinks";
 
@@ -43,7 +44,7 @@ export default buildConfig({
     },
   },
   collections: [Pages, Templates, Locations, Rooms, Media, Users],
-  globals: [Navigation, ContactDetails, SocialLinksGlobal, PricingRules, Variables],
+  globals: [Navigation, ContactDetails, SocialLinksGlobal, PricingRules, PricingStructure, Variables],
   endpoints: [siteLinks, siteVariables, ...pricingSheet],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",

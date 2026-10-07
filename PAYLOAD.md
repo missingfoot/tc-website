@@ -69,18 +69,24 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Prices** are amounts in pence with what they're per (night, week, month, one-off) and how VAT
   applies, written into words by `lib/pricing.ts` only ("£150", "Per month +VAT", "From £150 per
   month"). Admin money fields are typed in pounds (MoneyField). A location's card pill is worked
-  out from its lowest price unless it has its own text (venues' capacity). Rooms have a weekly rate
-  per membership length; the card, booking card and application use them. Pricing rules (/admin →
-  Pricing rules) hold the application's joining fee, holding deposit and bonds.
-- **Pricing** (/admin/pricing, linked in the sidebar): every price in one table (rooms' rates,
-  locations' prices, money variables, and the pricing rules: the joining fee and the deposit and
-  bonds in weeks; the Pricing rules global is hidden and only edited here). Rates and prices are edited, added and
-  removed there (a room's or location's form only shows its prices, with a link; one saved with
-  none gets a dialog to copy another's as a starting point or set new ones), saved together; or downloaded
-  as a CSV for Excel and uploaded back (rows match by their Key; rows without one naming an
-  existing room or location are added; removing is table-only). `src/payload/views/` and
-  `endpoints/pricingSheet.ts`. A room's move-in and floor are hidden: they're to come from a
-  booking system, and keep their values meanwhile.
+  out from its lowest price unless it has its own text (venues' capacity).
+- **Pricing** (/admin/pricing, linked in the sidebar) holds every price, on two levels, with a tab
+  per kind so each grid only has its own columns:
+  - **Rooms**: the membership lengths (the columns), then a grid of rooms × lengths with each
+    room's weekly rate; an empty cell means that length isn't offered for the room.
+  - **Working spaces** and **Serviced living**: the plans (columns: name, standard price, per,
+    VAT, small print), then a grid of places × plans. A cell is the place's own price, empty for
+    the plan's standard price, or "not offered" (×; "Offer" brings it back).
+  - **Rules & variables**: the joining fee, holding deposit and bonds in weeks, and the money
+    variables.
+  The structures are the hidden Pricing structure global; places keep entries naming a plan (amount
+  null = standard), resolved by `resolvePrices` in `lib/pricing.ts`. Pricing rules is hidden too.
+  Each tab downloads a CSV in its grid's shape and uploads it back (rows match by ID or name,
+  columns by heading; "standard" means the standard price). Changed cells are highlighted until
+  saved. A new room or location appears as a row with no prices; its form shows a summary with a
+  link here. `src/payload/views/`, `fields/PricingSheet.tsx` and `endpoints/pricingSheet.ts`. A
+  room's move-in and floor are hidden: they're to come from a booking system, and keep their
+  values meanwhile.
 - **Variables** in text: write `{lowest-price}` in a room's or location's text (or a template's,
   for the place shown) and its current lowest price goes in when the page is built. Other pages
   can name one (`{lowest-price:room:ensuite}`, `{lowest-price:working:old-oak}`,

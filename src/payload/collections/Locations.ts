@@ -1,6 +1,6 @@
 import type { CollectionConfig, Field } from "payload";
 import { revalidatePath } from "next/cache";
-import { iconField, itemLabel, moneyField, priceTerms, slugField, travelModes } from "../fields/shared";
+import { iconField, itemLabel, slugField, travelModes } from "../fields/shared";
 
 /** Where each type of location's listing and pages live. */
 export const locationPaths = { working: "/working", serviced: "/serviced-living", venue: "/event-spaces" } as const;
@@ -96,16 +96,11 @@ export const Locations: CollectionConfig = {
             {
               name: "prices",
               type: "array",
-              labels: { singular: "Price", plural: "Prices" },
-              admin: {
-                ...itemLabel("Price"),
-                hidden: true,
-                description: "Pricing cards, and the card pill's “From …”. Leave empty to leave pricing out (e.g. venues, priced on request).",
-              },
+              // Edited on the Pricing page: a plan of its type's pricing structure, with its own price or the standard one
+              admin: { hidden: true },
               fields: [
-                { name: "label", type: "text", required: true, admin: { description: "e.g. “Hot Desk”" } },
-                { type: "row", fields: [moneyField("amount", "Amount"), ...priceTerms] },
-                { name: "note", label: "Small print", type: "text", admin: { description: "Optional, after the period, e.g. “all bills included”." } },
+                { name: "plan", type: "text", required: true },
+                { name: "amount", type: "number", min: 0 },
               ],
             },
             {

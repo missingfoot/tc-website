@@ -47,3 +47,24 @@ export function fromPill(prices: PriceItem[]) {
   if (!min) return undefined;
   return min.per === "once" ? `From ${formatPence(min.amount)}` : `From ${formatPence(min.amount)} per ${min.per}`;
 }
+
+/** A plan of a kind of location's pricing structure: a grid column, with an optional standard price. */
+export type PricePlan = { id?: string | null; label: string; amount?: number | null; per: PricePer; vat: PriceVat; note?: string | null };
+
+/**
+ * A location's prices from its type's plans: each plan it offers (has an entry for), in the
+ * plans' order, at its own price or else the plan's standard one. A plan with neither is left out.
+ */
+export function resolvePrices(entries: { plan: string; amount?: number | null }[] | null | undefined, plans: PricePlan[] | null | undefined): PriceItem[] {
+  const items: PriceItem[] = [];
+  for (const plan of plans ?? []) {
+    const entry = (entries ?? []).find((e) => e.plan === plan.id);
+    const amount = entry ? (entry.amount ?? plan.amount) : undefined;
+    if (amount == null) continue;
+    items.push({ label: plan.label, amount, per: plan.per, vat: plan.vat, note: plan.note ?? undefined });
+  }
+  return items;
+}
+
+/** A membership length: "1 month", "12 months". */
+export const monthsLabel = (months: number) => `${months} month${months === 1 ? "" : "s"}`;
