@@ -7,6 +7,7 @@ import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
 import { homeMainLinks, homePress, homeWhatsNew } from "@/content/home";
 import { oldOakPromos, oldOakTestimonials, socialLinks } from "@/content/old-oak";
+import { coLivingVideo } from "@/content/co-living";
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
         imageAlt="Residents sharing dinner around a long table"
         eyebrow="The Collective"
         title="A new way to live work and play"
-        video={{ label: "Watch video", url: "https://youtu.be/XkZbmXgOWOA" }}
+        video={{ label: "Watch video", url: coLivingVideo }}
       />
 
       <Intro raised layout="stacked" heading="We're unlocking the world's greatest cities for the creative and ambitious" cta={{ label: "Read more", href: "/mission" }}>
