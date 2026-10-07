@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { RenderTemplate } from "@/components/payload/RenderBlocks";
-import { getLocation, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
+import { getLocation, getLocations, getTemplate, locationDetails, locationIncluded, locationLowestPrice } from "@/lib/payload";
 
 // Serviced living houses are in the CMS (/admin → Locations), and laid out by their template (/admin → Templates).
 
@@ -31,7 +31,7 @@ export default async function ServicedLivingLocation({ params }: PageProps<"/ser
   return (
     <RenderTemplate
       template={template}
-      place={{ details, gallery: details.gallery, included: locationIncluded(location), enquiry: "serviced" }}
+      place={{ details, gallery: details.gallery, included: locationIncluded(location), lowestPrice: locationLowestPrice(location), enquiry: "serviced" }}
     />
   );
 }

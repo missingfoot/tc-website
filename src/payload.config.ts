@@ -12,9 +12,11 @@ import { Rooms } from "./payload/collections/Rooms";
 import { Templates } from "./payload/collections/Templates";
 import { Users } from "./payload/collections/Users";
 import { siteLinks } from "./payload/endpoints/siteLinks";
+import { siteVariables } from "./payload/endpoints/siteVariables";
 import { ContactDetails } from "./payload/globals/ContactDetails";
 import { Navigation } from "./payload/globals/Navigation";
 import { PricingRules } from "./payload/globals/PricingRules";
+import { Variables } from "./payload/globals/Variables";
 import { SocialLinksGlobal } from "./payload/globals/SocialLinks";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,8 +37,8 @@ export default buildConfig({
     components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
   },
   collections: [Pages, Templates, Locations, Rooms, Media, Users],
-  globals: [Navigation, ContactDetails, SocialLinksGlobal, PricingRules],
-  endpoints: [siteLinks],
+  globals: [Navigation, ContactDetails, SocialLinksGlobal, PricingRules, Variables],
+  endpoints: [siteLinks, siteVariables],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",
   typescript: { outputFile: path.resolve(dirname, "payload-types.ts") },

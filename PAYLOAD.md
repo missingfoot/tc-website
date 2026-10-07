@@ -72,6 +72,12 @@ npm run dev                            # then open http://localhost:3000/admin
   out from its lowest price unless it has its own text (venues' capacity). Rooms have a weekly rate
   per membership length; the card, booking card and application use them. Pricing rules (/admin →
   Pricing rules) hold the application's joining fee, holding deposit and bonds.
+- **Variables** in text: write `{lowest-price}` in a room's or location's text (or a template's,
+  for the place shown) and its current lowest price goes in when the page is built. Other pages
+  can name one (`{lowest-price:room:ensuite}`, `{lowest-price:working:old-oak}`,
+  `{lowest-price:rooms}`), use `{joining-fee}`, or editors' own from /admin → Variables, which
+  lists them all with their values. Filled in by `lib/variables.ts` as pages, locations, rooms and
+  templates are read; an unknown one shows as written.
 - **Link fields** pick from the site's pages (by page, location, room or other page) or take a
   typed address; the list comes from `/api/site-links` (`src/payload/endpoints/`).
 - **Rooms** (Old Oak's) work the same way: card, page and booking options from one record.

@@ -13,6 +13,8 @@ import { locationPaths, type LocationType } from "@/payload/collections/Location
 import { roomsPath } from "@/payload/collections/Rooms";
 import { formatPence, fromPill, lowest, periodLine, type PriceItem } from "@/lib/pricing";
 import { defaultPricingRules, type PricingRules } from "@/lib/application";
+import { fillVariables, type Variables } from "@/lib/variables";
+import { collectVariables } from "@/payload/variables";
 
 /**
  * Reading Payload content on the server, through Payload's local API (no HTTP round trip: Payload
@@ -20,10 +22,13 @@ import { defaultPricingRules, type PricingRules } from "@/lib/application";
  */
 const payload = () => getPayload({ config });
 
-/** The Payload page with this slug, if there is one. */
+/** Every variable's current value (lib/variables.ts), for filling in text. */
+export const getVariables = cache(async (): Promise<Variables> => new Map((await collectVariables(await payload())).map((v) => [v.name, v.value])));
+
+/** The Payload page with this slug, if there is one, with the variables in its text filled in. */
 export const getPage = cache(async (slug: string): Promise<Page | null> => {
   const { docs } = await (await payload()).find({ collection: "pages", where: { slug: { equals: slug } }, limit: 1, depth: 2 });
-  return docs[0] ?? null;
+  return docs[0] ? fillVariables(docs[0], await getVariables()) : null;
 });
 
 /** Every Payload page's slug, for pre-building them. */
@@ -50,11 +55,21 @@ export const paragraphs = (text: string) =>
     .map((p) => p.trim())
     .filter(Boolean);
 
-/** The locations of one type (working spaces, serviced living houses or venues), in their admin order. */
+/**
+ * The locations of one type (working spaces, serviced living houses or venues), in their admin
+ * order, with the variables in their text filled in ({lowest-price} as each one's own).
+ */
 export const getLocations = cache(async (type: LocationType): Promise<Location[]> => {
   const { docs } = await (await payload()).find({ collection: "locations", where: { type: { equals: type } }, sort: "_order", limit: 1000, depth: 1 });
-  return docs;
+  const variables = await getVariables();
+  return docs.map((location) => fillVariables(location, variables, locationLowestPrice(location)));
 });
+
+/** A location's lowest price, e.g. "£150" ({lowest-price} in its text, and its template's). */
+export const locationLowestPrice = (location: Location) => {
+  const low = lowest(location.prices ?? []);
+  return low && formatPence(low.amount);
+};
 
 /** One location, by its type and slug. */
 export const getLocation = cache(async (type: LocationType, slug: string): Promise<Location | null> => (await getLocations(type)).find((l) => l.slug === slug) ?? null);
@@ -119,11 +134,18 @@ export function locationDetails(location: Location): LocationDetails {
 export const locationIncluded = (location: Location): FeatureGroup[] =>
   (location.included ?? []).map((group) => ({ label: group.label ?? undefined, items: iconItems(group.items) }));
 
-/** Old Oak's rooms, in their admin order. */
+/** Old Oak's rooms, in their admin order, with the variables in their text filled in ({lowest-price} as each one's own). */
 export const getRooms = cache(async (): Promise<RoomDoc[]> => {
   const { docs } = await (await payload()).find({ collection: "rooms", sort: "_order", limit: 1000, depth: 1 });
-  return docs;
+  const variables = await getVariables();
+  return docs.map((room) => fillVariables(room, variables, roomLowestPrice(room)));
 });
+
+/** A room's lowest weekly rate, e.g. "£245" ({lowest-price} in its text, and its template's). */
+export const roomLowestPrice = (room: RoomDoc) => {
+  const low = lowest((room.rates ?? []).map((r) => ({ amount: r.weekly })));
+  return low && formatPence(low.amount);
+};
 
 /** One room, by its slug. */
 export const getRoom = cache(async (slug: string): Promise<RoomDoc | null> => (await getRooms()).find((r) => r.slug === slug) ?? null);
@@ -241,10 +263,13 @@ type PromoCardData = { heading: string; image: number | Media; position?: string
 export const promoCards = (cards?: PromoCardData[] | null): PromoCard[] =>
   (cards ?? []).map((card) => ({ heading: card.heading, image: mediaImage(card.image, card.position), cta: { label: card.ctaLabel, href: card.ctaHref, enquiry: card.enquiry ?? undefined } }));
 
-/** The template for a kind of place (/admin → Templates), if it's been made. */
+/**
+ * The template for a kind of place (/admin → Templates), if it's been made, with the variables in
+ * its text filled in. {lowest-price} is left for each place's page to fill (RenderTemplate).
+ */
 export const getTemplate = cache(async (type: Template["type"]): Promise<Template | null> => {
   const { docs } = await (await payload()).find({ collection: "templates", where: { type: { equals: type } }, limit: 1, depth: 2 });
-  return docs[0] ?? null;
+  return docs[0] ? fillVariables(docs[0], await getVariables()) : null;
 });
 
 /** A room template's main-column content (what's included, about the building, about co-living); each part empty if it's not filled in. */

@@ -12,6 +12,7 @@ import RoomBooking from "@/components/ui/RoomBooking";
 import Section from "@/components/ui/Section";
 import VideoButton from "@/components/ui/VideoButton";
 import RenderBlocks from "@/components/payload/RenderBlocks";
+import { fillVariables } from "@/lib/variables";
 import { getRoom, getRooms, getTemplate, roomColumn, roomDetails } from "@/lib/payload";
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
@@ -66,8 +67,10 @@ export default async function OldOakRoom({ params }: PageProps<"/locations/old-o
   const room = await findRoom(slug);
   // The room template (/admin → Templates) has the main column's shared content and the sections
   // after it. Templates come from the seed: without one, there's no layout to show
-  const template = await getTemplate("room");
-  if (!template) notFound();
+  const found = await getTemplate("room");
+  if (!found) notFound();
+  // {lowest-price} in the template's words is this room's
+  const template = fillVariables(found, new Map(), room.price);
   const shared = roomColumn(template);
   const apply = { label: "Apply now", href: `/locations/old-oak/rooms/${room.slug}/apply` };
 

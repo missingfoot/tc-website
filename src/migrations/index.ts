@@ -16,6 +16,7 @@ import * as migration_20261006_231629_pricing_settings from './20261006_231629_p
 import * as migration_20261006_232454_templates from './20261006_232454_templates';
 import * as migration_20261006_233437_remove_location_pages from './20261006_233437_remove_location_pages';
 import * as migration_20261007_000623_structured_pricing from './20261007_000623_structured_pricing';
+import * as migration_20261007_001702_variables from './20261007_001702_variables';
 
 export const migrations = [
   {
@@ -106,6 +107,11 @@ export const migrations = [
   {
     up: migration_20261007_000623_structured_pricing.up,
     down: migration_20261007_000623_structured_pricing.down,
-    name: '20261007_000623_structured_pricing'
+    name: '20261007_000623_structured_pricing',
+  },
+  {
+    up: migration_20261007_001702_variables.up,
+    down: migration_20261007_001702_variables.down,
+    name: '20261007_001702_variables'
   },
 ];

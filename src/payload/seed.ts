@@ -794,4 +794,50 @@ else {
   console.log("pricing rules: created");
 }
 
+// Variables: your own (prices written into sentences), and the existing text's typed prices
+// turned into variables, unless they've been set up already
+const variables = await payload.findGlobal({ slug: "variables", depth: 0 });
+if (variables.entries?.length) console.log("variables: already set up, left as they are");
+else {
+  await payload.updateGlobal({
+    slug: "variables",
+    data: {
+      entries: [
+        { name: "gym-joining-fee", kind: "money", amount: 5000, about: "The gym's joining fee, in the FAQs" },
+        { name: "guest-room", kind: "money", amount: 6000, about: "A night in a guest room, in the FAQ" },
+      ],
+    },
+  });
+  // Typed prices → variables, wherever these sentences are
+  const swaps: [RegExp, string][] = [
+    [/Rooms start from £[\d,.]+ per week\./g, "Rooms start from {lowest-price} per week."],
+    [/North London, NW10 · Starting at £[\d,.]+ per week/g, "North London, NW10 · Starting at {lowest-price:rooms} per week"],
+    [/Ensuites start from £[\d,.]+ a week and studios from £[\d,.]+\./g, "Ensuites start from {lowest-price:room:ensuite} a week and studios from {lowest-price:room:studio}."],
+    [/after a £50 joining fee/g, "after a {gym-joining-fee} joining fee"],
+    [/guest rooms at £60 a night/g, "guest rooms at {guest-room} a night"],
+  ];
+  const swapAll = <T,>(value: T): T => {
+    if (typeof value === "string") return swaps.reduce((text, [find, put]) => text.replace(find, put), value as string) as T;
+    if (Array.isArray(value)) return value.map(swapAll) as T;
+    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, swapAll(v)])) as T;
+    return value;
+  };
+  let changed = 0;
+  for (const page of (await payload.find({ collection: "pages", pagination: false, depth: 0 })).docs) {
+    const layout = swapAll(page.layout);
+    if (JSON.stringify(layout) !== JSON.stringify(page.layout)) {
+      await payload.update({ collection: "pages", id: page.id, data: { layout } });
+      changed++;
+    }
+  }
+  for (const room of (await payload.find({ collection: "rooms", pagination: false, depth: 0 })).docs) {
+    const about = swapAll(room.about);
+    if (about !== room.about) {
+      await payload.update({ collection: "rooms", id: room.id, data: { about } });
+      changed++;
+    }
+  }
+  console.log(`variables: created, and used in ${changed} pages and rooms`);
+}
+
 process.exit(0);

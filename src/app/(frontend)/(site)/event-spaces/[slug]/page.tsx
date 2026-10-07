@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { RenderTemplate } from "@/components/payload/RenderBlocks";
-import { getLocation, getLocations, getTemplate, locationDetails, locationIncluded } from "@/lib/payload";
+import { getLocation, getLocations, getTemplate, locationDetails, locationIncluded, locationLowestPrice } from "@/lib/payload";
 
 // Venues are in the CMS (/admin → Locations), and laid out by their template (/admin → Templates).
 
@@ -31,7 +31,7 @@ export default async function EventVenue({ params }: PageProps<"/event-spaces/[s
   return (
     <RenderTemplate
       template={template}
-      place={{ details, gallery: details.gallery, included: locationIncluded(venue), enquiry: "events", venue: venue.slug }}
+      place={{ details, gallery: details.gallery, included: locationIncluded(venue), lowestPrice: locationLowestPrice(venue), enquiry: "events", venue: venue.slug }}
     />
   );
 }

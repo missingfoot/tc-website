@@ -100,12 +100,14 @@ export interface Config {
     contactDetails: ContactDetail;
     socialLinks: SocialLink;
     pricingRules: PricingRule;
+    variables: Variable;
   };
   globalsSelect: {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     contactDetails: ContactDetailsSelect<false> | ContactDetailsSelect<true>;
     socialLinks: SocialLinksSelect<false> | SocialLinksSelect<true>;
     pricingRules: PricingRulesSelect<false> | PricingRulesSelect<true>;
+    variables: VariablesSelect<false> | VariablesSelect<true>;
   };
   locale: null;
   widgets: {
@@ -3706,6 +3708,36 @@ export interface PricingRule {
   createdAt?: string | null;
 }
 /**
+ * Write {name} in any text (pages, locations, rooms, templates) and the value goes in, so prices in sentences never go out of date. Your own are below; the ones worked out from the real prices are listed underneath.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "variables".
+ */
+export interface Variable {
+  id: number;
+  entries?:
+    | {
+        /**
+         * Lowercase words joined by hyphens, e.g. gym-joining-fee. Used in text as {gym-joining-fee}.
+         */
+        name: string;
+        kind?: ('money' | 'text') | null;
+        /**
+         * Shown as e.g. “£50”.
+         */
+        amount?: number | null;
+        text?: string | null;
+        /**
+         * Optional, for other editors, e.g. “Gym joining fee mentioned in the FAQ”.
+         */
+        about?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation_select".
  */
@@ -3817,6 +3849,25 @@ export interface PricingRulesSelect<T extends boolean = true> {
         guarantor?: T;
         noGuarantor?: T;
         upfront?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "variables_select".
+ */
+export interface VariablesSelect<T extends boolean = true> {
+  entries?:
+    | T
+    | {
+        name?: T;
+        kind?: T;
+        amount?: T;
+        text?: T;
+        about?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

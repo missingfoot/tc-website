@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { revalidatePath } from "next/cache";
 import { moneyField } from "../fields/shared";
 
 /**
@@ -29,4 +30,16 @@ export const PricingRules: GlobalConfig = {
       ],
     },
   ],
+  hooks: {
+    afterChange: [
+      () => {
+        try {
+          // {joining-fee} can be in any page's text, besides the applications
+          revalidatePath("/", "layout");
+        } catch {
+          // Outside Next (e.g. the seed script) there's no page cache to refresh
+        }
+      },
+    ],
+  },
 };

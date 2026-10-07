@@ -13,6 +13,8 @@ function refresh(type?: string | null, slug?: string | null) {
   try {
     revalidatePath(`${base}/${slug}`);
     revalidatePath(base);
+    // {lowest-price:working:…} and the like can be in any page's text
+    revalidatePath("/", "layout");
   } catch {
     // Outside Next (e.g. the seed script) there's no page cache to refresh
   }

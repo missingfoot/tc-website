@@ -31,6 +31,7 @@ import { jobs } from "@/content/careers";
 import { pressLogos, pressPhotos } from "@/content/press";
 import { galleryImage, iconItems, locationCard, mediaImage, paragraphs, roomCard, travelModes } from "@/lib/payload";
 import type { Page, Template } from "@/payload-types";
+import { fillVariables } from "@/lib/variables";
 import LocationIntro from "@/components/sections/LocationIntro";
 import Pricing from "@/components/sections/Pricing";
 import { mapEmbedUrl } from "@/content/directions";
@@ -51,6 +52,8 @@ export type TemplatePlace = {
   enquiry?: EnquiryKind;
   /** Pre-selects the venue on event enquiries. */
   venue?: string;
+  /** Its lowest price, e.g. "£150": {lowest-price} in the template's text. */
+  lowestPrice?: string;
 };
 
 const asParagraphs = (text: string): ReactNode => paragraphs(text).map((p) => <p key={p}>{p}</p>);
@@ -481,9 +484,11 @@ function heroButton(button?: Extract<Block, { blockType: "hero" }>["button"]) {
  * Location ones filled from the place, then the floating enquiry button if the template has it.
  */
 export function RenderTemplate({ template, place }: { template: Template; place: TemplatePlace }) {
+  // {lowest-price} in the template's words is this place's
+  const layout = fillVariables(template.layout, new Map(), place.lowestPrice);
   return (
     <>
-      <RenderBlocks blocks={template.layout} place={place} />
+      <RenderBlocks blocks={layout} place={place} />
       {template.floatingEnquiry && place.enquiry && (
         <FloatingButton>
           <EnquiryButton kind={place.enquiry} venue={place.venue} />

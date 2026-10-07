@@ -12,6 +12,8 @@ function refresh(slug?: string | null) {
     revalidatePath(`${roomsPath}/rooms/${slug}`);
     revalidatePath(`${roomsPath}/rooms/${slug}/apply`);
     revalidatePath(roomsPath);
+    // {lowest-price:rooms} can be in any page's text
+    revalidatePath("/", "layout");
   } catch {
     // Outside Next (e.g. the seed script) there's no page cache to refresh
   }
