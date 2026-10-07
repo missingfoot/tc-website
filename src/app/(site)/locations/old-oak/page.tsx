@@ -23,7 +23,7 @@ export default function OldOak() {
   return (
     <>
       <Hero
-        image="/images/hero-cover-old-oak.jpg"
+        image="/images/old-oak/hero.jpg"
         imageAlt="The Collective Old Oak lounge"
         eyebrow="North London"
         title="Old Oak"
