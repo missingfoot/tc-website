@@ -1,9 +1,10 @@
 "use client";
 
+import type { ImageProps } from "next/image";
 import Photo from "@/components/ui/Photo";
 import { useEffect, useRef } from "react";
 
-type ParallaxImageProps = React.ComponentProps<typeof Photo> & {
+type ParallaxImageProps = Omit<ImageProps, "fill"> & {
   /** How fast the image moves relative to the page: 0 = scrolls normally, 1 = stays fixed. */
   speed?: number;
 };

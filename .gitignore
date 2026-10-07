@@ -39,7 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Payload proof of concept: local database, uploads and secrets
-/payload.db*
-/public/media

@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import { ArrowLeft } from "@/components/icons";
-import { getContact } from "@/lib/payload";
+import { site } from "@/config/site";
 import { text } from "@/lib/styles";
 
 /** A labelled part of the spec: label on the left on desktop, content on the right. */
@@ -29,10 +29,9 @@ function Bullets({ points }: { points: string[] }) {
 }
 
 /** A job's page body: back link, title, location and sector, then the spec in labelled parts and an apply button. */
-export default async function JobSpec({ job, aboutCompany }: { job: Job; aboutCompany: string[] }) {
-  const { email } = await getContact();
+export default function JobSpec({ job, aboutCompany }: { job: Job; aboutCompany: string[] }) {
   // TODO: link to the real application process (e.g. the job on Workable)
-  const apply = `mailto:${email}?subject=${encodeURIComponent(`Application: ${job.title}`)}`;
+  const apply = `mailto:${site.email}?subject=${encodeURIComponent(`Application: ${job.title}`)}`;
   return (
     <Section>
       <Container>

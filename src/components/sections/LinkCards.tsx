@@ -45,7 +45,6 @@ export default function LinkCards({ heading, intro, cards, cardStyle = "dark", i
                   <Photo
                     src={card.image.src}
                     alt={card.image.alt}
-                    preview={card.image.blur}
                     sizes={sizes2x(["(min-width: 1024px)", "50vw"], [null, "100vw"])}
                     quality={90}
                     className="object-cover"

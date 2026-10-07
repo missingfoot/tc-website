@@ -262,3 +262,6 @@ export const oldOakVenues = cards("old-oak");
 
 /** "Look inside" on the Event Spaces page: one photo from each venue. */
 export const eventsGallery: GalleryImage[] = venues.map((v) => ({ ...v.gallery[0], alt: v.name }));
+
+/** Venue names for the enquiry form's picker. */
+export const venueOptions = venues.map((v) => ({ value: v.slug, label: `${v.name} (${v.area})` }));

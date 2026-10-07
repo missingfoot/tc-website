@@ -27,7 +27,7 @@ export default function TeamGrid({ heading, intro, people, tone = "white" }: Tea
           {people.map((person) => (
             <li key={person.name} className="flex flex-col items-center text-center">
               <div className="relative aspect-square w-full max-w-40 overflow-hidden rounded-full bg-cream">
-                <Photo src={person.image.src} alt={person.image.alt} preview={person.image.blur} sizes={sizes2x([null, "10rem"])} className="object-cover" style={{ objectPosition: person.image.position ?? "center" }} />
+                <Photo src={person.image.src} alt={person.image.alt} sizes={sizes2x([null, "10rem"])} className="object-cover" style={{ objectPosition: person.image.position ?? "center" }} />
               </div>
               <h3 className="mt-5 text-lg font-bold text-ink">{person.name}</h3>
               <p className="mt-1 text-base text-stone">{person.role}</p>

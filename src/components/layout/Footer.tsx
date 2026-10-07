@@ -1,17 +1,16 @@
 import Link from "next/link";
+import { footerNav } from "@/config/navigation";
 import { site } from "@/config/site";
 import Container from "@/components/ui/Container";
-import { getContact, getNavigation } from "@/lib/payload";
 import { LogoMark } from "./Logo";
 
 const underlined = "border-b border-white/20 pb-0.5 transition-colors hover:border-white";
 
 /**
  * Site footer: logo and link columns on cream, then contact details, address and legal links
- * on dark. Centred on mobile; columns on desktop. The columns are in the CMS (/admin → Navigation).
+ * on dark. Centred on mobile; columns on desktop.
  */
-export default async function Footer() {
-  const [{ footer }, contact] = await Promise.all([getNavigation(), getContact()]);
+export default function Footer() {
   return (
     <footer>
       <div className="bg-cream py-12 text-center lg:py-20 lg:text-left">
@@ -20,7 +19,7 @@ export default async function Footer() {
             <Link href="/" aria-label={`${site.name} home`} className="mx-auto text-ink lg:mx-0 lg:self-start">
               <LogoMark variant="icon" className="h-14" />
             </Link>
-            {footer.map((group) => (
+            {footerNav.map((group) => (
               <nav key={group.label} aria-label={group.label}>
                 <h2 className="text-sm font-bold text-stone">{group.label}</h2>
                 <ul className="mt-6 flex flex-col gap-5">
@@ -41,19 +40,19 @@ export default async function Footer() {
       <div className="bg-ink py-12 text-center text-white lg:py-16">
         <Container className="flex flex-col items-center">
           <h2 className="text-sm font-bold text-ash">Contact us</h2>
-          <a href={contact.phoneLink} className="mt-6 text-lg font-medium transition-opacity hover:opacity-70">
-            {contact.phone}
+          <a href={site.phoneLink} className="mt-6 text-lg font-medium transition-opacity hover:opacity-70">
+            {site.phone}
           </a>
-          <a href={`mailto:${contact.email}`} className={`mt-4 text-lg font-medium ${underlined}`}>
-            {contact.email}
+          <a href={`mailto:${site.email}`} className={`mt-4 text-lg font-medium ${underlined}`}>
+            {site.email}
           </a>
 
           <div className="mt-12 flex flex-col items-center gap-12 lg:mt-14 lg:flex-row lg:gap-12">
             <address className="text-base text-ash not-italic">
-              {contact.address.map((line, i) => (
+              {site.address.map((line, i) => (
                 <span key={line} className="block lg:inline">
                   {line}
-                  {i < contact.address.length - 1 && <span className="hidden lg:inline"> </span>}
+                  {i < site.address.length - 1 && <span className="hidden lg:inline"> </span>}
                 </span>
               ))}
             </address>

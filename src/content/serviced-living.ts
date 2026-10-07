@@ -1,7 +1,7 @@
 import { Basin, Bed, Bill, Car, Hob, Oven, Outdoor, Play, Roundel, Router, Shelves, Sofa, SprayBottle, WashingMachine, Guard, DoorEntry } from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import { simpleTravelModes } from "@/content/directions";
-import type { GalleryImage, LocationDetails, PromoCard } from "@/lib/types";
+import type { GalleryImage, LocationDetails, PromoCard, Room } from "@/lib/types";
 
 const img = "/images/serviced-living";
 
@@ -89,6 +89,16 @@ export const servicedLocationPages: LocationDetails[] = [
     travelModes: simpleTravelModes("34 Clanricarde Gardens, London W2 4JW", "Notting Hill Gate"),
   },
 ];
+
+/** The Serviced Living page's location cards, linking to each house's page. */
+export const servicedLocations: Room[] = servicedLocationPages.map((location) => ({
+  name: location.name,
+  subtitle: `${location.area}, ${location.postcode}`,
+  price: location.fromPrice,
+  image: location.image,
+  features: location.features,
+  href: `/serviced-living/${location.slug}`,
+}));
 
 /** What comes with every room, on the Serviced Living page. */
 export const servicedIncluded: FeatureGroup[] = [

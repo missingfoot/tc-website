@@ -1,7 +1,6 @@
 import {
   Basin, Bed, Bill, CalendarCheck, Desk, Dumbbell, Guard, Hob, Router, Sofa, SprayBottle, TapeMeasure, WashingMachine,
 } from "@/components/icons";
-import { penceFromText } from "@/lib/pricing";
 import type { CircleImage, GalleryImage, PromoCard, Review, Room, RoomDetails, Testimonial } from "@/lib/types";
 import { site } from "@/config/site";
 
@@ -104,12 +103,9 @@ const booking: RoomDetails["booking"] = {
 
 export const oldOakRoomDetails: RoomDetails[] = oldOakRooms.map((room) => ({
   slug: room.href.split("/").pop()!,
-  href: room.href,
   name: room.name,
   location: "Old Oak, Willesden Junction",
   price: room.price.replace(" per week", ""),
-  // Every membership length at the room's one price, until they're set separately (in the CMS)
-  rates: booking.periods.map((period) => ({ period, months: Number.parseInt(period, 10), weekly: penceFromText(room.price) })),
   // No separate thumbnail for the room photo yet: the full image doubles as one
   photos: [{ src: room.image.src, thumb: room.image.src, alt: room.image.alt }, ...buildingPhotos],
   features: room.features,

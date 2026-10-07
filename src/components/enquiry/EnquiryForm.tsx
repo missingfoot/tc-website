@@ -8,6 +8,7 @@ import Select from "@/components/ui/Select";
 import { Check } from "@/components/icons";
 import { PhoneField, TextField } from "@/components/application/fields";
 import BackButton from "./BackButton";
+import { venueOptions } from "@/content/events";
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 import type { EnquiryKind } from "@/lib/types";
@@ -70,8 +71,6 @@ const useIsClient = () => useSyncExternalStore(subscribe, () => true, () => fals
  */
 type EnquiryFormProps = {
   kind: EnquiryKind;
-  /** The venues to choose from (event enquiries), from the CMS's Locations. */
-  venueOptions?: { value: string; label: string }[];
   /** Pre-selected venue (event enquiries). */
   venue?: string;
   /** Referral code from a friend's link (co-living), sent with the enquiry. */
@@ -80,7 +79,7 @@ type EnquiryFormProps = {
   location?: string;
 };
 
-export default function EnquiryForm({ kind, venueOptions = [], venue, referral, location }: EnquiryFormProps) {
+export default function EnquiryForm({ kind, venue, referral, location }: EnquiryFormProps) {
   const uid = useId();
   const isClient = useIsClient();
   const [sent, setSent] = useState(false);

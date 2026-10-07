@@ -5,7 +5,7 @@ import { Details, InfoTip } from "./fields";
 
 /** The room being applied for and what's paid today: the sticky card beside the steps, or the mobile "Show info" page (`fullScreen`). */
 export default function ApplicationSummary({ room, fullScreen = false }: { room: ApplicationRoom; fullScreen?: boolean }) {
-  const costs = roomCosts(room.weeklyPrice, room.rules);
+  const costs = roomCosts(room.weeklyPrice);
   return (
     <div className={fullScreen ? "bg-white" : "overflow-hidden rounded-2xl bg-white shadow-xl shadow-black/10"}>
       <div className="relative aspect-[19/11] bg-ink/10">

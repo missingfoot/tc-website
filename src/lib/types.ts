@@ -32,8 +32,6 @@ export type GalleryImage = {
   alt: string;
   /** Edge the crop is pinned to (default centre). */
   position?: ImagePosition;
-  /** Blurred preview while it loads, for a photo not in blur-placeholders.json (e.g. a CMS upload). */
-  blur?: string;
 };
 
 /** A photo shown in a circle, or a cover-cropped card photo. `position` frames the subject. */
@@ -41,8 +39,6 @@ export type CircleImage = {
   src: string;
   alt: string;
   position?: ImagePosition;
-  /** Blurred preview to show while it loads, for images not in blur-placeholders.json (e.g. CMS uploads). */
-  blur?: string;
 };
 
 
@@ -120,8 +116,6 @@ export type Perk = {
   name: string;
   text: string;
   image: string;
-  /** Blurred preview of `image` while it loads, for one not in blur-placeholders.json (e.g. a CMS upload). */
-  imageBlur?: string;
   logo?: string;
 };
 
@@ -136,15 +130,11 @@ export type Price = {
 /** A co-living room's own page: photos, key facts, booking details and copy. */
 export type RoomDetails = {
   slug: string;
-  /** Its page, e.g. "/locations/old-oak/rooms/ensuite". */
-  href: string;
   name: string;
   /** Where it is, under the name, e.g. "Old Oak, Willesden Junction". */
   location: string;
-  /** Lowest weekly price, e.g. "£245". */
+  /** Weekly price, e.g. "£245". */
   price: string;
-  /** A weekly price (pence) for each membership length, e.g. { period: "12 months", months: 12, weekly: 24500 }. */
-  rates: { period: string; months: number; weekly: number }[];
   /** Gallery photos; the first is also the page's hero. */
   photos: GalleryImage[];
   features: { icon: ComponentType<{ className?: string }>; label: string }[];

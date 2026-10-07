@@ -10,8 +10,6 @@ import { sizes2x } from "@/lib/images";
 type HeroProps = {
   image: string | StaticImageData;
   imageAlt?: string;
-  /** Blurred preview to show while the photo loads, for one not in blur-placeholders.json (e.g. a CMS upload). */
-  imagePreview?: string;
   /** Edge the photo's crop is pinned to (default centre). */
   imagePosition?: ImagePosition;
   eyebrow?: string;
@@ -40,7 +38,7 @@ type HeroProps = {
 // stays visible.
 export const curvedMask = "[--mask-r:max(429cqw-1178px,120cqw)] lg:[clip-path:circle(var(--mask-r)_at_50%_calc(100%-var(--mask-r)))]";
 
-export default function Hero({ image, imageAlt = "", imagePreview, imagePosition, eyebrow, title, subtitle, cta, action, video, curved = true, wash = true, parallax = 0.4 }: HeroProps) {
+export default function Hero({ image, imageAlt = "", imagePosition, eyebrow, title, subtitle, cta, action, video, curved = true, wash = true, parallax = 0.4 }: HeroProps) {
   // Photo only (no title): a shorter banner
   const photoOnly = !title;
   return (
@@ -49,7 +47,6 @@ export default function Hero({ image, imageAlt = "", imagePreview, imagePosition
         <ParallaxImage
           src={image}
           alt={imageAlt}
-          preview={imagePreview}
           sizes={sizes2x([null, "100vw"])}
           loading="eager"
           fetchPriority="high"

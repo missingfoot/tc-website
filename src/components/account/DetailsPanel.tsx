@@ -5,12 +5,12 @@ import Button from "@/components/ui/Button";
 import { Check } from "@/components/icons";
 import { TextField } from "@/components/application/fields";
 import { saveDetails, useAccount } from "@/lib/account";
+import { site } from "@/config/site";
 import { text } from "@/lib/styles";
 import AccountCard from "./AccountCard";
 
 /** Your details tab: name and phone (email is the sign-in, so it's changed by contacting us). */
-/** `email`: the company's, for asking to change yours (the CMS's Contact details). */
-export default function DetailsPanel({ email }: { email: string }) {
+export default function DetailsPanel() {
   const account = useAccount()?.account;
   const [saved, setSaved] = useState(false);
   if (!account) return null;
@@ -32,7 +32,7 @@ export default function DetailsPanel({ email }: { email: string }) {
           <p className="mt-2 font-medium text-ink">{account.email}</p>
           <p className="mt-1 text-sm text-stone">
             You sign in with this.{" "}
-            <a href={`mailto:${email}?subject=Change my email`} className="underline underline-offset-4">
+            <a href={`mailto:${site.email}?subject=Change my email`} className="underline underline-offset-4">
               Contact us
             </a>{" "}
             to change it.

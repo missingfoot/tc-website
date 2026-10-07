@@ -4,7 +4,7 @@ import Container from "@/components/ui/Container";
 import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import { ArrowRight } from "@/components/icons";
-import { getContact } from "@/lib/payload";
+import { site } from "@/config/site";
 import { pressable, text } from "@/lib/styles";
 
 type JobListProps = {
@@ -19,8 +19,7 @@ type JobListProps = {
 const cardColours: Record<SectionTone, string> = { white: "bg-cream hover:bg-cream-dark", cream: "bg-white hover:bg-white/70" };
 
 /** Open roles as full-width cards, one per row (room for long titles), each linking to its spec, then a line for speculative applications. */
-export default async function JobList({ heading, jobs, id, tone = "white" }: JobListProps) {
-  const { email } = await getContact();
+export default function JobList({ heading, jobs, id, tone = "white" }: JobListProps) {
   return (
     <Section tone={tone}>
       <Container>
@@ -44,7 +43,7 @@ export default async function JobList({ heading, jobs, id, tone = "white" }: Job
         </ul>
         <p className={`mt-10 lg:mt-12 lg:text-center ${text.body}`}>
           Don’t see the role you’re looking for?{" "}
-          <a href={`mailto:${email}?subject=Careers`} className="font-medium text-ink underline underline-offset-4">
+          <a href={`mailto:${site.email}?subject=Careers`} className="font-medium text-ink underline underline-offset-4">
             We’d still love to hear from you
           </a>
         </p>

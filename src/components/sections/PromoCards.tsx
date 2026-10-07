@@ -39,7 +39,6 @@ function PromoCardItem({ card, shape }: { card: PromoCard; shape: string }) {
       <Photo
         src={card.image.src}
         alt={card.image.alt}
-        preview={card.image.blur}
         sizes={sizes2x(["(min-width: 1024px)", "50vw"], [null, "100vw"])}
         quality={90}
         className="-z-10 object-cover"

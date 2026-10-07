@@ -6,7 +6,7 @@ import {
 import type { ChecklistItem } from "@/components/sections/Checklist";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import { bedfordSquareAddress, bedfordSquareTravelModes, oldOakAddress, oldOakTravelModes } from "@/content/directions";
-import type { GalleryImage, LocationDetails, Price } from "@/lib/types";
+import type { GalleryImage, LocationDetails, Price, Room } from "@/lib/types";
 
 const img = "/images/working";
 
@@ -159,6 +159,16 @@ export const workingLocationPages: LocationDetails[] = [
     travelModes: [],
   },
 ];
+
+/** The Working page's location cards, linking to each location's page. */
+export const workingLocations: Room[] = workingLocationPages.map((location) => ({
+  name: location.name,
+  subtitle: `${location.area}, ${location.postcode}`,
+  price: location.fromPrice,
+  image: location.image,
+  features: location.features,
+  href: `/working/${location.slug}`,
+}));
 
 /** "What's included" on the Working page. */
 export const workingIncluded: FeatureGroup[] = [

@@ -12,16 +12,14 @@ type EnquiryButtonProps = {
   arrow?: boolean;
   /** Pre-selects this venue on the event enquiry form. */
   venue?: string;
-  /** In place of the form's usual label. */
-  label?: string;
   className?: string;
 };
 
 /** A link to an enquiry page: "Apply now" (co-living), "Get a free day trial" (working), "Book a viewing" (serviced living) or "Make an enquiry" (event spaces). */
-export default function EnquiryButton({ kind, variant = "dark", arrow = true, venue, label, className = "" }: EnquiryButtonProps) {
+export default function EnquiryButton({ kind, variant = "dark", arrow = true, venue, className = "" }: EnquiryButtonProps) {
   return (
     <Button href={venue ? `${enquiryPages[kind]}?venue=${venue}` : enquiryPages[kind]} variant={variant} arrow={arrow} className={className}>
-      {label || labels[kind]}
+      {labels[kind]}
     </Button>
   );
 }

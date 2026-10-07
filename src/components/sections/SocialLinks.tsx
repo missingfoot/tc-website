@@ -1,6 +1,6 @@
+import type { Cta } from "@/lib/types";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
-import { getSocialLinks } from "@/lib/payload";
 import Section, { type SectionTone } from "@/components/ui/Section";
 import SectionIntro from "@/components/ui/SectionIntro";
 import { Facebook, Instagram, Mail, Twitter, YouTube } from "@/components/icons";
@@ -15,15 +15,15 @@ type SocialLinksProps = {
   tone?: SectionTone;
   heading: string;
   intro?: string;
+  links: SocialLink[];
+  cta?: Cta;
 };
 
 /**
- * Heading and intro, a row of square social icon links and a call-to-action button. The links and
- * button are the CMS's Social links, the same everywhere.
+ * Heading and intro, a row of square social icon links and a call-to-action button.
  * Centred on desktop; on mobile the icons spread across the width and the button is full width.
  */
-export default async function SocialLinks({ heading, intro, tone = "cream" }: SocialLinksProps) {
-  const { links, button: cta } = await getSocialLinks();
+export default function SocialLinks({ heading, intro, links, cta, tone = "cream" }: SocialLinksProps) {
   return (
     <Section tone={tone}>
       <Container className="flex flex-col items-start lg:items-center">

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useModalDialog } from "@/hooks/useModalDialog";
 import Button from "@/components/ui/Button";
@@ -49,8 +48,8 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
   const [submitted, setSubmitted] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
 
-  const costs = roomCosts(room.weeklyPrice, room.rules);
-  const plans = paymentPlans(room.weeklyPrice, periodMonths(room.period), room.rules);
+  const costs = roomCosts(room.weeklyPrice);
+  const plans = paymentPlans(room.weeklyPrice, periodMonths(room.period));
   const [contact, personal, planAnswers] = answers;
   const plan = plans.find((p) => p.id === planAnswers.plan);
 
@@ -122,9 +121,9 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
               <form onSubmit={complete(1)} className="flex flex-col gap-8">
                 <p className={text.body}>
                   We ask for this as part of our affordability check, and we keep it safe. Read more in our{" "}
-                  <Link href="/privacy" className="font-medium text-ink underline underline-offset-4">
+                  <a href="/privacy" className="font-medium text-ink underline underline-offset-4">
                     privacy policy
-                  </Link>
+                  </a>
                   .
                 </p>
                 <DateOfBirth defaultValue={personal.day ? { day: personal.day, month: personal.month, year: personal.year } : undefined} />
@@ -186,9 +185,9 @@ export default function RoomApplication({ room }: { room: ApplicationRoom }) {
                       <dt className="font-medium text-ink">If you cancel</dt>
                       <dd className={`mt-1 ${text.body}`}>
                         The holding deposit isn’t refundable if you cancel before signing your membership agreement. See our{" "}
-                        <Link href="/terms" className="font-medium text-ink underline underline-offset-4">
+                        <a href="/terms" className="font-medium text-ink underline underline-offset-4">
                           terms &amp; conditions
-                        </Link>
+                        </a>
                         .
                       </dd>
                     </div>
@@ -304,15 +303,15 @@ function PaymentForm({ total, onSubmit }: { total: number; onSubmit: (e: FormEve
       <div className="flex flex-col gap-4">
         <Checkbox name="terms" required>
           I have read and agree to the{" "}
-          <Link href="/terms" className="font-medium underline underline-offset-4">
+          <a href="/terms" className="font-medium underline underline-offset-4">
             terms &amp; conditions
-          </Link>
+          </a>
         </Checkbox>
         <p className={text.body}>
           By completing your application you agree to our{" "}
-          <Link href="/privacy" className="font-medium text-ink underline underline-offset-4">
+          <a href="/privacy" className="font-medium text-ink underline underline-offset-4">
             privacy policy
-          </Link>
+          </a>
           .
         </p>
       </div>
@@ -353,7 +352,7 @@ function SummarySheet({ room, open, onClose }: { room: ApplicationRoom; open: bo
       <div className="transition-transform duration-500 ease-smooth starting:translate-y-6 motion-reduce:transition-none">
         <ApplicationSummary room={room} fullScreen />
       </div>
-      <StickyBar title={room.name} subtitle={`Total today ${formatMoney(roomCosts(room.weeklyPrice, room.rules).dueToday, true)}`}>
+      <StickyBar title={room.name} subtitle={`Total today ${formatMoney(roomCosts(room.weeklyPrice).dueToday, true)}`}>
         <Button variant="outline" onClick={onClose}>
           Hide info
         </Button>
@@ -365,8 +364,8 @@ function SummarySheet({ room, open, onClose }: { room: ApplicationRoom; open: bo
 /** Shown in place of the steps once the application is sent: everything entered, and what was paid. */
 function Confirmation({ room, answers }: { room: ApplicationRoom; answers: Answers[] }) {
   const [contact, personal, planAnswers, payment] = answers;
-  const costs = roomCosts(room.weeklyPrice, room.rules);
-  const plan = paymentPlans(room.weeklyPrice, periodMonths(room.period), room.rules).find((p) => p.id === planAnswers.plan);
+  const costs = roomCosts(room.weeklyPrice);
+  const plan = paymentPlans(room.weeklyPrice, periodMonths(room.period)).find((p) => p.id === planAnswers.plan);
   const paidByCard = payment.method === "Card payment";
 
   const block = (heading: string, rows: [ReactNode, ReactNode][]) => (

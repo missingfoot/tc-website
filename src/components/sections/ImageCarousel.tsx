@@ -32,7 +32,7 @@ export default function ImageCarousel({ heading, intro, images, footer, tone = "
           label={heading}
           slideClassName="relative aspect-square overflow-hidden rounded-2xl bg-cream"
           renderItem={(img) => (
-            <Photo src={img.src} alt={img.alt} preview={img.blur} draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
+            <Photo src={img.src} alt={img.alt} draggable={false} sizes={sizes2x([null, "300px"])} quality={90} className="object-cover" />
           )}
         />
         {footer && <p className={`mt-8 text-left lg:text-center ${text.body}`}>{footer}</p>}
