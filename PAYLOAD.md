@@ -72,6 +72,10 @@ npm run dev                            # then open http://localhost:3000/admin
   out from its lowest price unless it has its own text (venues' capacity). Rooms have a weekly rate
   per membership length; the card, booking card and application use them. Pricing rules (/admin →
   Pricing rules) hold the application's joining fee, holding deposit and bonds.
+- **Pricing** (/admin/pricing, linked in the sidebar): every price in one table (rooms' rates,
+  locations' prices, the joining fee, money variables), edited in place and saved together, or
+  downloaded as a CSV for Excel and uploaded back (rows match by their Key column; changes load
+  highlighted for review before saving). `src/payload/views/` and `endpoints/pricingSheet.ts`.
 - **Variables** in text: write `{lowest-price}` in a room's or location's text (or a template's,
   for the place shown) and its current lowest price goes in when the page is built. Other pages
   can name one (`{lowest-price:room:ensuite}`, `{lowest-price:working:old-oak}`,

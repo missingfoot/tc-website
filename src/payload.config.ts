@@ -13,6 +13,7 @@ import { Templates } from "./payload/collections/Templates";
 import { Users } from "./payload/collections/Users";
 import { siteLinks } from "./payload/endpoints/siteLinks";
 import { siteVariables } from "./payload/endpoints/siteVariables";
+import { pricingSheet } from "./payload/endpoints/pricingSheet";
 import { ContactDetails } from "./payload/globals/ContactDetails";
 import { Navigation } from "./payload/globals/Navigation";
 import { PricingRules } from "./payload/globals/PricingRules";
@@ -34,11 +35,16 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
     meta: { titleSuffix: " | The Collective admin", icons: [{ rel: "icon", url: "/favicon.ico" }] },
     // The brand's logo; its font is in app/(payload)/custom.scss
-    components: { graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" } },
+    components: {
+      graphics: { Logo: "/payload/graphics#AdminLogo", Icon: "/payload/graphics#AdminIcon" },
+      // Every price in one table: /admin/pricing, linked under the collections and globals
+      views: { pricing: { Component: "/payload/views/PricingView#PricingView", path: "/pricing" } },
+      afterNavLinks: ["/payload/fields/PricingSheet#PricingNavLink"],
+    },
   },
   collections: [Pages, Templates, Locations, Rooms, Media, Users],
   globals: [Navigation, ContactDetails, SocialLinksGlobal, PricingRules, Variables],
-  endpoints: [siteLinks, siteVariables],
+  endpoints: [siteLinks, siteVariables, ...pricingSheet],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? "",
   typescript: { outputFile: path.resolve(dirname, "payload-types.ts") },

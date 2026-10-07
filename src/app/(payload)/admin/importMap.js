@@ -6,7 +6,9 @@ import { MoneyField as MoneyField_c0e0586c6809cd46d0761c54ff9846bd } from '../..
 import { VariablesList as VariablesList_eb6c9f0a464992ca8a8577a69edcf82e } from '../../../payload/fields/VariablesList'
 import { AdminIcon as AdminIcon_25203ab71d589046a26e5f356b2fabd6 } from '../../../payload/graphics'
 import { AdminLogo as AdminLogo_25203ab71d589046a26e5f356b2fabd6 } from '../../../payload/graphics'
+import { PricingNavLink as PricingNavLink_cf915fa46da595ec8633ec428955bdde } from '../../../payload/fields/PricingSheet'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
+import { PricingView as PricingView_20c8fbebcfa3ee333a7809f4b30c82f3 } from '../../../payload/views/PricingView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -19,6 +21,8 @@ export const importMap = {
   "/payload/fields/VariablesList#VariablesList": VariablesList_eb6c9f0a464992ca8a8577a69edcf82e,
   "/payload/graphics#AdminIcon": AdminIcon_25203ab71d589046a26e5f356b2fabd6,
   "/payload/graphics#AdminLogo": AdminLogo_25203ab71d589046a26e5f356b2fabd6,
+  "/payload/fields/PricingSheet#PricingNavLink": PricingNavLink_cf915fa46da595ec8633ec428955bdde,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
+  "/payload/views/PricingView#PricingView": PricingView_20c8fbebcfa3ee333a7809f4b30c82f3,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
