@@ -38,9 +38,9 @@ export const coLivingLocations: LinkCard[] = [
   },
   {
     title: "Canary Wharf",
-    text: "East London, E14 · Starting at £245 per week",
+    text: "East London, E14 · Opening soon, from £80 a night or £330 per week",
     image: { src: `${img}/canary-wharf.jpg`, alt: "The Collective Canary Wharf tower", position: "bottom" },
-    cta: { label: "Join the waitlist", href: "/waitlist?location=canary-wharf" },
+    cta: { label: "Explore Canary Wharf", href: "/locations/canary-wharf" },
   },
 ];
 

@@ -13,6 +13,7 @@ import { workingLocationPages } from "@/content/working";
 export const pageTitles: Record<string, string> = {
   "/": "The Collective",
   "/locations/old-oak": "Old Oak",
+  "/locations/canary-wharf": "Canary Wharf",
   ...Object.fromEntries(oldOakRoomDetails.map((room) => [`/locations/old-oak/rooms/${room.slug}`, room.name])),
   "/co-living": "Co-Living",
   "/working": "Working",

@@ -1,4 +1,13 @@
 {
+  "/images/canary-wharf/events/jam.jpg": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAwAgCdASoIAAcAAkA4JaACdLoAArsRwbuFAAD+0pW8nG6i5MJ6h4An6fTJt8nYWN5nDW//CtQJy0FDfg9d4upPz8UFxAkkKYjAAA==",
+  "/images/canary-wharf/events/mix.jpg": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADQAQCdASoIAAcAAkA4JaACdAD0kQSGXAD+xgPQ3Mj/WLWHakfweyAzw55g0056inu8apOdQTbNB/EddO/7BLLDsneLtqD0aXSTj3IGWnW+NgptTlkAAA==",
+  "/images/canary-wharf/events/munch.jpg": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQAgCdASoIAAcAAkA4JQBOiP/xagGS3XWgAM4/c4ZZz7ahPe4GFN++CBp1jFvqb/s4/gLU0vaw1nJCDhYL3pjNqw198Mr7OXL8PghpgAAAAA==",
+  "/images/canary-wharf/gallery/01-lounge.jpg": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAQCdASoIAAcAAkA4JZQCdADzfH0BgAD+8KV/WJ2Kc8QqC6XETYKqMIIyifznmZ4+rsPma2sLv9pLEpmMKGAAAAA=",
+  "/images/canary-wharf/gallery/02-library.jpg": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAADQAQCdASoIAAQAAkA4JYgCdAD0hR1MAAD2ve+xwOPAcH93pm59Xa+Tjpg5LQRIx+yhr5SfI4iD+RdrKuENcAAA",
+  "/images/canary-wharf/rooms/big.jpg": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAQCdASoIAAcAAkA4JZQCdAD0QV2MQADN8sw6P//7C2zPTz5vUus28I22ozLdlPwTkuXBnXv3DQEUBQNckbaAAAA=",
+  "/images/canary-wharf/rooms/comfy.jpg": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAADQAQCdASoIAAcAAkA4JZwAAp2My9RAAAD9AsADTKMK+sj8SuUOtJE5V85emb6dZu3ibAYr3yt2II86EHlPAE4hZPgAAA==",
+  "/images/canary-wharf/rooms/cosy.jpg": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoIAAcAAkA4JQBOgB6JgDwqAAD+wrvY77VLRVBRPsJRBw2V6Tb0di9Onqa2v9htz5ORQ16J591eSquPNbahlw6EC1PaJQ5oAAA=",
+  "/images/canary-wharf/rooms/standard.jpg": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADQAQCdASoIAAcAAkA4JZQCdADzetD4AAD8OKj7OVB/aYvZDyNX9KfiUEF/VyGKRD1S4PUq0snGukIXftq5R7ebzbiRTglgVIeigAAA",
   "/images/careers/team-laptop.jpg": "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAADQAQCdASoIAAUAAkA4JZQC7AEXe4ZiEAD+0rG920yoS4bug+5J12QjmYKjxvvhTfoOztkXjXD2I5iWzAA=",
   "/images/co-living/canary-wharf.jpg": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADwAQCdASoIAAwAAkA4JQBOgB8vSRbcAwAA/sBm1OKhMbECF4JVeGmAS0u0QH2AnQgK7iDvAjLF+QZSlwo9RHGM2q56zZdwxBz3CAAA",
   "/images/co-living/community/01-cabaret-night.jpg": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAADQAQCdASoIAAUAAkA4JbACdAD0F/SsxgDypRUzjqPVmsD+E6QpDxKNPddPLfTwSSf3CYp+E50B3WZDd1r+KT1pHwAAAA==",

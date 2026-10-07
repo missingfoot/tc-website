@@ -391,6 +391,18 @@ export function Dumbbell(props: IconProps) {
   );
 }
 
+/** Pool ladder over water (swimming pool). */
+export function Pool(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 16V5C8 3.89543 8.89543 3 10 3" strokeLinecap="round" />
+      <path d="M16 16V5C16 3.89543 16.8954 3 18 3" strokeLinecap="round" />
+      <path d="M8 8H16M8 12H16" strokeLinecap="butt" />
+      <path d="M2 20C3.5 20 3.5 18.5 5.33 18.5C7.17 18.5 7.17 20 9 20C10.83 20 10.83 18.5 12.67 18.5C14.5 18.5 14.5 20 16.33 20C18.17 20 18.17 18.5 20 18.5C21 18.5 21.5 19 22 19.5" strokeLinecap="round" />
+    </Icon>
+  );
+}
+
 /** Hand at a door (secure entry). */
 export function DoorEntry(props: IconProps) {
   return (
