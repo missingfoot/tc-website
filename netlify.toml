@@ -11,3 +11,9 @@
 
 [context.production]
   command = "DATABASE_URI=$DATABASE_URI_UNPOOLED npx payload migrate && npm run build"
+
+# Payload uploads are served from the production R2 bucket's public address, and resized by
+# Netlify's image CDN, which only fetches remote images it's allowed to. Stated here rather than
+# relying on next.config.ts' remotePatterns, which are worked out from R2_PUBLIC_URL at build time.
+[images]
+  remote_images = ["https://pub-1de3ed89094847fba045b9e41c051a8b\\.r2\\.dev/.*"]
