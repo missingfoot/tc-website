@@ -57,7 +57,7 @@ export const Rooms: CollectionConfig = {
     },
     { name: "floorPlan", type: "upload", relationTo: "media", admin: { description: "Optional: the floor plan drawing. Left out until there is one." } },
     // Rates are edited on the Pricing page (/admin/pricing); this shows them with a link there
-    { name: "ratesNote", type: "ui", admin: { components: { Field: "/payload/fields/RoomRates#RoomRates" } } },
+    { name: "ratesNote", type: "ui", admin: { components: { Field: "/payload/fields/PricesField#RoomPrices" } } },
     {
       name: "rates",
       label: "Rates",

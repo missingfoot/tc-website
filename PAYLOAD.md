@@ -75,7 +75,8 @@ npm run dev                            # then open http://localhost:3000/admin
 - **Pricing** (/admin/pricing, linked in the sidebar): every price in one table (rooms' rates,
   locations' prices, money variables, and the pricing rules: the joining fee and the deposit and
   bonds in weeks; the Pricing rules global is hidden and only edited here). Rates and prices are edited, added and
-  removed there (a room's form only shows its rates, with a link), saved together; or downloaded
+  removed there (a room's or location's form only shows its prices, with a link; one saved with
+  none gets a dialog to copy another's as a starting point or set new ones), saved together; or downloaded
   as a CSV for Excel and uploaded back (rows match by their Key; rows without one naming an
   existing room or location are added; removing is table-only). `src/payload/views/` and
   `endpoints/pricingSheet.ts`. A room's move-in and floor are hidden: they're to come from a

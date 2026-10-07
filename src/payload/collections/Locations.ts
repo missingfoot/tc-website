@@ -91,12 +91,15 @@ export const Locations: CollectionConfig = {
                 { name: "name", type: "text", admin: { description: "Shown with the photo, e.g. “Lounge area”. Leave empty to use the photo's alt text." } },
               ],
             },
+            // Prices are edited on the Pricing page (/admin/pricing): this shows them, and offers to set them up
+            { name: "pricesNote", type: "ui", admin: { components: { Field: "/payload/fields/PricesField#LocationPrices" } } },
             {
               name: "prices",
               type: "array",
               labels: { singular: "Price", plural: "Prices" },
               admin: {
                 ...itemLabel("Price"),
+                hidden: true,
                 description: "Pricing cards, and the card pill's “From …”. Leave empty to leave pricing out (e.g. venues, priced on request).",
               },
               fields: [

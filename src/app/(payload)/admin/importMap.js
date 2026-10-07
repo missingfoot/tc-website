@@ -2,8 +2,9 @@ import { LinkPicker as LinkPicker_c421881be9b05a03e94b587eda57f3f1 } from '../..
 import { SectionLabel as SectionLabel_cef103c88852766253697f4801449163 } from '../../../payload/fields/RowLabels'
 import { IconPicker as IconPicker_26ad7e0397336828b79501e851191f69 } from '../../../payload/fields/IconPicker'
 import { ItemLabel as ItemLabel_cef103c88852766253697f4801449163 } from '../../../payload/fields/RowLabels'
+import { LocationPrices as LocationPrices_78c12df5c18e8e4730c918d82fddb0a5 } from '../../../payload/fields/PricesField'
 import { MoneyField as MoneyField_c0e0586c6809cd46d0761c54ff9846bd } from '../../../payload/fields/MoneyField'
-import { RoomRates as RoomRates_339e40688608b6adcda41d74d3e820f9 } from '../../../payload/fields/RoomRates'
+import { RoomPrices as RoomPrices_78c12df5c18e8e4730c918d82fddb0a5 } from '../../../payload/fields/PricesField'
 import { VariablesList as VariablesList_eb6c9f0a464992ca8a8577a69edcf82e } from '../../../payload/fields/VariablesList'
 import { AdminIcon as AdminIcon_25203ab71d589046a26e5f356b2fabd6 } from '../../../payload/graphics'
 import { AdminLogo as AdminLogo_25203ab71d589046a26e5f356b2fabd6 } from '../../../payload/graphics'
@@ -18,8 +19,9 @@ export const importMap = {
   "/payload/fields/RowLabels#SectionLabel": SectionLabel_cef103c88852766253697f4801449163,
   "/payload/fields/IconPicker#IconPicker": IconPicker_26ad7e0397336828b79501e851191f69,
   "/payload/fields/RowLabels#ItemLabel": ItemLabel_cef103c88852766253697f4801449163,
+  "/payload/fields/PricesField#LocationPrices": LocationPrices_78c12df5c18e8e4730c918d82fddb0a5,
   "/payload/fields/MoneyField#MoneyField": MoneyField_c0e0586c6809cd46d0761c54ff9846bd,
-  "/payload/fields/RoomRates#RoomRates": RoomRates_339e40688608b6adcda41d74d3e820f9,
+  "/payload/fields/PricesField#RoomPrices": RoomPrices_78c12df5c18e8e4730c918d82fddb0a5,
   "/payload/fields/VariablesList#VariablesList": VariablesList_eb6c9f0a464992ca8a8577a69edcf82e,
   "/payload/graphics#AdminIcon": AdminIcon_25203ab71d589046a26e5f356b2fabd6,
   "/payload/graphics#AdminLogo": AdminLogo_25203ab71d589046a26e5f356b2fabd6,
