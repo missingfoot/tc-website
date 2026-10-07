@@ -1,12 +1,11 @@
 import {
-  Basin, Bed, Bill, CalendarCheck, Cocktail, Crowd, Desk, Dumbbell, Hob, Lounge, MeetingTable, Oven, Play,
-  Pool, Restaurant, Router, Shelves, Sofa, SprayBottle, TapeMeasure, TeamChat, WashingMachine,
+  Basin, Bed, Bill, CalendarCheck, Cinema, Cocktail, Crowd, Desk, Dumbbell, Hob, Library, Lounge, MeetingTable, Oven, Pool, Restaurant, Router, Sofa, SprayBottle, TapeMeasure, TeamChat, WashingMachine,
 } from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import type { FaqItem } from "@/components/sections/Faq";
 import { directionsUrl, mapEmbedUrl } from "@/content/directions";
 import { oldOakPromos } from "@/content/old-oak";
-import type { CircleImage, GalleryImage, PromoCard, Room, RoomDetails, TravelMode } from "@/lib/types";
+import type { CircleImage, GalleryImage, PromoCard, Room, RoomDetails, RoomPrice, TravelMode } from "@/lib/types";
 
 // The Collective Canary Wharf: opening soon on this site, so every button joins the waitlist. Facts
 // (rooms, sizes, prices, amenities) are from the archived 2019–20 location page and the opening
@@ -33,13 +32,12 @@ const space = (file: string, alt: string): GalleryImage => ({ src: `${gallery}/$
 
 export const canaryWharfGallery: GalleryImage[] = [
   space("01-lobby", "Lobby"),
-  space("02-restaurant", "Restaurant"),
-  space("03-sky-lounge", "Sky lounge and bar"),
-  space("04-pool", "Rooftop pool"),
-  space("05-pool-lounge", "Pool lounge"),
-  space("06-shared-kitchen", "Shared kitchen"),
-  space("07-gym", "Gym"),
-  space("08-library", "Library"),
+  space("02-sky-lounge", "Sky lounge and bar"),
+  space("03-pool", "Rooftop pool"),
+  space("04-pool-lounge", "Pool lounge"),
+  space("05-shared-kitchen-and-dining", "Shared kitchen"),
+  space("06-gym", "Gym"),
+  space("07-library", "Library"),
 ];
 
 /** The cultural programme's Munch, Mix and Jam evenings. */
@@ -71,14 +69,22 @@ const shared = (size: string) => [
   `Every studio comes with a Simba Hybrid mattress, a 32 inch smart TV, a laptop safe and a clean every two weeks. ${size}, thoughtfully designed and all yours.`,
   "Rent, bills, wifi and every shared space, from the rooftop pool to the cinema, are packaged into one convenient fee.",
 ];
-const nightsAndMonths = "Stay for a night or move in for a while: book from one night, or take a membership of 3 to 12 months.";
+const nightsAndMonths = "Stay for a night or move in for a while: book a short stay of 1 to 89 nights, or take a membership of 4 to 12 months.";
+
+/** Membership lengths, longest (cheapest per week) first. */
+const lengths = [12, 11, 10, 9, 8, 7, 6, 5, 4];
+const periods = [...lengths.map((m) => `${m} months`), "A short stay"];
+
+/** Prices by length from weekly rates (in `lengths` order); monthly is weekly × 52 ÷ 12, as on the archived page. */
+const pricesFrom = (weekly: number[]): RoomPrice[] =>
+  lengths.map((months, i) => ({ months, weekly: weekly[i], monthly: Math.round((weekly[i] * 52) / 12) }));
 
 /** One entry per room type: its card on the location page and its own page. */
 const roomTypes = [
   {
     slug: "cosy",
     name: "Cosy",
-    weekly: "£330",
+    prices: pricesFrom([330, 335, 340, 350, 355, 360, 380, 390, 410]),
     features: [
       { icon: Basin, label: "Ensuite Rain Shower" },
       { icon: Hob, label: "Private Kitchenette" },
@@ -88,9 +94,8 @@ const roomTypes = [
     about: [
       "Our cleverly designed Cosy studios have a comfortable queen-size bed, a private ensuite with a rain shower, and a kitchenette with a dining ledge.",
       ...shared("12 square metres"),
-      "Cosy studios are for memberships of 3 to 12 months.",
+      nightsAndMonths,
     ],
-    periods: ["12 months", "9 months", "6 months", "3 months"],
     photos: [
       ["01-desk-and-bed", "Cosy studio with a dining ledge and the bed beyond"],
       ["02-bed-by-the-window", "Queen-size bed by the window"],
@@ -102,7 +107,7 @@ const roomTypes = [
   {
     slug: "standard",
     name: "Standard",
-    weekly: "£350",
+    prices: pricesFrom([350, 355, 360, 370, 375, 380, 400, 410, 430]),
     features: [
       { icon: Basin, label: "Ensuite Rain Shower" },
       { icon: Hob, label: "Private Kitchenette" },
@@ -114,7 +119,6 @@ const roomTypes = [
       ...shared("16 square metres"),
       nightsAndMonths,
     ],
-    periods: ["12 months", "9 months", "6 months", "3 months", "A few nights"],
     photos: [
       ["01-kitchenette-and-bed", "Standard studio with a kitchenette, breakfast bar and double bed"],
       ["02-bed-and-table", "Double bed and a round table"],
@@ -129,7 +133,7 @@ const roomTypes = [
   {
     slug: "comfy",
     name: "Comfy",
-    weekly: "£400",
+    prices: pricesFrom([380, 385, 390, 400, 405, 410, 430, 440, 460]),
     features: [
       { icon: Basin, label: "Ensuite Walk-in Shower" },
       { icon: Hob, label: "Private Kitchen" },
@@ -141,7 +145,6 @@ const roomTypes = [
       ...shared("Between 18 and 25 square metres"),
       nightsAndMonths,
     ],
-    periods: ["12 months", "9 months", "6 months", "3 months", "A few nights"],
     photos: [
       ["01-bed-and-table", "Comfy studio with a double bed and a dining table"],
       ["02-bed-and-kitchen", "Double bed with the kitchen along the wall"],
@@ -156,8 +159,7 @@ const roomTypes = [
   {
     slug: "big",
     name: "Big",
-    // £2,817 a month on a 12 month membership (the archived page gives it monthly)
-    weekly: "£650",
+    prices: pricesFrom([440, 445, 450, 460, 465, 470, 490, 500, 520]),
     features: [
       { icon: Sofa, label: "Separate Living Area" },
       { icon: Hob, label: "Private Kitchen" },
@@ -169,7 +171,6 @@ const roomTypes = [
       ...shared("30 square metres"),
       nightsAndMonths,
     ],
-    periods: ["12 months", "9 months", "6 months", "3 months", "A few nights"],
     photos: [
       ["01-bed", "Big studio with a queen-size bed and tall shelving"],
       ["02-living-area", "Living area with a dining table and armchair"],
@@ -187,15 +188,26 @@ const roomTypes = [
   },
 ];
 
-const roomPhotos = (slug: string, photos: string[][]): GalleryImage[] =>
-  photos.map(([file, alt]) => ({ src: `${rooms}/${slug}/${file}.jpg`, thumb: `${rooms}/${slug}/thumbs/${file}.jpg`, alt }));
+/** A room type's photos and floor plan: the same set on its card and its page. */
+const roomMedia = Object.fromEntries(
+  roomTypes.map((room) => [
+    room.slug,
+    {
+      photos: room.photos.map(([file, alt]): GalleryImage => ({ src: `${rooms}/${room.slug}/${file}.jpg`, thumb: `${rooms}/${room.slug}/thumbs/${file}.jpg`, alt })),
+      floorPlan: { src: `${img}/floor-plans/${room.slug}.webp`, alt: room.floorPlan } as CircleImage,
+    },
+  ]),
+);
 
 export const canaryWharfRooms: Room[] = roomTypes.map((room) => {
-  const [photo] = roomPhotos(room.slug, room.photos);
+  const { photos, floorPlan } = roomMedia[room.slug];
   return {
     name: room.name,
-    price: `From ${room.weekly} per week`,
-    image: { src: photo.src!, alt: photo.alt },
+    price: `From £${room.prices[0].weekly} per week`,
+    prices: room.prices,
+    image: { src: photos[0].src!, alt: photos[0].alt },
+    photos,
+    floorPlan,
     features: room.features,
     href: `/locations/canary-wharf/rooms/${room.slug}`,
   };
@@ -205,12 +217,11 @@ export const canaryWharfRoomDetails: RoomDetails[] = roomTypes.map((room) => ({
   slug: room.slug,
   name: room.name,
   location: "Canary Wharf, Crossharbour",
-  price: room.weekly,
-  photos: roomPhotos(room.slug, room.photos),
+  price: `£${room.prices[0].weekly}`,
+  ...roomMedia[room.slug],
   features: room.features,
   about: room.about,
-  floorPlan: { src: `${img}/floor-plans/${room.slug}.webp`, alt: room.floorPlan },
-  booking: { moveIn: "Opening soon", periods: room.periods },
+  booking: { moveIn: "Opening soon", periods },
 }));
 
 /** "What's included" on each Canary Wharf room page. */
@@ -228,7 +239,7 @@ export const canaryWharfRoomIncluded: RoomDetails["features"] = [
 
 export const canaryWharfAbout = {
   heading: "About The Collective Canary Wharf",
-  poster: { src: `${gallery}/04-pool.jpg`, alt: "The rooftop pool at Canary Wharf" } as CircleImage,
+  photos: canaryWharfGallery,
   text: [
     "705 studios over 21 floors, a short walk from Crossharbour DLR. Up on the 20th floor there’s a 14 metre pool, a spa with a sauna and steam room, and a restaurant and bar with views across London.",
     "Downstairs, a cinema, screening room, games room and golf simulator, plus a library, co-working space, gym and a big shared kitchen. And always something on, from supper clubs to live music.",
@@ -261,8 +272,8 @@ export const canaryWharfIncluded: FeatureGroup[] = [
       { icon: Pool, label: "Rooftop pool" },
       { icon: Lounge, label: "Spa with sauna & steam room" },
       { icon: Dumbbell, label: "Gym & fitness studio" },
-      { icon: Play, label: "Cinema & screening room" },
-      { icon: Shelves, label: "Library" },
+      { icon: Cinema, label: "Cinema & screening room" },
+      { icon: Library, label: "Library" },
       { icon: Oven, label: "Communal kitchen & dining room" },
       { icon: Restaurant, label: "Restaurant & bar" },
       { icon: Crowd, label: "Games room & golf simulator" },
@@ -275,16 +286,27 @@ export const canaryWharfFaq: FaqItem[] = [
     question: "When does Canary Wharf open?",
     answer: "Soon. Join the waitlist and we’ll let you know as soon as rooms are available, along with our opening offers.",
   },
+  // From the archived 2019 page
   {
-    question: "How long can I stay?",
+    question: "Temporary closures",
     answer: [
+      "The spa, swimming pool and sauna are scheduled to open on Monday, 4th November.",
+      "Mthr, the 20th floor restaurant and bar will open on Monday, 11th November.",
+      "Dates are subject to change. For further information please contact the property at +44 (0) 20 3973 9000.",
+    ],
+  },
+  {
+    question: "How long can you stay?",
+    answer: [
+      "Have the flexibility to stay for a night, or longer. No matter how long you stay, we’re sure you’ll feel at home.",
       "As long as you like: a night, a week or a year. Stay with us for 1 to 89 nights, from £80 a night, with your room made up and ready when you arrive.",
-      "Or live with us on a 3 to 12 month membership, from £330 a week, with rent, bills, wifi, cleaning and every shared space in one monthly payment.",
+      "Or live with us on a 4 to 12 month membership, from £330 a week, with rent, bills, wifi, cleaning and every shared space in one monthly payment.",
     ],
   },
   {
     question: "What can I expect?",
     answer: [
+      "Amazing shared spaces, private rooms and an inspiring events programme to better yourself and to meet new people, no matter how short or long you stay.",
       "A private studio with an ensuite rain shower, a kitchenette, a comfy mattress and a smart TV, in a building made for meeting people.",
       "A 14 metre pool and spa on the 20th floor, a cinema, screening room, games room and golf simulator downstairs, plus a library, co-working space, gym and a big communal kitchen. Then there’s the events programme: supper clubs, cocktail making, live music, workshops and more.",
     ],

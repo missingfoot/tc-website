@@ -1,4 +1,6 @@
-import { Basin, Bed, Bill, Car, Hob, Oven, Outdoor, Play, Roundel, Router, Shelves, Sofa, SprayBottle, WashingMachine, Guard, DoorEntry } from "@/components/icons";
+import {
+  Basin, Bed, Bill, Car, DoorEntry, Guard, Hob, Outdoor, Oven, Roundel, Router, Shelves, Sofa, SprayBottle, Tv, WashingMachine,
+} from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import { simpleTravelModes } from "@/content/directions";
 import type { GalleryImage, LocationDetails, PromoCard, Room } from "@/lib/types";
@@ -130,7 +132,7 @@ export const servicedLocationIncluded: Record<string, FeatureGroup[]> = {
         { icon: Oven, label: "Shared kitchen" },
         { icon: Sofa, label: "Communal lounge" },
         { icon: Basin, label: "Ensuite" },
-        { icon: Play, label: "Flat screen TV" },
+        { icon: Tv, label: "Flat screen TV" },
         { icon: Shelves, label: "Wardrobe" },
         { icon: Bed, label: "Double bed" },
         { icon: Outdoor, label: "Outdoor space" },
@@ -148,7 +150,7 @@ export const servicedLocationIncluded: Record<string, FeatureGroup[]> = {
         { icon: WashingMachine, label: "Laundry facilities" },
         { icon: Hob, label: "Kitchenette" },
         { icon: Basin, label: "Ensuite" },
-        { icon: Play, label: "Flat screen TV" },
+        { icon: Tv, label: "Flat screen TV" },
         { icon: Shelves, label: "Wardrobe" },
         { icon: Bed, label: "Double bed" },
       ],

@@ -43,7 +43,8 @@ export default function OldOak() {
         intro="Co-living is a living experience that's bold, exciting and unique. By combining shared spaces with events and opportunities to connect, collective living provides a platform for you to maximise your potential."
         images={oldOakGallery}
         footer={
-          <Button href="#" variant="dark">
+          // TODO: the real 3D tour. Until there is one, this address doesn't exist, so it shows the 404 page
+          <Button href="/locations/old-oak/3d-tour" variant="dark">
             <Icon360 />
             View 3D Tour
           </Button>

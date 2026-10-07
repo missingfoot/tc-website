@@ -1,6 +1,5 @@
 import {
-  Basin, CalendarCheck, Cocktail, Dining, DoorEntry, Hob, MeetingTable, Outdoor, Oven, People, Play, Router, Shelves, Sofa, TapeMeasure,
-  TeamChat,
+  Basin, CalendarCheck, Cocktail, Dining, DoorEntry, Hob, MeetingTable, Outdoor, Oven, People, Play, Router, Shelves, Sofa, TapeMeasure, TeamChat, Tv,
 } from "@/components/icons";
 import type { FeatureGroup } from "@/components/sections/FeatureGroups";
 import { bedfordSquareAddress, bedfordSquareTravelModes, oldOakAddress, oldOakTravelModes } from "@/content/directions";
@@ -31,7 +30,7 @@ const facilities = {
   food: { icon: Dining, label: "Food offering" },
   lift: { icon: DoorEntry, label: "Lift access" },
   accessible: { icon: DoorEntry, label: "Step-free access" },
-  screen: { icon: Play, label: "TV screen" },
+  screen: { icon: Tv, label: "TV screen" },
   projector: { icon: Play, label: "Projector & screen" },
   aircon: { icon: Router, label: "Air conditioning" },
 };

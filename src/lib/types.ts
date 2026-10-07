@@ -42,6 +42,9 @@ export type CircleImage = {
 };
 
 
+/** A room's price for one membership length, in whole pounds. */
+export type RoomPrice = { months: number; weekly: number; monthly: number };
+
 /** A room type or a location, shown as a card with feature tiles. */
 export type Room = {
   name: string;
@@ -50,6 +53,12 @@ export type Room = {
   /** Display price, e.g. "£245 per week". */
   price: string;
   image: CircleImage;
+  /** Several photos: shown as a swipeable gallery in place of `image`. */
+  photos?: GalleryImage[];
+  /** A floor plan drawing: the gallery's last slide. */
+  floorPlan?: CircleImage;
+  /** Prices by membership length: the cards then get a length picker and weekly/monthly switch, and `price` is the fallback. */
+  prices?: RoomPrice[];
   /** Shown as a 2 × 2 grid of icon tiles. */
   features: { icon: ComponentType<{ className?: string }>; label: string }[];
   href: string;

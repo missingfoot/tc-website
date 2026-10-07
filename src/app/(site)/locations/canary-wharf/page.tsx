@@ -9,6 +9,7 @@ import Directions from "@/components/sections/Directions";
 import SocialLinks from "@/components/sections/SocialLinks";
 import PromoCards from "@/components/sections/PromoCards";
 import Button from "@/components/ui/Button";
+import { Icon360 } from "@/components/icons";
 import FloatingButton from "@/components/ui/FloatingButton";
 import {
   canaryWharfEventsImages, canaryWharfFaq, canaryWharfGallery, canaryWharfIncluded, canaryWharfMapEmbed, canaryWharfOffers, canaryWharfPromos,
@@ -38,16 +39,24 @@ export default function CanaryWharf() {
         action={waitlist("light")}
       />
 
-      <Intro raised heading="Co-living at Canary Wharf" action={waitlist("light")}>
-        The new Collective on the block. Canary Wharf is a haven of creativity and community: 705 private
-        studios over 21 floors, with the same inspiring shared spaces, events programme and beautifully
-        designed rooms as Old Oak, plus the freedom to stay for a night, a week or a year.
+      <Intro raised heading="Flexible length co-living" action={waitlist("light")}>
+        The new Collective on the block. Our Canary Wharf co-living space is a haven of creativity and
+        community in the heart of the City. The same inspiring shared spaces, events programme and
+        beautifully designed private rooms, but with the added benefit of flexibility. You can stay for a
+        night or longer.
       </Intro>
 
       <Gallery
         heading="Explore the spaces"
         intro="Your home, your office, your playground. A rooftop pool and spa, a cinema and games room, a library and co-working space, all under one roof and all yours to use."
         images={canaryWharfGallery}
+        footer={
+          // TODO: the real 3D tour. Until there is one, this address doesn't exist, so it shows the 404 page
+          <Button href="/locations/canary-wharf/3d-tour" variant="dark">
+            <Icon360 />
+            View 3D Tour
+          </Button>
+        }
       />
 
       <CollageSplit heading="A cultural programme" images={canaryWharfEventsImages}>
@@ -66,7 +75,7 @@ export default function CanaryWharf() {
 
       <RoomCards
         heading="Explore the rooms"
-        intro="Every studio has an ensuite rain shower, a kitchenette, a comfy mattress and a smart TV. Stay from £80 a night, or live with us on a 3 to 12 month membership with one all-inclusive bill."
+        intro="Every studio has an ensuite rain shower, a kitchenette, a comfy mattress and a smart TV. Stay from £80 a night, or live with us on a 4 to 12 month membership with one all-inclusive bill."
         rooms={canaryWharfRooms}
       />
 
@@ -76,7 +85,7 @@ export default function CanaryWharf() {
         groups={canaryWharfIncluded}
       />
 
-      <Faq tone="cream" heading="Good to know" intro="Answers to the questions we’re asked most about The Collective Canary Wharf." items={canaryWharfFaq} />
+      <Faq tone="cream" heading="Good to know" intro="Answers to frequently asked questions at The Collective Canary Wharf." items={canaryWharfFaq} />
 
       <Directions
         heading="How to find us"

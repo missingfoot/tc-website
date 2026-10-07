@@ -29,19 +29,22 @@ export default function ProgressiveImage({ src, placeholder, alt, sizes, positio
 
   return (
     <>
-      {/* scale-110 hides the soft, see-through edges the blur creates */}
-      <Image
-        src={placeholder}
-        placeholder={blur ? "blur" : "empty"}
-        blurDataURL={blur}
-        alt={src ? "" : alt}
-        aria-hidden={src ? true : undefined}
-        fill
-        sizes="128px"
-        draggable={false}
-        className={`scale-110 object-cover blur-2xl ${className}`}
-        style={{ objectPosition: position }}
-      />
+      {/* scale-110 hides the soft, see-through edges the blur creates; the wrapper clips it to this
+          image's box, so it can't spill onto its neighbours (e.g. the next slide in a carousel) */}
+      <span className={`absolute inset-0 overflow-hidden ${className}`}>
+        <Image
+          src={placeholder}
+          placeholder={blur ? "blur" : "empty"}
+          blurDataURL={blur}
+          alt={src ? "" : alt}
+          aria-hidden={src ? true : undefined}
+          fill
+          sizes="128px"
+          draggable={false}
+          className="scale-110 object-cover blur-2xl"
+          style={{ objectPosition: position }}
+        />
+      </span>
       {src && (
         <Image
           src={src}

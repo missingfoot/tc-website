@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
 import Photo from "@/components/ui/Photo";
-import Hero from "@/components/sections/Hero";
-import Gallery from "@/components/sections/Gallery";
+import CompactGallery from "@/components/ui/CompactGallery";
+import PhotoStrip from "@/components/sections/PhotoStrip";
 import PromoCards from "@/components/sections/PromoCards";
 import Button from "@/components/ui/Button";
 import StickyBar from "@/components/ui/StickyBar";
@@ -12,7 +11,7 @@ import RoomBooking from "@/components/ui/RoomBooking";
 import Section from "@/components/ui/Section";
 import VideoButton from "@/components/ui/VideoButton";
 import { coLivingAbout } from "@/content/co-living";
-import type { CircleImage, Cta, PromoCard, RoomDetails } from "@/lib/types";
+import type { CircleImage, Cta, GalleryImage, PromoCard, RoomDetails } from "@/lib/types";
 import { sizes2x } from "@/lib/images";
 import { text } from "@/lib/styles";
 
@@ -24,10 +23,13 @@ type RoomDetailProps = {
   ctaFields?: Record<string, string>;
   /** "What's included" for every room in the building. */
   included: RoomDetails["features"];
-  /** About the building: copy and a photo (with a play button when there's a video). */
-  about: { heading: string; text: string[]; poster: CircleImage; video?: string };
+  /** About the building: copy, then its photos as a compact gallery, or a single photo (with a play button when there's a video). */
+  about: { heading: string; text: string[]; photos?: GalleryImage[]; poster?: CircleImage; video?: string };
   promos: PromoCard[];
 };
+
+// The main column's width on desktop
+const aboutSizes = sizes2x(["(min-width: 1024px)", "45rem"], [null, "100vw"]);
 
 /** A titled block of copy in the room page's main column. */
 function Block({ heading, children }: { heading: string; children: ReactNode }) {
@@ -50,9 +52,9 @@ function Paragraphs({ items }: { items: string[] }) {
 }
 
 /**
- * A room page, laid out like a listing: a photo hero, then the details and more about the
- * building in a main column with the booking card beside it (sticky on desktop), then the gallery
- * and quick links.
+ * A room page, laid out like a listing: a strip of the room's photos under the nav, then the
+ * details and more about the building in a main column with the booking card beside it (sticky
+ * on desktop), then quick links.
  * On mobile the booking block sits under the key facts, and a bar pinned to the bottom of the
  * screen keeps the booking button in reach.
  */
@@ -62,9 +64,9 @@ export default function RoomDetail({ room, cta, ctaFields, included, about, prom
 
   return (
     <>
-      <Hero image={room.photos[0].src!} imageAlt={room.photos[0].alt} wash={false} />
+      <PhotoStrip images={room.photos} label={`Photos of the ${room.name}`} floorPlan={room.floorPlan} />
 
-      <Section raised>
+      <Section>
         <Container className="grid gap-12 lg:grid-cols-[1fr_22.5rem] lg:gap-x-16 xl:gap-x-24">
           <div>
             <h1 className="text-4xl font-bold leading-heading text-ink">{room.name}</h1>
@@ -73,7 +75,7 @@ export default function RoomDetail({ room, cta, ctaFields, included, about, prom
           </div>
 
           {/* Desktop: the right-hand column, pulled up over the photos and sticky under the nav */}
-          <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <div className="relative z-10 lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <RoomBooking price={room.price} booking={room.booking} cta={cta} fields={ctaFields} className="lg:sticky lg:top-28 lg:-mt-36" />
           </div>
 
@@ -82,29 +84,28 @@ export default function RoomDetail({ room, cta, ctaFields, included, about, prom
               <Paragraphs items={room.about} />
             </Block>
 
-            {room.floorPlan && (
-              <Block heading="Floor plan">
-                <div className="relative aspect-[4/3] max-w-xl">
-                  {/* Line drawing: served as the original file (small, lossless), since re-encoding blurs thin lines */}
-                  <Image src={room.floorPlan.src} alt={room.floorPlan.alt} fill unoptimized className="object-contain" />
-                </div>
-              </Block>
-            )}
-
             <Block heading="What’s included">
               <FeatureList items={included} twoColumn />
             </Block>
 
             <Block heading={about.heading}>
               <Paragraphs items={about.text} />
-              <div className="relative mt-8 aspect-[7/4] overflow-hidden rounded-2xl bg-ink/10">
-                <Photo src={about.poster.src} alt={about.poster.alt} sizes={sizes2x(["(min-width: 1024px)", "45rem"], [null, "100vw"])} className="object-cover" />
-                {about.video && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <VideoButton label="Play video" video={about.video} variant="white" />
+              {about.photos ? (
+                <div className="mt-8">
+                  <CompactGallery images={about.photos} sizes={aboutSizes} />
+                </div>
+              ) : (
+                about.poster && (
+                  <div className="relative mt-8 aspect-[7/4] overflow-hidden rounded-2xl bg-ink/10">
+                    <Photo src={about.poster.src} alt={about.poster.alt} sizes={aboutSizes} className="object-cover" />
+                    {about.video && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <VideoButton label="Play video" video={about.video} variant="white" />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                )
+              )}
             </Block>
 
             <Block heading="About Co-living">
@@ -113,8 +114,6 @@ export default function RoomDetail({ room, cta, ctaFields, included, about, prom
           </div>
         </Container>
       </Section>
-
-      <Gallery heading="Explore the room" images={room.photos} />
 
       <PromoCards cards={promos} />
 

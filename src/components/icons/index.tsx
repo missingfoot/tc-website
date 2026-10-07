@@ -424,6 +424,41 @@ export function Reward(props: IconProps) {
   );
 }
 
+/** Cinema screen between curtains, above rows of seats. */
+export function Cinema(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.68045 3L9.96356 3C9.96359 6 9.49998 8 6.99997 9L7.87874 12.515C7.94033 12.7613 7.754 13 7.50005 13V13" />
+      <path d="M14.3315 3L14.0484 3C14.0484 6 14.512 8 17.012 9L16.1332 12.515C16.0716 12.7613 16.258 13 16.5119 13V13" />
+      <path d="M3 3H21V13H3V3Z" />
+      <path d="M15 21L14 21M10 21L9 21M10 17L9 17M15 17L14 17M5 21L4 21M20 21L19 21" />
+    </Icon>
+  );
+}
+
+/** Bookcase with books on two shelves (library). */
+export function Library(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 21V23M19 21V23" />
+      <path d="M3.00073 12L21.0065 12" strokeLinecap="butt" />
+      <path d="M19 3L5 3C3.89543 3 3 3.89543 3 5L3 19C3 20.1046 3.89543 21 5 21L19 21C20.1046 21 21 20.1046 21 19L21 5C21 3.89543 20.1046 3 19 3Z" />
+      <path d="M17 8L17 7M7 17L7 16M13 8L13 7M11 17L11 16M8 8L9 8M16 17L15 17" />
+    </Icon>
+  );
+}
+
+/** Television on a stand. */
+export function Tv(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 21L8 18H9" />
+      <path d="M19 21L16 18H15" />
+      <path d="M22 16L22 5C22 3.89543 21.1046 3 20 3L4 3C2.89543 3 2 3.89543 2 5L2 16C2 17.1046 2.89543 18 4 18L20 18C21.1046 18 22 17.1046 22 16Z" />
+    </Icon>
+  );
+}
+
 /** Pool ladder over water (swimming pool). */
 export function Pool(props: IconProps) {
   return (
