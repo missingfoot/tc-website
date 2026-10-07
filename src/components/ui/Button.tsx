@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "@/components/icons";
 import { pressable } from "@/lib/styles";
+import AnchorLink from "@/components/ui/AnchorLink";
 
 type ButtonProps = {
   children: ReactNode;
@@ -44,9 +45,17 @@ export default function Button({ children, variant = "light", arrow = false, com
       {arrow && <ArrowRight />}
     </>
   );
-  // Files and in-page anchors are plain links: Next's <Link> ignores a second click on the hash
-  // the URL already has, so "See our open positions" would only scroll once.
-  if (action.download || action.href?.startsWith("#")) {
+  // In-page anchors aren't <Link>s: it ignores a second click on the hash the URL already has, so
+  // "See our open positions" would only scroll once
+  if (action.href?.startsWith("#")) {
+    return (
+      <AnchorLink href={action.href as `#${string}`} className={classes}>
+        {content}
+      </AnchorLink>
+    );
+  }
+  // Files are plain links
+  if (action.download) {
     return (
       <a href={action.href} download={action.download || undefined} className={classes}>
         {content}
