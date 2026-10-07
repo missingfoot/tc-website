@@ -17,6 +17,7 @@ import * as migration_20261006_232454_templates from './20261006_232454_template
 import * as migration_20261006_233437_remove_location_pages from './20261006_233437_remove_location_pages';
 import * as migration_20261007_000623_structured_pricing from './20261007_000623_structured_pricing';
 import * as migration_20261007_001702_variables from './20261007_001702_variables';
+import * as migration_20261007_003025_optional_booking_details from './20261007_003025_optional_booking_details';
 
 export const migrations = [
   {
@@ -112,6 +113,11 @@ export const migrations = [
   {
     up: migration_20261007_001702_variables.up,
     down: migration_20261007_001702_variables.down,
-    name: '20261007_001702_variables'
+    name: '20261007_001702_variables',
+  },
+  {
+    up: migration_20261007_003025_optional_booking_details.up,
+    down: migration_20261007_003025_optional_booking_details.down,
+    name: '20261007_003025_optional_booking_details'
   },
 ];

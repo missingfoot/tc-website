@@ -185,7 +185,7 @@ export function roomDetails(room: RoomDoc): RoomDetails {
     features: iconItems(room.features),
     about: paragraphs(room.about),
     floorPlan: floorPlan.src ? floorPlan : undefined,
-    booking: { moveIn: room.moveIn, floor: room.floor, periods: roomRates(room).map((r) => r.period) },
+    booking: { moveIn: room.moveIn ?? "", floor: room.floor ?? "", periods: roomRates(room).map((r) => r.period) },
   };
 }
 

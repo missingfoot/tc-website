@@ -15,6 +15,8 @@ export type PricingRow = {
   option: string;
   /** In pence. */
   amount: number;
+  /** A room rate's membership length. */
+  months?: number;
   /** Only location prices have these to edit; the rest are fixed (rooms are weekly). */
   per?: "night" | "week" | "month" | "once";
   vat?: "included" | "excluded" | "none";
@@ -23,11 +25,34 @@ export type PricingRow = {
   href: string;
 };
 
-export type PricingChange = { key: string; amount?: number; per?: PricingRow["per"]; vat?: PricingRow["vat"]; note?: string };
+/**
+ * A change to a row: new values, or `remove`. A new rate or price has a key ending in ":new:<anything>"
+ * after its room's or location's ("room:12:new:1") and carries all its values.
+ */
+export type PricingChange = {
+  key: string;
+  amount?: number;
+  months?: number;
+  /** A location price's name, e.g. "Hot Desk". */
+  label?: string;
+  per?: PricingRow["per"];
+  vat?: PricingRow["vat"];
+  note?: string;
+  remove?: boolean;
+};
+
+/** A room or location that can have prices, so one with none yet can still get its first. */
+export type PricingOwner = { prefix: string; kind: "room" | "location"; group: string; item: string; href: string };
+
+/** Where a row lives: "room:12:<rate id>" → room 12, that rate; "room:12:new:1" → room 12, new. */
+const parseKey = (key: string) => {
+  const [kind, id, row, ...rest] = key.split(":");
+  return { kind, id: Number(id), row, isNew: row === "new" && rest.length > 0 };
+};
 
 const groupNames: Record<keyof typeof locationPaths, string> = { working: "Working spaces", serviced: "Serviced living", venue: "Venues" };
 
-async function rows(req: PayloadRequest): Promise<PricingRow[]> {
+async function sheet(req: PayloadRequest): Promise<{ rows: PricingRow[]; owners: PricingOwner[] }> {
   const { payload } = req;
   const [rooms, locations, rules, variables] = await Promise.all([
     payload.find({ collection: "rooms", sort: "_order", pagination: false, depth: 0, req }),
@@ -36,9 +61,24 @@ async function rows(req: PayloadRequest): Promise<PricingRow[]> {
     payload.findGlobal({ slug: "variables", depth: 0, req }),
   ]);
   const list: PricingRow[] = [];
+  const owners: PricingOwner[] = [];
+  for (const room of rooms.docs) owners.push({ prefix: `room:${room.id}`, kind: "room", group: "Old Oak rooms", item: room.name, href: `/admin/collections/rooms/${room.id}` });
+  // Venues are priced on request, so only working spaces and serviced living houses can have prices added
+  for (const type of ["working", "serviced"] as const)
+    for (const l of locations.docs.filter((l) => l.type === type))
+      owners.push({ prefix: `location:${l.id}`, kind: "location", group: groupNames[type], item: l.name, href: `/admin/collections/locations/${l.id}` });
   for (const room of rooms.docs)
     for (const rate of room.rates ?? [])
-      list.push({ key: `room:${room.id}:${rate.id}`, group: "Old Oak rooms", item: room.name, option: `${rate.months} months`, amount: rate.weekly, per: "week", href: `/admin/collections/rooms/${room.id}` });
+      list.push({
+        key: `room:${room.id}:${rate.id}`,
+        group: "Old Oak rooms",
+        item: room.name,
+        option: `${rate.months} months`,
+        months: rate.months,
+        amount: rate.weekly,
+        per: "week",
+        href: `/admin/collections/rooms/${room.id}`,
+      });
   for (const type of Object.keys(groupNames) as (keyof typeof groupNames)[])
     for (const location of locations.docs.filter((l) => l.type === type))
       for (const price of location.prices ?? [])
@@ -57,7 +97,7 @@ async function rows(req: PayloadRequest): Promise<PricingRow[]> {
     list.push({ key: "rules:joiningFee", group: "Pricing rules", item: "Joining fee", option: "Room applications", amount: rules.joiningFee, href: "/admin/globals/pricingRules" });
   for (const v of variables.entries ?? [])
     if (v.kind !== "text") list.push({ key: `variable:${v.id}`, group: "Variables", item: `{${v.name}}`, option: v.about ?? "", amount: v.amount ?? 0, href: "/admin/globals/variables" });
-  return list;
+  return { rows: list, owners };
 }
 
 /** Applies changes, one save per document (so each refreshes its pages once). Returns how many prices changed. */
@@ -67,28 +107,49 @@ async function save(req: PayloadRequest, changes: PricingChange[]) {
   const pick = (prefix: string) => changes.filter((c) => c.key.startsWith(prefix));
   let count = 0;
 
-  const roomIds = new Set(pick("room:").map((c) => Number(c.key.split(":")[1])));
+  const roomIds = new Set(pick("room:").map((c) => parseKey(c.key).id));
   for (const id of roomIds) {
     const room: Room = await payload.findByID({ collection: "rooms", id, depth: 0, req });
-    const rates = (room.rates ?? []).map((rate) => {
+    const kept = (room.rates ?? []).flatMap((rate) => {
       const change = byKey.get(`room:${id}:${rate.id}`);
-      if (change?.amount == null) return rate;
+      if (!change) return [rate];
       count++;
-      return { ...rate, weekly: change.amount };
+      if (change.remove) return [];
+      return [{ ...rate, ...(change.amount != null && { weekly: change.amount }), ...(change.months != null && { months: change.months }) }];
     });
+    const added = pick(`room:${id}:new:`)
+      .filter((c) => !c.remove && c.amount != null && c.months != null)
+      .map((c) => ({ months: c.months!, weekly: c.amount! }));
+    count += added.length;
+    // Longest first: the booking picker starts on the first
+    const rates = [...kept, ...added].sort((a, b) => b.months - a.months);
     await payload.update({ collection: "rooms", id, data: { rates }, req });
   }
 
-  const locationIds = new Set(pick("location:").map((c) => Number(c.key.split(":")[1])));
+  const locationIds = new Set(pick("location:").map((c) => parseKey(c.key).id));
   for (const id of locationIds) {
     const location: Location = await payload.findByID({ collection: "locations", id, depth: 0, req });
-    const prices = (location.prices ?? []).map((price) => {
+    const kept = (location.prices ?? []).flatMap((price) => {
       const change = byKey.get(`location:${id}:${price.id}`);
-      if (!change) return price;
+      if (!change) return [price];
       count++;
-      return { ...price, ...(change.amount != null && { amount: change.amount }), ...(change.per && { per: change.per }), ...(change.vat && { vat: change.vat }), ...(change.note !== undefined && { note: change.note || null }) };
+      if (change.remove) return [];
+      return [
+        {
+          ...price,
+          ...(change.amount != null && { amount: change.amount }),
+          ...(change.label && { label: change.label }),
+          ...(change.per && { per: change.per }),
+          ...(change.vat && { vat: change.vat }),
+          ...(change.note !== undefined && { note: change.note || null }),
+        },
+      ];
     });
-    await payload.update({ collection: "locations", id, data: { prices }, req });
+    const added = pick(`location:${id}:new:`)
+      .filter((c) => !c.remove && c.amount != null && c.label)
+      .map((c) => ({ label: c.label!, amount: c.amount!, per: c.per ?? "month", vat: c.vat ?? "included", note: c.note || null }));
+    count += added.length;
+    await payload.update({ collection: "locations", id, data: { prices: [...kept, ...added] }, req });
   }
 
   const fee = byKey.get("rules:joiningFee");
@@ -118,7 +179,7 @@ export const pricingSheet: Endpoint[] = [
     method: "get",
     handler: async (req) => {
       if (!req.user) return Response.json({ error: "Sign in first" }, { status: 401 });
-      return Response.json(await rows(req));
+      return Response.json(await sheet(req));
     },
   },
   {
@@ -127,9 +188,14 @@ export const pricingSheet: Endpoint[] = [
     handler: async (req) => {
       if (!req.user) return Response.json({ error: "Sign in first" }, { status: 401 });
       const body = (await req.json?.()) as { changes?: PricingChange[] } | undefined;
-      const changes = (body?.changes ?? []).filter((c) => typeof c?.key === "string" && (c.amount == null || (Number.isInteger(c.amount) && c.amount >= 0)));
+      const changes = (body?.changes ?? []).filter(
+        (c) =>
+          typeof c?.key === "string" &&
+          (c.amount == null || (Number.isInteger(c.amount) && c.amount >= 0)) &&
+          (c.months == null || (Number.isInteger(c.months) && c.months >= 1)),
+      );
       const saved = await save(req, changes);
-      return Response.json({ saved, rows: await rows(req) });
+      return Response.json({ saved, ...(await sheet(req)) });
     },
   },
 ];

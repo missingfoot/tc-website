@@ -2,16 +2,20 @@
 
 import { Button, useConfig } from "@payloadcms/ui";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import type { PricingChange, PricingRow } from "../endpoints/pricingSheet";
+import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
+import type { PricingChange, PricingOwner, PricingRow } from "../endpoints/pricingSheet";
 
 const PER = { night: "Per night", week: "Per week", month: "Per month", once: "One-off" } as const;
 const VAT = { included: "Included", excluded: "+VAT", none: "Not charged" } as const;
 
-const pounds = (pence: number) => (pence / 100).toFixed(2).replace(/\.00$/, "");
+const pounds = (pence?: number) => (pence == null ? "" : (pence / 100).toFixed(2).replace(/\.00$/, ""));
 const toPence = (text: string) => {
   const n = Number(text.replace(/[^\d.]/g, ""));
   return text.trim() === "" || Number.isNaN(n) ? undefined : Math.round(n * 100);
+};
+const toMonths = (text: string) => {
+  const n = Number.parseInt(text, 10);
+  return Number.isInteger(n) && n >= 1 ? n : undefined;
 };
 
 /** One CSV cell, quoted when it needs to be. */
@@ -50,64 +54,122 @@ function parseCsv(text: string): string[][] {
   return rows.filter((r) => r.some((c) => c.trim()));
 }
 
-const HEADERS = ["Key", "Group", "Item", "Option", "Price (£)", "Per", "VAT", "Small print"];
+const HEADERS = ["Key", "Group", "Item", "Option", "Months", "Price (£)", "Per", "VAT", "Small print"];
+
+type Owner = PricingOwner;
+
+/** A rate or price being added: its key is its owner's prefix + ":new:<n>". */
+type Draft = PricingChange & { owner: Owner };
+
+const prefixOf = (key: string) => key.split(":").slice(0, 2).join(":");
 
 /**
- * The admin's Pricing page: every price on the site in one table, edited in place (changes are
- * highlighted and saved together), downloaded as a CSV for Excel, or uploaded back from one. Rows
- * match by their Key column, so a re-sorted sheet still lands on the right prices. Adding or
- * removing a price is done on its room or location.
+ * The admin's Pricing page: every price on the site in one table. Rooms' rates (with their
+ * membership lengths) and locations' prices (with their names) can be edited, added and removed
+ * here; the joining fee and money variables edited. Changes are highlighted and saved together.
+ * Download CSV gives the list for Excel; Upload CSV loads a sheet's edits, and its new rows (no
+ * Key, an existing room or location in Item) as additions, for review before saving. Removing is
+ * done in the table only, so a row lost from a spreadsheet never deletes a price.
  */
 export function PricingSheet() {
   const { config } = useConfig();
   const api = `${config.serverURL}${config.routes.api}/pricing-sheet`;
   const [rows, setRows] = useState<PricingRow[]>();
+  const [owners, setOwners] = useState<Owner[]>([]);
   const [edits, setEdits] = useState<Record<string, PricingChange>>({});
+  const [drafts, setDrafts] = useState<Draft[]>([]);
   const [filter, setFilter] = useState("");
   const [message, setMessage] = useState<string>();
   const [saving, setSaving] = useState(false);
   const file = useRef<HTMLInputElement>(null);
+  const counter = useRef(0);
 
   useEffect(() => {
     fetch(api, { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setRows)
+      .then((res) => (res.ok ? res.json() : { rows: [], owners: [] }))
+      .then((data: { rows: PricingRow[]; owners: Owner[] }) => {
+        setRows(data.rows);
+        setOwners(data.owners);
+      })
       .catch(() => setRows([]));
   }, [api]);
 
-  /** A row with its pending edit applied. */
-  const current = (row: PricingRow): PricingRow => ({ ...row, ...edits[row.key] }) as PricingRow;
-  const changed = (row: PricingRow, field: keyof PricingChange) => edits[row.key]?.[field] !== undefined && edits[row.key]?.[field] !== row[field];
+  /** A saved row with its pending edit applied. */
+  const current = (row: PricingRow) => ({ ...row, ...edits[row.key] }) as PricingRow & PricingChange;
+  const isChanged = (row: PricingRow, field: "amount" | "months" | "label" | "per" | "vat" | "note") => {
+    const edit = edits[row.key];
+    if (!edit || edit[field] === undefined) return false;
+    const saved = field === "label" ? row.option : row[field];
+    return field === "note" ? (edit.note ?? "") !== (row.note ?? "") : edit[field] !== saved;
+  };
 
   const edit = (row: PricingRow, change: Omit<PricingChange, "key">) =>
     setEdits((all) => {
-      const next = { ...all[row.key], ...change, key: row.key };
+      const next: PricingChange = { ...all[row.key], ...change, key: row.key };
       // Drop fields set back to what's saved, and the edit if nothing's left
-      for (const field of ["amount", "per", "vat", "note"] as const) if (next[field] === row[field] || (field === "note" && (next.note ?? "") === (row.note ?? ""))) delete next[field];
+      if (next.amount === row.amount) delete next.amount;
+      if (next.months === row.months) delete next.months;
+      if (next.label === row.option) delete next.label;
+      if (next.per === row.per) delete next.per;
+      if (next.vat === row.vat) delete next.vat;
+      if (next.note !== undefined && next.note === (row.note ?? "")) delete next.note;
+      if (!next.remove) delete next.remove;
       const rest = { ...all };
       delete rest[row.key];
       return Object.keys(next).length > 1 ? { ...rest, [row.key]: next } : rest;
     });
 
-  const pending = Object.values(edits);
-  const shown = useMemo(() => {
+  const addDraft = (owner: Owner, values: Omit<PricingChange, "key"> = {}) => {
+    counter.current += 1;
+    const draft: Draft = { key: `${owner.prefix}:new:${counter.current}`, owner, ...(owner.kind === "location" && { per: "month", vat: "included" }), ...values };
+    setDrafts((all) => [...all, draft]);
+    return draft;
+  };
+  const editDraft = (key: string, change: Omit<PricingChange, "key">) => setDrafts((all) => all.map((d) => (d.key === key ? { ...d, ...change } : d)));
+  const incomplete = drafts.filter((d) => d.amount == null || (d.owner.kind === "room" ? d.months == null : !d.label));
+
+  const pending = Object.values(edits).length + drafts.length;
+
+  /** The rooms and locations, in order, with their rows (filtered), and the other rows. */
+  const sections = useMemo(() => {
     const words = filter.toLowerCase().split(/\s+/).filter(Boolean);
-    return (rows ?? []).filter((row) => words.every((w) => `${row.group} ${row.item} ${row.option}`.toLowerCase().includes(w)));
-  }, [rows, filter]);
+    const matches = (row: PricingRow) => words.every((w) => `${row.group} ${row.item} ${row.option}`.toLowerCase().includes(w));
+    const list: { group: string; item: string; owner?: Owner; rows: PricingRow[] }[] = [];
+    // Each room and location, with its prices (or none yet, to add the first)
+    for (const owner of owners) {
+      const own = (rows ?? []).filter((r) => prefixOf(r.key) === owner.prefix);
+      const shown = own.filter(matches);
+      if (shown.length || (!own.length && words.every((w) => `${owner.group} ${owner.item}`.toLowerCase().includes(w)))) list.push({ group: owner.group, item: owner.item, owner, rows: shown });
+    }
+    // Then the rest (the joining fee, variables), grouped as they come
+    for (const row of (rows ?? []).filter((r) => !owners.some((o) => o.prefix === prefixOf(r.key)) && matches(r))) {
+      const last = list.at(-1);
+      if (last && !last.owner && last.group === row.group && last.item === row.item) last.rows.push(row);
+      else list.push({ group: row.group, item: row.item, rows: [row] });
+    }
+    return list;
+  }, [rows, owners, filter]);
 
   async function save() {
+    if (incomplete.length) return setMessage("Some new rows are missing a price or a length (or a name): fill them in or remove them first.");
     setSaving(true);
-    const res = await fetch(api, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes: pending }) });
+    const changes: PricingChange[] = [...Object.values(edits), ...drafts.map((d) => ({ ...d, owner: undefined }))];
+    const res = await fetch(api, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes }) });
     setSaving(false);
     if (!res.ok) return setMessage("Couldn't save: try again, or check you're still signed in.");
-    const { saved, rows: fresh } = (await res.json()) as { saved: number; rows: PricingRow[] };
+    const { saved, rows: fresh, owners: freshOwners } = (await res.json()) as { saved: number; rows: PricingRow[]; owners: Owner[] };
     setRows(fresh);
+    setOwners(freshOwners);
     setEdits({});
-    setMessage(`Saved ${saved} price${saved === 1 ? "" : "s"}. Pages using them update now.`);
+    setDrafts([]);
+    setMessage(`Saved ${saved} change${saved === 1 ? "" : "s"}. Pages using these prices update now.`);
   }
 
   function download() {
-    const lines = [HEADERS, ...(rows ?? []).map((r) => [r.key, r.group, r.item, r.option, pounds(r.amount), r.per ? PER[r.per] : "", r.vat ? VAT[r.vat] : "", r.note ?? ""])];
+    const lines = [
+      HEADERS,
+      ...(rows ?? []).map((r) => [r.key, r.group, r.item, r.option, r.months?.toString() ?? "", pounds(r.amount), r.per ? PER[r.per] : "", r.vat ? VAT[r.vat] : "", r.note ?? ""]),
+    ];
     const blob = new Blob([lines.map((l) => l.map(csvCell).join(",")).join("\n")], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -122,51 +184,108 @@ export function PricingSheet() {
     if (!input || !rows) return;
     const [header, ...lines] = parseCsv(await input.text());
     const col = (name: string) => header.findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
-    const [k, price, per, vat, note] = [col("Key"), col("Price (£)"), col("Per"), col("VAT"), col("Small print")];
-    if (k < 0 || price < 0) return setMessage("That file needs a Key and a Price (£) column: start from Download CSV.");
+    const c = { key: col("Key"), group: col("Group"), item: col("Item"), option: col("Option"), months: col("Months"), price: col("Price (£)"), per: col("Per"), vat: col("VAT"), note: col("Small print") };
+    if (c.price < 0 || c.item < 0) return setMessage("That file needs Item and Price (£) columns: start from Download CSV.");
+    const get = (line: string[], i: number) => (i >= 0 ? (line[i] ?? "").trim() : "");
+    const fromLabel = <T extends string>(labels: Record<T, string>, text: string) => (Object.entries(labels) as [T, string][]).find(([, label]) => label === text)?.[0];
     const byKey = new Map(rows.map((r) => [r.key, r]));
-    const fromLabel = <T extends string>(labels: Record<T, string>, text?: string) => (Object.entries(labels) as [T, string][]).find(([, label]) => label === text?.trim())?.[0];
-    let loaded = 0;
-    let unknown = 0;
-    const next = { ...edits };
+    const ownersByName = new Map(owners.map((o) => [`${o.group}|${o.item}`.toLowerCase(), o]));
+    let edited = 0;
+    let added = 0;
+    let skipped = 0;
+    const nextEdits = { ...edits };
     for (const line of lines) {
-      const row = byKey.get(line[k]?.trim());
-      if (!row) {
-        unknown++;
+      const values: Omit<PricingChange, "key"> = {};
+      const amount = toPence(get(line, c.price));
+      if (amount !== undefined) values.amount = amount;
+      const months = toMonths(get(line, c.months) || get(line, c.option));
+      const per = fromLabel(PER, get(line, c.per));
+      const vat = fromLabel(VAT, get(line, c.vat));
+      const row = byKey.get(get(line, c.key));
+      if (row) {
+        const change: PricingChange = { key: row.key };
+        if (values.amount !== undefined && values.amount !== row.amount) change.amount = values.amount;
+        if (row.months !== undefined && months !== undefined && months !== row.months) change.months = months;
+        if (row.vat !== undefined) {
+          const label = get(line, c.option);
+          if (label && label !== row.option) change.label = label;
+          if (per && per !== row.per) change.per = per;
+          if (vat && vat !== row.vat) change.vat = vat;
+          if (c.note >= 0 && get(line, c.note) !== (row.note ?? "")) change.note = get(line, c.note);
+        }
+        if (Object.keys(change).length > 1) {
+          nextEdits[row.key] = change;
+          edited++;
+        }
         continue;
       }
-      const change: PricingChange = { key: row.key };
-      const amount = toPence(line[price] ?? "");
-      if (amount !== undefined && amount !== row.amount) change.amount = amount;
-      if (row.vat) {
-        const p = fromLabel(PER, line[per]);
-        const v = fromLabel(VAT, line[vat]);
-        if (p && p !== row.per) change.per = p;
-        if (v && v !== row.vat) change.vat = v;
-        if (note >= 0 && (line[note] ?? "").trim() !== (row.note ?? "")) change.note = (line[note] ?? "").trim();
+      // No matching key: a new rate or price, for the room or location named in Group and Item
+      const owner = ownersByName.get(`${get(line, c.group)}|${get(line, c.item)}`.toLowerCase());
+      if (!owner || values.amount === undefined) {
+        skipped++;
+        continue;
       }
-      if (Object.keys(change).length > 1) {
-        next[row.key] = change;
-        loaded++;
+      if (owner.kind === "room") {
+        if (months === undefined) {
+          skipped++;
+          continue;
+        }
+        addDraft(owner, { amount: values.amount, months });
+      } else {
+        const label = get(line, c.option);
+        if (!label) {
+          skipped++;
+          continue;
+        }
+        addDraft(owner, { amount: values.amount, label, ...(per && { per }), ...(vat && { vat }), ...(get(line, c.note) && { note: get(line, c.note) }) });
       }
+      added++;
     }
-    setEdits(next);
+    setEdits(nextEdits);
     setMessage(
-      `${loaded} change${loaded === 1 ? "" : "s"} loaded from ${input.name}: they're highlighted below. Nothing's saved until you press Save.` +
-        (unknown ? ` ${unknown} row${unknown === 1 ? "" : "s"} didn't match a price and were skipped.` : ""),
+      `From ${input.name}: ${edited} change${edited === 1 ? "" : "s"} and ${added} new row${added === 1 ? "" : "s"}, highlighted below. Nothing's saved until you press Save.` +
+        (skipped ? ` ${skipped} row${skipped === 1 ? "" : "s"} couldn't be matched to a room or location (or had no price or length) and were skipped.` : ""),
     );
   }
 
-  const cell = { padding: "6px 10px", borderBottom: "1px solid var(--theme-elevation-100)", textAlign: "left", verticalAlign: "middle" } as const;
-  const changedStyle = { background: "var(--theme-warning-100, #fff4d6)" };
-  const input = { width: "100%", padding: "6px 8px", borderRadius: 4, border: "1px solid var(--theme-elevation-150)", background: "var(--theme-input-bg)", color: "var(--theme-text)" } as const;
+  const cell: CSSProperties = { padding: "6px 10px", borderBottom: "1px solid var(--theme-elevation-100)", textAlign: "left", verticalAlign: "middle" };
+  const changedBg: CSSProperties = { background: "var(--theme-warning-100, #fff4d6)" };
+  const newBg: CSSProperties = { background: "var(--theme-success-100, #e3f6e8)" };
+  const input: CSSProperties = { width: "100%", padding: "6px 8px", borderRadius: 4, border: "1px solid var(--theme-elevation-150)", background: "var(--theme-input-bg)", color: "var(--theme-text)" };
+  const link: CSSProperties = { background: "none", border: 0, padding: 0, cursor: "pointer", color: "var(--theme-elevation-600)", textDecoration: "underline" };
+
+  const priceInput = (value: number | undefined, onSet: (pence: number) => void, key: string) => (
+    <div style={{ position: "relative" }}>
+      <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "var(--theme-elevation-500)" }}>£</span>
+      <input
+        inputMode="decimal"
+        defaultValue={pounds(value)}
+        key={key}
+        onBlur={(e) => {
+          const pence = toPence(e.target.value);
+          if (pence !== undefined) onSet(pence);
+        }}
+        style={{ ...input, paddingLeft: 20 }}
+      />
+    </div>
+  );
+  const select = <T extends string>(labels: Record<T, string>, value: T | undefined, onSet: (v: T) => void) => (
+    <select value={value} onChange={(e) => onSet(e.target.value as T)} style={input}>
+      {(Object.entries(labels) as [T, string][]).map(([v, label]) => (
+        <option key={v} value={v}>
+          {label}
+        </option>
+      ))}
+    </select>
+  );
 
   return (
     <div style={{ paddingBottom: 64 }}>
       <h1 style={{ margin: "24px 0 8px" }}>Pricing</h1>
-      <p style={{ margin: "0 0 20px", maxWidth: 720, color: "var(--theme-elevation-600)" }}>
-        Every price on the site: rooms’ rates, locations’ prices, the joining fee and money variables. Edit them here, or download a CSV, update it in Excel and upload it. Changes are highlighted and
-        only saved when you press Save; cards, pages and sentences using a price follow it. To add or remove a price, open its room or location.
+      <p style={{ margin: "0 0 20px", maxWidth: 760, color: "var(--theme-elevation-600)" }}>
+        Every price on the site. Edit, add and remove rooms’ rates (each a membership length and weekly price) and locations’ prices here, or download a CSV, update it in Excel and upload it:
+        edited rows change, and new rows naming an existing room or location (Group and Item, with no Key) are added. Changes are highlighted and only saved when you press Save; cards,
+        pages and sentences using a price follow it.
       </p>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", marginBottom: 16 }}>
@@ -179,12 +298,21 @@ export function PricingSheet() {
         </Button>
         <input ref={file} type="file" accept=".csv,text/csv" onChange={upload} hidden />
         <span style={{ flex: 1 }} />
-        {pending.length > 0 && (
+        {pending > 0 && (
           <>
             <span>
-              {pending.length} change{pending.length === 1 ? "" : "s"} waiting
+              {pending} change{pending === 1 ? "" : "s"} waiting
             </span>
-            <Button buttonStyle="secondary" size="small" margin={false} onClick={() => setEdits({})} disabled={saving}>
+            <Button
+              buttonStyle="secondary"
+              size="small"
+              margin={false}
+              disabled={saving}
+              onClick={() => {
+                setEdits({});
+                setDrafts([]);
+              }}
+            >
               Discard
             </Button>
             <Button size="small" margin={false} onClick={save} disabled={saving}>
@@ -209,71 +337,103 @@ export function PricingSheet() {
             </tr>
           </thead>
           <tbody>
-            {shown.map((saved, i) => {
-              const row = current(saved);
-              // A heading above the first row of each group
-              const header = row.group !== shown[i - 1]?.group;
-              const editable = saved.vat !== undefined;
-              return [
-                header && (
-                  <tr key={`${row.group}-heading`}>
-                    <th colSpan={7} style={{ ...cell, paddingTop: 24, fontSize: 16 }}>
-                      {row.group}
-                    </th>
-                  </tr>
-                ),
-                <tr key={row.key}>
-                  <td style={cell}>{row.item}</td>
-                  <td style={{ ...cell, color: "var(--theme-elevation-600)" }}>{row.option}</td>
-                  <td style={{ ...cell, width: 130, ...(changed(saved, "amount") && changedStyle) }}>
-                    <div style={{ position: "relative" }}>
-                      <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "var(--theme-elevation-500)" }}>£</span>
-                      <input
-                        inputMode="decimal"
-                        defaultValue={pounds(row.amount)}
-                        key={`${row.key}-${row.amount}`}
-                        onBlur={(e) => {
-                          const amount = toPence(e.target.value);
-                          if (amount !== undefined) edit(saved, { amount });
-                        }}
-                        style={{ ...input, paddingLeft: 20 }}
-                      />
-                    </div>
-                  </td>
-                  <td style={{ ...cell, width: 130, ...(changed(saved, "per") && changedStyle) }}>
-                    {editable ? (
-                      <select value={row.per} onChange={(e) => edit(saved, { per: e.target.value as PricingRow["per"] })} style={input}>
-                        {Object.entries(PER).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      row.per && PER[row.per]
-                    )}
-                  </td>
-                  <td style={{ ...cell, width: 130, ...(changed(saved, "vat") && changedStyle) }}>
-                    {editable ? (
-                      <select value={row.vat} onChange={(e) => edit(saved, { vat: e.target.value as PricingRow["vat"] })} style={input}>
-                        {Object.entries(VAT).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td style={{ ...cell, ...(changed(saved, "note") && changedStyle) }}>
-                    {editable ? <input defaultValue={row.note} key={`${row.key}-${row.note}`} onBlur={(e) => edit(saved, { note: e.target.value.trim() })} style={input} /> : "—"}
-                  </td>
-                  <td style={{ ...cell, width: 60 }}>
-                    <Link href={row.href}>Open</Link>
-                  </td>
-                </tr>,
-              ];
+            {sections.map((section, i) => {
+              const owner = section.owner;
+              const ownDrafts = owner ? drafts.filter((d) => d.owner.prefix === owner.prefix) : [];
+              return (
+                <Fragment key={`${section.group}|${section.item}`}>
+                  {section.group !== sections[i - 1]?.group && (
+                    <tr>
+                      <th colSpan={7} style={{ ...cell, paddingTop: 24, fontSize: 16 }}>
+                        {section.group}
+                      </th>
+                    </tr>
+                  )}
+                  {section.rows.map((saved) => {
+                    const row = current(saved);
+                    const removed = Boolean(edits[saved.key]?.remove);
+                    const isLocation = saved.vat !== undefined;
+                    const isRoom = saved.months !== undefined;
+                    return (
+                      <tr key={saved.key} style={removed ? { opacity: 0.45, textDecoration: "line-through" } : undefined}>
+                        <td style={cell}>{row.item}</td>
+                        <td style={{ ...cell, width: 170, ...((isChanged(saved, "months") || isChanged(saved, "label")) && changedBg) }}>
+                          {isRoom ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <input
+                                inputMode="numeric"
+                                defaultValue={row.months}
+                                key={`${saved.key}-m-${row.months}`}
+                                onBlur={(e) => {
+                                  const months = toMonths(e.target.value);
+                                  if (months) edit(saved, { months });
+                                }}
+                                style={{ ...input, width: 64 }}
+                              />
+                              months
+                            </div>
+                          ) : isLocation ? (
+                            <input defaultValue={row.label ?? row.option} key={`${saved.key}-l-${row.label}`} onBlur={(e) => e.target.value.trim() && edit(saved, { label: e.target.value.trim() })} style={input} />
+                          ) : (
+                            <span style={{ color: "var(--theme-elevation-600)" }}>{row.option}</span>
+                          )}
+                        </td>
+                        <td style={{ ...cell, width: 130, ...(isChanged(saved, "amount") && changedBg) }}>{priceInput(row.amount, (amount) => edit(saved, { amount }), `${saved.key}-${row.amount}`)}</td>
+                        <td style={{ ...cell, width: 130, ...(isChanged(saved, "per") && changedBg) }}>{isLocation ? select(PER, row.per, (per) => edit(saved, { per })) : row.per && PER[row.per]}</td>
+                        <td style={{ ...cell, width: 130, ...(isChanged(saved, "vat") && changedBg) }}>{isLocation ? select(VAT, row.vat, (vat) => edit(saved, { vat })) : "—"}</td>
+                        <td style={{ ...cell, ...(isChanged(saved, "note") && changedBg) }}>
+                          {isLocation ? <input defaultValue={row.note} key={`${saved.key}-n-${row.note}`} onBlur={(e) => edit(saved, { note: e.target.value.trim() })} style={input} /> : "—"}
+                        </td>
+                        <td style={{ ...cell, width: 120, whiteSpace: "nowrap", textDecoration: "none" }}>
+                          {owner && (
+                            <button type="button" style={{ ...link, marginRight: 12 }} onClick={() => edit(saved, { remove: !removed })}>
+                              {removed ? "Undo" : "Remove"}
+                            </button>
+                          )}
+                          <Link href={saved.href}>Open</Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {ownDrafts.map((d) => (
+                    <tr key={d.key} style={newBg}>
+                      <td style={cell}>
+                        {d.owner.item} <em style={{ color: "var(--theme-elevation-500)" }}>(new)</em>
+                      </td>
+                      <td style={{ ...cell, width: 170 }}>
+                        {d.owner.kind === "room" ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <input inputMode="numeric" defaultValue={d.months} placeholder="9" onBlur={(e) => editDraft(d.key, { months: toMonths(e.target.value) })} style={{ ...input, width: 64 }} />
+                            months
+                          </div>
+                        ) : (
+                          <input defaultValue={d.label} placeholder="e.g. Dedicated Desk" onBlur={(e) => editDraft(d.key, { label: e.target.value.trim() })} style={input} />
+                        )}
+                      </td>
+                      <td style={{ ...cell, width: 130 }}>{priceInput(d.amount, (amount) => editDraft(d.key, { amount }), `${d.key}-p`)}</td>
+                      <td style={{ ...cell, width: 130 }}>{d.owner.kind === "location" ? select(PER, d.per, (per) => editDraft(d.key, { per })) : PER.week}</td>
+                      <td style={{ ...cell, width: 130 }}>{d.owner.kind === "location" ? select(VAT, d.vat, (vat) => editDraft(d.key, { vat })) : "—"}</td>
+                      <td style={cell}>
+                        {d.owner.kind === "location" ? <input defaultValue={d.note} onBlur={(e) => editDraft(d.key, { note: e.target.value.trim() })} style={input} /> : "—"}
+                      </td>
+                      <td style={{ ...cell, width: 120 }}>
+                        <button type="button" style={link} onClick={() => setDrafts((all) => all.filter((x) => x.key !== d.key))}>
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {owner && (
+                    <tr>
+                      <td colSpan={7} style={{ ...cell, paddingTop: 4, paddingBottom: 10 }}>
+                        <button type="button" style={link} onClick={() => addDraft(owner)}>
+                          + Add {owner.kind === "room" ? "rate" : "price"} for {section.item}
+                        </button>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
             })}
           </tbody>
         </table>

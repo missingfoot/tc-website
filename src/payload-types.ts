@@ -1292,15 +1292,7 @@ export interface Room {
    */
   floorPlan?: (number | null) | Media;
   /**
-   * e.g. “Available now”
-   */
-  moveIn: string;
-  /**
-   * e.g. “17–19”
-   */
-  floor: string;
-  /**
-   * A weekly price for each membership length people can pick, longest first (the first is picked to start with). The card and booking show the lowest as “From …”; applying uses the one picked.
+   * A weekly price per membership length, longest first. Edited on the Pricing page.
    */
   rates?:
     | {
@@ -1309,6 +1301,8 @@ export interface Room {
         id?: string | null;
       }[]
     | null;
+  moveIn?: string | null;
+  floor?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3433,8 +3427,6 @@ export interface RoomsSelect<T extends boolean = true> {
         id?: T;
       };
   floorPlan?: T;
-  moveIn?: T;
-  floor?: T;
   rates?:
     | T
     | {
@@ -3442,6 +3434,8 @@ export interface RoomsSelect<T extends boolean = true> {
         weekly?: T;
         id?: T;
       };
+  moveIn?: T;
+  floor?: T;
   updatedAt?: T;
   createdAt?: T;
 }
