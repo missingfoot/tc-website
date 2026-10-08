@@ -14,6 +14,13 @@ import { useSyncExternalStore } from "react";
 // - documents: upload to secure storage for the team to check (approval comes back from the bookings system)
 // - signAgreement: an e-signature service (e.g. DocuSign) sends and records the agreement
 // - support tickets: create and reply through the help desk (e.g. Zendesk), whose team replies come back by webhook
+// - rent payments, receipts and statements: from the bookings / payments system
+// - deposit: held and refunded by the bookings system; its stages come from there
+// - guarantor: referencing partner (e.g. Homeppl) invites and verifies them, and tells us by webhook
+// - condition report: written by the team at check-in; problems members report go to them
+// - room change: request goes to the lettings team
+// - privacy: a data export and account deletion, handled by the team within a month (UK GDPR)
+// - saveMoveIn: store the arrival slot (and whether they're driving) for the front desk
 // Only members can sign in and refer; rewards come off their rent.
 // TODO: replace with API calls once there's a backend.
 
@@ -145,6 +152,45 @@ export type Account = {
   referrals: Referral[];
   /** Newest first. */
   tickets: Ticket[];
+  /** Getting ready to move in (before check-in). */
+  moveIn?: MoveInPlan;
+  guarantor?: Guarantor;
+  /** Problems they've reported with the move-in condition report. */
+  conditionNotes?: ConditionNote[];
+  /** DEMO: when they first opened the condition report, which starts its 7 days (really check-in). */
+  conditionReportOpenedAt?: string;
+  roomChange?: RoomChangeRequest;
+};
+
+/** Someone who agrees to pay the rent if the member can't. Verified by our referencing partner. */
+export type Guarantor = {
+  name: string;
+  email: string;
+  relationship: string;
+  /** ISO date we asked them to complete referencing. */
+  invitedAt: string;
+};
+
+/** A problem a member has spotted that the condition report missed (or got wrong). */
+export type ConditionNote = { area: string; note: string; at: string };
+
+/** Asking to move to a different room. */
+export type RoomChangeRequest = {
+  reason: string;
+  roomType: string;
+  when: string;
+  notes?: string;
+  at: string;
+};
+
+/** What a new member has sorted before arriving. */
+export type MoveInPlan = {
+  /** Their arrival slot on check-in day, e.g. "14:00 – 16:00". */
+  arrival?: string;
+  /** They're arriving by car or van, so the front desk keeps a parking space free. */
+  byCar?: boolean;
+  /** Checklist items they've ticked off themselves. */
+  ticked: string[];
 };
 
 type State = {
@@ -225,6 +271,8 @@ export function verifyCode(code: string): string | null {
   const existing = state.account?.email === pending.email ? state.account : null;
   // The demo has no application to read the name from, so it's taken from the email if not given
   const [firstName, ...rest] = (pending.name || pending.email.split("@")[0].replace(/[._-]+/g, " ")).split(" ");
+  // DEMO: an email starting "new" (e.g. new@example.com) signs in as a member who hasn't moved in yet
+  const newMember = pending.email.startsWith("new");
   const account: Account = existing ?? {
     firstName: capitalise(firstName),
     lastName: rest.map(capitalise).join(" "),
@@ -232,12 +280,13 @@ export function verifyCode(code: string): string | null {
     phone: { dialCode: "+44", mobile: "07700 900123" },
     profile: sampleProfile(),
     code: randomCode(8),
-    membership: sampleMembership(),
-    referrals: sampleReferrals(),
-    tickets: sampleTickets(),
+    membership: newMember ? sampleNewMembership() : sampleMembership(),
+    referrals: newMember ? [] : sampleReferrals(),
+    tickets: newMember ? [] : sampleTickets(),
   };
   save({ account, pending: null });
-  return pending.next;
+  // Signing in from the site (not from a particular page) opens their first tab
+  return pending.next === "/account" ? homeTab(account) : pending.next;
 }
 
 /** Abandons a sign-in that's waiting for its code (e.g. "use a different email"). */
@@ -460,6 +509,160 @@ export function signAgreement() {
   });
 }
 
+/** Saves part of the move-in plan (arrival slot, coming by car, checklist). */
+export function saveMoveIn(change: Partial<MoveInPlan>) {
+  const account = state.account;
+  if (!account) return;
+  save({ ...state, account: { ...account, moveIn: { ticked: [], ...account.moveIn, ...change } } });
+}
+
+/** Whether their membership has started (check-in has passed). */
+export const hasMovedIn = (m: Membership, now = Date.now()) => new Date(m.checkIn).getTime() <= now;
+
+/** What happens to the deposit, in order. `day` is days after check-out each stage is reached by. */
+export const depositStages = [
+  { id: "held", label: "Held", day: 0 },
+  { id: "inspection", label: "Room inspected", day: 3 },
+  { id: "processing", label: "Refund on its way", day: 5 },
+  { id: "paid", label: "Paid back", day: 10 },
+] as const;
+
+/**
+ * The deposit and where it's up to. DEMO: the amount is a flat £500 and each stage is reached a
+ * set number of days after check-out. TODO: from the bookings system, with any deductions.
+ */
+export function depositStatus(m: Membership, now = Date.now()) {
+  const checkOut = new Date(m.renewal.requested?.end ?? m.checkOut).getTime();
+  const daysSince = (now - checkOut) / DAY;
+  const stage = [...depositStages].reverse().find((s) => daysSince >= s.day) ?? depositStages[0];
+  return { amount: 500, movedOut: daysSince >= 0, stage: daysSince < 0 ? depositStages[0] : stage, refundBy: new Date(checkOut + 10 * DAY) };
+}
+
+// The demo's referencing partner "verifies" a guarantor this long after they're invited
+const GUARANTOR_MS = 20_000;
+
+export function guarantorStatus(g: Guarantor | undefined, now = Date.now()): "none" | "pending" | "verified" {
+  if (!g) return "none";
+  return now - new Date(g.invitedAt).getTime() > GUARANTOR_MS ? "verified" : "pending";
+}
+
+/** Adds or replaces their guarantor, which asks the new one to complete referencing. */
+export function saveGuarantor(details: Omit<Guarantor, "invitedAt">) {
+  const account = state.account;
+  if (!account) return;
+  save({ ...state, account: { ...account, guarantor: { ...details, invitedAt: new Date().toISOString() } } });
+}
+
+/** How long after check-in members can report problems with the condition report. */
+export const CONDITION_DAYS = 7;
+
+/** When the condition report's window to report problems closes. */
+export function conditionDeadline(account: Account) {
+  // DEMO: counted from first opening the report, so the demo can try it. TODO: from check-in.
+  const from = account.conditionReportOpenedAt ?? new Date().toISOString();
+  return new Date(new Date(from).getTime() + CONDITION_DAYS * DAY);
+}
+
+/** Whether they can still report problems with the condition report. */
+export const conditionWindowOpen = (account: Account, now = Date.now()) => now < conditionDeadline(account).getTime();
+
+export function openConditionReport() {
+  const account = state.account;
+  if (!account || account.conditionReportOpenedAt) return;
+  save({ ...state, account: { ...account, conditionReportOpenedAt: new Date().toISOString() } });
+}
+
+export function addConditionNote(area: string, note: string) {
+  const account = state.account;
+  if (!account) return;
+  save({ ...state, account: { ...account, conditionNotes: [...(account.conditionNotes ?? []), { area, note, at: new Date().toISOString() }] } });
+}
+
+export function requestRoomChange(request: Omit<RoomChangeRequest, "at">) {
+  const account = state.account;
+  if (!account) return;
+  save({ ...state, account: { ...account, roomChange: { ...request, at: new Date().toISOString() } } });
+}
+
+export function cancelRoomChange() {
+  const account = state.account;
+  if (!account) return;
+  save({ ...state, account: { ...account, roomChange: undefined } });
+}
+
+/** Everything we hold about them, as the file their data download gives them. */
+export function exportData(account: Account) {
+  return JSON.stringify({ exportedAt: new Date().toISOString(), ...account }, null, 2);
+}
+
+/** DEMO: deleting the account signs out and forgets it. TODO: a request the team actions within a month. */
+export function deleteAccount() {
+  save({ account: null, pending: null });
+}
+
+/** A membership agreement: the original one, and a renewal once signed. */
+export type Agreement = { id: "current" | "renewal"; title: string; start: Date; end: Date; monthlyPrice: number; signedAt: Date };
+
+export function agreements(account: Account): Agreement[] {
+  const m = account.membership;
+  if (!m) return [];
+  const checkIn = new Date(m.checkIn);
+  const list: Agreement[] = [
+    // DEMO: signed a fortnight before moving in
+    { id: "current", title: hasMovedIn(m) ? "Current membership" : "Your membership", start: checkIn, end: new Date(m.checkOut), monthlyPrice: m.monthlyPrice, signedAt: new Date(checkIn.getTime() - 14 * DAY) },
+  ];
+  const r = m.renewal;
+  if (r.requested && r.agreementSignedAt) {
+    list.unshift({ id: "renewal", title: "Renewal", start: new Date(r.requested.start), end: new Date(r.requested.end), monthlyPrice: r.requested.monthlyPrice, signedAt: new Date(r.agreementSignedAt) });
+  }
+  return list;
+}
+
+/** Where "Your account" opens: Moving in until they've arrived, then Membership. */
+export const homeTab = (account: Account) => (account.membership && !hasMovedIn(account.membership) ? "/account/move-in" : "/account");
+
+/**
+ * The building Wi-Fi: one network, with a password for each member. DEMO: made from their
+ * referral code. TODO: issued by the network provider.
+ */
+export function wifiDetails(account: Account) {
+  return { network: "TheCollective", password: `${account.code.slice(0, 4)}-${account.code.slice(4, 8)}`.toLowerCase() };
+}
+
+// `detail` (e.g. the friend's email) is left out on phones, where long ones crowd the row
+export type Deduction = { amount: number; reason: string; detail?: string };
+export type RentPayment = { date: Date; amount: number; paid: boolean; deductions: Deduction[] };
+
+/**
+ * The months of rent from check-in to check-out, each due on the 1st, latest first. Referral
+ * rewards come off the rent: a paid one on the most recent payment made, one for a friend who's
+ * moved in on the next payment due. TODO: with a backend, use the real payment each reward was applied to.
+ */
+export function rentPayments(account: Account): RentPayment[] {
+  const m = account.membership;
+  if (!m) return [];
+  const checkOut = renewalDates(m).checkOut;
+  const payments: RentPayment[] = [];
+  const checkIn = new Date(m.checkIn);
+  const day = new Date(checkIn.getFullYear(), checkIn.getMonth() + 1, 1);
+  while (day < checkOut) {
+    payments.push({ date: new Date(day), amount: m.monthlyPrice, paid: day.getTime() < Date.now(), deductions: [] });
+    day.setMonth(day.getMonth() + 1);
+  }
+  const lastPaid = payments.findLast((p) => p.paid);
+  const nextDue = payments.find((p) => !p.paid);
+  for (const r of account.referrals) {
+    const target = r.status === "paid" ? lastPaid : r.status === "moved-in" ? nextDue : undefined;
+    if (!target || !r.reward) continue;
+    target.deductions.push({ amount: r.reward, reason: "Referral reward", detail: r.email });
+    target.amount -= r.reward;
+  }
+  return payments.reverse();
+}
+
+/** "2026-09", a payment's month, as used in receipt links. */
+export const monthKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+
 export function dismissRenewalReminder() {
   const account = state.account;
   if (!account) return;
@@ -487,6 +690,15 @@ function sampleMembership(): Membership {
     directDebit: { status: "active", bank: "Barclays", accountEnding: "1234" },
     renewal: { bonus: "£100 gift voucher" },
   };
+}
+
+/** A member moving in in under two weeks, with no Direct Debit yet: shows the move-in page. */
+function sampleNewMembership(): Membership {
+  const checkIn = new Date(Date.now() + 12 * DAY);
+  checkIn.setHours(14, 0, 0, 0);
+  const checkOut = new Date(checkIn);
+  checkOut.setMonth(checkOut.getMonth() + 12);
+  return { ...sampleMembership(), checkIn: checkIn.toISOString(), checkOut: checkOut.toISOString(), directDebit: undefined };
 }
 
 /** Key dates for renewing: notice starts `noticeMonths` before checkout, which is also the renew-by date. */

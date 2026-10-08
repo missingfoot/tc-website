@@ -9,6 +9,8 @@ import { Details, PhoneField, RadioGroup, TextField } from "@/components/applica
 import { cancelEmailChange, confirmEmailChange, requestEmailChange, saveDetails, useAccount, type Account, type Profile } from "@/lib/account";
 import { site } from "@/config/site";
 import AccountCard from "./AccountCard";
+import GuarantorCard from "./GuarantorCard";
+import PrivacyCard from "./PrivacyCard";
 
 const dateFormat = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }); // a date-only ISO string is midnight UTC
 
@@ -71,6 +73,8 @@ export default function DetailsPanel() {
 
       <EmailCard account={account} />
       {profile && <RightToRent profile={profile} />}
+      <GuarantorCard account={account} />
+      <PrivacyCard account={account} />
     </div>
   );
 }

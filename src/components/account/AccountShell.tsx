@@ -4,12 +4,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import Button from "@/components/ui/Button";
-import { dismissRenewalReminder, renewalDates, useAccount } from "@/lib/account";
+import { dismissRenewalReminder, hasMovedIn, renewalDates, useAccount } from "@/lib/account";
 import { text } from "@/lib/styles";
 
 const tabs = [
+  { href: "/account/move-in", label: "Moving in" },
   { href: "/account", label: "Membership" },
   { href: "/account/renewal", label: "Renewal" },
+  { href: "/account/documents", label: "Documents" },
+  { href: "/account/info", label: "Good to know" },
   { href: "/account/referrals", label: "Referrals" },
   { href: "/account/support", label: "Support" },
   { href: "/account/details", label: "Your details" },
@@ -36,6 +39,9 @@ export default function AccountShell({ children }: { children: ReactNode }) {
 
   const renewal = account.membership && renewalDates(account.membership);
   const unreadTickets = account.tickets.some((t) => t.unread);
+  // Before check-in: Moving in, and no Renewal yet; afterwards the other way round
+  const movedIn = !account.membership || hasMovedIn(account.membership);
+  const shown = (tab: (typeof tabs)[number]) => (tab.href === "/account/move-in" ? !movedIn : tab.href === "/account/renewal" ? movedIn : true);
   const showReminder = renewal?.due && !account.renewalReminderDismissed && !pathname.startsWith("/account/renewal");
 
   return (
@@ -50,17 +56,17 @@ export default function AccountShell({ children }: { children: ReactNode }) {
         <nav aria-label="Account" className="mt-6 lg:mt-10">
           {/* Desktop: pulled out by the links' padding, so their text lines up with the greeting and the highlight extends past it */}
           <ul className="flex flex-wrap gap-2 lg:-mx-4 lg:flex-col lg:flex-nowrap lg:gap-1">
-            {tabs.map((tab) => {
+            {tabs.filter(shown).map((tab) => {
               // A tab stays selected on its sub-pages (e.g. Renewal → Moving out)
-              // The Direct Debit page belongs to Membership
+              // The Direct Debit, condition report and room change pages belong to Membership
               const current =
-                pathname === tab.href || (tab.href !== "/account" && pathname.startsWith(`${tab.href}/`)) || (tab.href === "/account" && pathname === "/account/direct-debit");
+                pathname === tab.href || (tab.href !== "/account" && pathname.startsWith(`${tab.href}/`)) || (tab.href === "/account" && ["/account/direct-debit", "/account/condition-report", "/account/room-change"].includes(pathname));
               return (
                 <li key={tab.href}>
                   <Link
                     href={tab.href}
                     aria-current={current ? "page" : undefined}
-                    className={`flex items-center gap-2 rounded-full px-5 py-3 text-base font-medium whitespace-nowrap transition-colors lg:rounded-xl lg:px-4 ${
+                    className={`flex items-center gap-2 rounded-full px-4 py-2 text-base font-medium whitespace-nowrap transition-colors lg:rounded-xl lg:py-3 ${
                       current ? "bg-ink text-white" : "bg-white text-ink hover:bg-cream-dark lg:bg-transparent"
                     }`}
                   >

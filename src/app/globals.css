@@ -112,3 +112,11 @@ body {
   50% { transform: translate(-2px, -11px) scale(0.99); }
   75% { transform: translate(-4px, -4px) scale(1.01); }
 }
+
+/* Printing a letter, statement or receipt from the account (PrintableDocument): only the document prints */
+@media print {
+  @page { margin: 16mm; }
+  body * { visibility: hidden; }
+  .print-document, .print-document * { visibility: visible; }
+  .print-document { position: absolute; top: 0; left: 0; width: 100%; padding: 0; border-radius: 0; box-shadow: none; }
+}

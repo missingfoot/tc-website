@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import { ArrowRight, Check } from "@/components/icons";
+import { ArrowRight } from "@/components/icons";
 import { Details } from "@/components/application/fields";
 import { formatMoney } from "@/lib/application";
-import { renewalDates, useAccount, type Referral } from "@/lib/account";
+import { hasMovedIn, renewalDates, rentPayments, useAccount } from "@/lib/account";
 import { text } from "@/lib/styles";
 import AccountCard from "./AccountCard";
 import Countdown from "./Countdown";
 import DirectDebitStatus from "./DirectDebitStatus";
+import DepositCard from "./DepositCard";
+import YourRoomCard from "./YourRoomCard";
 
 const long = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" });
 // Short months for the check-in / check-out box, where each date gets under half the width on phones
@@ -26,37 +28,9 @@ function BoxDate({ date }: { date: Date }) {
   );
 }
 
-// `detail` (e.g. the friend's email) is left out on phones, where long ones crowd the row
-type Deduction = { amount: number; reason: string; detail?: string };
-type Payment = { date: Date; amount: number; paid: boolean; deductions: Deduction[] };
-
-/**
- * The months of rent from check-in to check-out, each due on the 1st, latest first. Referral
- * rewards come off the rent: a paid one on the most recent payment made, one for a friend who's
- * moved in on the next payment due. TODO: with a backend, use the real payment each reward was applied to.
- */
-function rentSchedule(checkIn: Date, checkOut: Date, monthly: number, referrals: Referral[]): Payment[] {
-  const payments: Payment[] = [];
-  const day = new Date(checkIn.getFullYear(), checkIn.getMonth() + 1, 1);
-  while (day < checkOut) {
-    payments.push({ date: new Date(day), amount: monthly, paid: day.getTime() < Date.now(), deductions: [] });
-    day.setMonth(day.getMonth() + 1);
-  }
-  const lastPaid = payments.findLast((p) => p.paid);
-  const nextDue = payments.find((p) => !p.paid);
-  for (const r of referrals) {
-    const target = r.status === "paid" ? lastPaid : r.status === "moved-in" ? nextDue : undefined;
-    if (!target || !r.reward) continue;
-    target.deductions.push({ amount: r.reward, reason: "Referral reward", detail: r.email });
-    target.amount -= r.reward;
-  }
-  return payments.reverse();
-}
-
-/** Membership tab: the booking, postal address, billing and rent schedule. */
+/** Membership tab: the booking, your room, billing and rent schedule, and the deposit. */
 export default function MembershipPanel({ directDebitUpdated = false }: { directDebitUpdated?: boolean }) {
   const account = useAccount()?.account;
-  const [copied, setCopied] = useState(false);
   const [allPayments, setAllPayments] = useState(false);
   if (!account) return null;
 
@@ -77,21 +51,27 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
   const checkOut = m.renewal.requested ? new Date(m.renewal.requested.end) : currentCheckOut;
   checkOut.setHours(10, 0, 0, 0);
   // TODO: once a renewal is confirmed, add the new term's payments (at its price) to the schedule
-  const schedule = rentSchedule(checkIn, currentCheckOut, m.monthlyPrice, account.referrals);
+  const schedule = rentPayments(account);
   // Latest first, so the payments due are at the top; the last one made follows them
   const lastPaidIndex = schedule.findIndex((p) => p.paid);
   // By default: the next two payments due and the last one made
   const firstShown = Math.max(0, (lastPaidIndex === -1 ? schedule.length : lastPaidIndex + 1) - 3);
   const shown = allPayments ? schedule : schedule.slice(firstShown, firstShown + 3);
 
-  const copyAddress = async () => {
-    await navigator.clipboard.writeText(m.postalAddress.join("\n"));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <>
+      {!hasMovedIn(m) && (
+        <div className="flex flex-col gap-4 rounded-2xl bg-ink p-6 text-white lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xl font-bold">Getting ready to move in</p>
+            <p className="mt-1 text-white/80">Book your arrival time and see what to bring before {dayMonth.format(checkIn)}.</p>
+          </div>
+          <Button href="/account/move-in" variant="light" arrow className="justify-center">
+            Get ready
+          </Button>
+        </div>
+      )}
+
       <AccountCard heading="Your booking">
         <Details
           rows={[
@@ -149,19 +129,7 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
         )}
       </AccountCard>
 
-      <AccountCard heading="Your postal address" intro="For post and deliveries. The front desk signs for parcels when you’re out.">
-        <address className="text-base leading-relaxed text-ink not-italic">
-          {m.postalAddress.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
-        </address>
-        <Button variant="outline" onClick={copyAddress} className="mt-6 w-full justify-center lg:w-auto">
-          {copied && <Check />}
-          {copied ? "Copied" : "Copy address"}
-        </Button>
-      </AccountCard>
+      <YourRoomCard account={account} />
 
       <AccountCard heading="Billing" id="billing">
         <Details
@@ -194,11 +162,17 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
             </li>
           ))}
         </ul>
-        {schedule.length > shown.length || allPayments ? (
-          <button type="button" onClick={() => setAllPayments(!allPayments)} className="mt-4 font-medium text-ink underline underline-offset-4">
-            {allPayments ? "Show fewer" : `Show all ${schedule.length} payments`}
-          </button>
-        ) : null}
+        {/* Show all on the left, receipts on the right (stacked on phones, the button full width) */}
+        <div className="mt-4 flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between">
+          {schedule.length > shown.length || allPayments ? (
+            <button type="button" onClick={() => setAllPayments(!allPayments)} className="font-medium text-ink underline underline-offset-4">
+              {allPayments ? "Show fewer" : `Show all ${schedule.length} payments`}
+            </button>
+          ) : null}
+          <Button href="/account/documents" variant="outline" className="w-full justify-center lg:ml-auto lg:w-auto">
+            Receipts and statements
+          </Button>
+        </div>
         <p className={`mt-6 ${text.body}`}>
           Have a question about a payment?{" "}
           <Link href="/faq" className="font-medium text-ink underline underline-offset-4">
@@ -207,6 +181,8 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
           or speak to the front desk.
         </p>
       </AccountCard>
+
+      <DepositCard m={m} />
     </>
   );
 }
