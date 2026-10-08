@@ -80,6 +80,44 @@ export function paymentPlans(weeklyPrice: number, months: number): PaymentPlan[]
   ];
 }
 
+/** One payment in a membership's schedule. */
+export type Instalment = {
+  /** Due on the first day of the period it covers. */
+  due: Date;
+  /** The days it pays for (inclusive). */
+  from: Date;
+  to: Date;
+  amount: number;
+  /** Already paid towards it, e.g. the holding deposit. */
+  credit: number;
+};
+
+const roundPence = (n: number) => Math.round(n * 100) / 100;
+
+/**
+ * The licence fee payments from `start` to `end` (inclusive), one per calendar month, each due on
+ * the first day it covers. A part month at either end is charged by the day. `credit` (e.g. the
+ * holding deposit) comes off the first payment. `upfront` makes it a single payment for the lot.
+ * TODO: confirm how part months are charged.
+ */
+export function paymentSchedule({ start, end, monthlyPrice, credit = 0, upfront = false }: { start: Date; end: Date; monthlyPrice: number; credit?: number; upfront?: boolean }): Instalment[] {
+  const instalments: Instalment[] = [];
+  const day = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  while (day <= end) {
+    const monthEnd = new Date(day.getFullYear(), day.getMonth() + 1, 0);
+    const to = monthEnd < end ? monthEnd : new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    const days = to.getDate() - day.getDate() + 1;
+    const amount = days === monthEnd.getDate() ? monthlyPrice : roundPence((monthlyPrice * days) / monthEnd.getDate());
+    instalments.push({ due: new Date(day), from: new Date(day), to, amount, credit: 0 });
+    day.setTime(new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1).getTime());
+  }
+  const schedule = upfront && instalments.length
+    ? [{ due: instalments[0].due, from: instalments[0].from, to: instalments.at(-1)!.to, amount: roundPence(instalments.reduce((n, i) => n + i.amount, 0)), credit: 0 }]
+    : instalments;
+  if (schedule[0]) schedule[0].credit = Math.min(credit, schedule[0].amount);
+  return schedule;
+}
+
 /** Phone country codes for the mobile number field (most common first). */
 export const dialCodes = [
   { value: "+44", label: "+44 UK" },

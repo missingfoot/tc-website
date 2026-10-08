@@ -11,7 +11,8 @@ import InfoBox from "@/components/ui/InfoBox";
 import FaqAccordion from "@/components/ui/FaqAccordion";
 import { Bed, CalendarCheck, Check, CocktailGlass, DoorEntry, HandsHeart, HomeHeart, More, MoveOut, People, Renew, Sofa, TeamHeart } from "@/components/icons";
 import { Details } from "@/components/application/fields";
-import { formatMoney } from "@/lib/application";
+import PaymentSchedule from "@/components/application/PaymentSchedule";
+import { formatMoney, paymentSchedule } from "@/lib/application";
 import { renewalDates, renewalOptions, requestRenewal, useAccount, type Membership, type RenewalRequest } from "@/lib/account";
 import { text } from "@/lib/styles";
 import AccountCard from "./AccountCard";
@@ -68,7 +69,8 @@ function Fact({ icon: FactIcon, label, value }: { icon: ComponentType<{ classNam
 }
 
 /** A membership plan's details beside the room's photo (details only on mobile, where the photo just pushed them down). */
-function PlanCard({ heading, m, plan }: { heading: string; m: Membership; plan: { months: number; start: Date; end: Date; monthlyPrice: number } }) {
+/** A membership's room, dates and price. `schedule` adds its payments (for a new membership). */
+function PlanCard({ heading, m, plan, schedule = false }: { heading: string; m: Membership; plan: { months: number; start: Date; end: Date; monthlyPrice: number }; schedule?: boolean }) {
   return (
     <AccountCard heading={heading}>
       <div className="grid gap-6 md:grid-cols-[1fr_14rem]">
@@ -87,6 +89,11 @@ function PlanCard({ heading, m, plan }: { heading: string; m: Membership; plan: 
           <Photo src={m.photo.src} alt={m.photo.alt} sizes={sizes2x([null, "14rem"])} className="object-cover" />
         </div>
       </div>
+      {schedule && (
+        <div className="mt-6">
+          <PaymentSchedule instalments={paymentSchedule(plan)} />
+        </div>
+      )}
     </AccountCard>
   );
 }
@@ -233,7 +240,7 @@ export default function RenewalPanel({ initialChoice }: { initialChoice?: Choice
             </InfoBox>
           </AccountCard>
 
-          <PlanCard heading="Your new membership" m={m} plan={chosen} />
+          <PlanCard heading="Your new membership" m={m} plan={chosen} schedule />
 
           <AccountCard heading="Why are you staying?" intro="Select as many as you like. It helps us keep doing what you love.">
             <ReasonTiles reasons={reasons} name="reasons" legend="Why you want to renew" />
@@ -294,6 +301,7 @@ function RenewalConfirmed({ m, request }: { m: Membership; request: RenewalReque
       <PlanCard
         heading="Your new membership"
         m={m}
+        schedule
         plan={{
           months: request.months,
           start: new Date(request.start),

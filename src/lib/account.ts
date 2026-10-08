@@ -324,8 +324,9 @@ export function requestRenewal(request: Omit<RenewalRequest, "at">) {
  */
 export function renewalOptions(m: Membership) {
   const uplift: Record<number, number> = { 12: 1, 9: 1.04, 6: 1.08, 3: 1.12 };
-  const start = new Date(m.checkOut);
-  start.setDate(start.getDate() + 1);
+  // Rent is paid up to the check-out day, so the new membership carries on from it (dates only, no time)
+  const checkOut = new Date(m.checkOut);
+  const start = new Date(checkOut.getFullYear(), checkOut.getMonth(), checkOut.getDate());
   return [12, 9, 6, 3].map((months) => {
     const end = new Date(start);
     end.setMonth(end.getMonth() + months);

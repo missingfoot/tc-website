@@ -7,11 +7,12 @@ import Select from "@/components/ui/Select";
 import Checkbox from "@/components/ui/Checkbox";
 import StickyBar from "@/components/ui/StickyBar";
 import { Check } from "@/components/icons";
-import { formatMoney, nationalities, paymentPlans, periodMonths, roomCosts, type ApplicationRoom } from "@/lib/application";
+import { formatMoney, nationalities, paymentPlans, paymentSchedule, periodMonths, roomCosts, type ApplicationRoom } from "@/lib/application";
 import { text } from "@/lib/styles";
 import ApplicationStep, { type StepState } from "./ApplicationStep";
 import ApplicationSummary from "./ApplicationSummary";
 import DateOfBirth from "./DateOfBirth";
+import PaymentSchedule from "./PaymentSchedule";
 import { Details, PhoneField, RadioGroup, TextField } from "./fields";
 
 type Answers = Record<string, string>;
@@ -433,6 +434,7 @@ function Confirmation({ room, answers, review, onSend, onEdit }: { room: Applica
             ["Security bond", formatMoney(plan.securityBond, true)],
             ...(planAnswers.referral ? [["Referral code", planAnswers.referral] as [string, string]] : []),
           ])}
+        {plan && <ScheduleBlock room={room} upfront={plan.id === "upfront"} />}
         {block(review ? (paidByCard ? "To pay now by card" : "To pay in person") : paidByCard ? "You’ve paid" : "To pay in person", [
           ["Holding deposit", formatMoney(costs.holdingDeposit, true)],
           ["Joining fee", formatMoney(costs.joiningFee, true)],
@@ -457,6 +459,25 @@ function Confirmation({ room, answers, review, onSend, onEdit }: { room: Applica
           Print receipt
         </Button>
       )}
+    </div>
+  );
+}
+
+/**
+ * The licence fee payments for the membership, with the holding deposit off the first. Rooms are
+ * "available now", so the dates assume moving in today. TODO: use the agreed move-in date.
+ */
+function ScheduleBlock({ room, upfront }: { room: ApplicationRoom; upfront: boolean }) {
+  const costs = roomCosts(room.weeklyPrice);
+  const start = new Date();
+  const end = new Date(start.getFullYear(), start.getMonth() + periodMonths(room.period), start.getDate() - 1);
+  return (
+    <div className="border-t border-ink/10 py-6">
+      <PaymentSchedule
+        instalments={paymentSchedule({ start, end, monthlyPrice: costs.monthly, credit: costs.holdingDeposit, upfront })}
+        creditLabel="Holding deposit"
+      />
+      <p className="mt-3 text-sm text-stone">Based on moving in today. Your membership agreement confirms the dates.</p>
     </div>
   );
 }
