@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ComponentType, type FormEvent } from "react";
+import { useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import Button from "@/components/ui/Button";
 import Photo from "@/components/ui/Photo";
 import { sizes2x } from "@/lib/images";
@@ -9,14 +9,27 @@ import Select from "@/components/ui/Select";
 import Checkbox from "@/components/ui/Checkbox";
 import InfoBox from "@/components/ui/InfoBox";
 import FaqAccordion from "@/components/ui/FaqAccordion";
-import { Bed, CalendarCheck, Check, CocktailGlass, DoorEntry, HandsHeart, HomeHeart, More, MoveOut, People, Renew, Sofa, TeamHeart } from "@/components/icons";
+import { Bed, CalendarCheck, Check, Clock, CocktailGlass, DoorEntry, HandsHeart, HomeHeart, More, MoveOut, People, Renew, Sofa, TeamHeart } from "@/components/icons";
 import { Details } from "@/components/application/fields";
 import PaymentSchedule from "@/components/application/PaymentSchedule";
 import { formatMoney, paymentSchedule } from "@/lib/application";
-import { renewalDates, renewalOptions, requestRenewal, useAccount, type Membership, type RenewalRequest } from "@/lib/account";
+import { useTick } from "@/hooks/useTick";
+import {
+  documentStatus,
+  renewalDates,
+  renewalOptions,
+  requestRenewal,
+  requiredDocuments,
+  useAccount,
+  type Account,
+  type DocumentStatus,
+  type Membership,
+  type RenewalRequest,
+} from "@/lib/account";
 import { text } from "@/lib/styles";
 import AccountCard from "./AccountCard";
 import Countdown from "./Countdown";
+import SuccessCard from "./SuccessCard";
 import ReasonTiles, { type Reason } from "./ReasonTiles";
 import MoveOutForm from "./MoveOutForm";
 
@@ -31,17 +44,17 @@ const short = new Intl.DateTimeFormat("en-GB", {
   month: "short",
   year: "numeric",
 });
-const RENEWALS_EMAIL = "renewals@thecollective.co.uk";
+export const RENEWALS_EMAIL = "renewals@thecollective.co.uk";
 
 // TODO: the real renewal terms (the design's text was copied from the booking form)
-const renewalTerms = [
+export const renewalTerms = [
   {
     question: "Renewal terms",
     numbered: true,
     answer: [
-      "Your new membership starts the day after your current one ends, in the same room, at the monthly fee shown.",
+      "Your new membership carries on from the day your current one ends, in the same room, at the monthly fee shown.",
       "Your security bond carries over to your new membership.",
-      "We’ll email your new membership agreement to sign. Your renewal is confirmed once it’s signed.",
+      "Once we’ve checked your documents, you sign your new membership agreement here in your account. Your renewal is confirmed once it’s signed.",
     ],
   },
 ];
@@ -69,8 +82,18 @@ function Fact({ icon: FactIcon, label, value }: { icon: ComponentType<{ classNam
 }
 
 /** A membership plan's details beside the room's photo (details only on mobile, where the photo just pushed them down). */
-/** A membership's room, dates and price. `schedule` adds its payments (for a new membership). */
-function PlanCard({ heading, m, plan, schedule = false }: { heading: string; m: Membership; plan: { months: number; start: Date; end: Date; monthlyPrice: number }; schedule?: boolean }) {
+type PlanCardProps = {
+  heading: string;
+  m: Membership;
+  plan: { months: number; start: Date; end: Date; monthlyPrice: number };
+  /** Adds its payments (for a new membership). */
+  schedule?: boolean;
+  /** Where it's up to, e.g. "Requested", shown as the first row. */
+  status?: string;
+};
+
+/** A membership's room, dates and price. */
+function PlanCard({ heading, m, plan, schedule = false, status }: PlanCardProps) {
   return (
     <AccountCard heading={heading}>
       <div className="grid gap-6 md:grid-cols-[1fr_14rem]">
@@ -78,6 +101,7 @@ function PlanCard({ heading, m, plan, schedule = false }: { heading: string; m: 
           split
           lines
           rows={[
+            ...(status ? [["Status", status] as [string, string]] : []),
             ["Room type", m.roomType],
             ["Membership", `${plan.months} months`],
             ["Starts", short.format(plan.start)],
@@ -121,7 +145,7 @@ export default function RenewalPanel({ initialChoice }: { initialChoice?: Choice
     );
   }
 
-  if (m.renewal.requested) return <RenewalConfirmed m={m} request={m.renewal.requested} />;
+  if (m.renewal.requested) return <RenewalConfirmed account={account} m={m} request={m.renewal.requested} />;
   if (m.renewal.movingOut) return <MovingOut m={m} />;
 
   const { checkOut, renewBy } = renewalDates(m);
@@ -280,28 +304,118 @@ export default function RenewalPanel({ initialChoice }: { initialChoice?: Choice
   );
 }
 
-function RenewalConfirmed({ m, request }: { m: Membership; request: RenewalRequest }) {
+/** One of the steps after renewing: a number (a tick once done), what to do, and a button when it's their move. */
+function Step({
+  number,
+  title,
+  done = false,
+  waiting,
+  action,
+  children,
+}: {
+  number: number;
+  title: string;
+  done?: boolean;
+  /** What it's waiting on (e.g. our check), shown as a tag under the title. */
+  waiting?: string;
+  action?: { href: string; label: string; outline?: boolean };
+  children: ReactNode;
+}) {
+  return (
+    <li className="flex gap-4">
+      <span className={`flex size-8 shrink-0 items-center justify-center rounded-full font-bold ${done ? "bg-sage text-white" : "bg-cream text-ink"}`}>
+        {done ? <Check className="size-4" strokeWidth={3} /> : number}
+        {done && <span className="sr-only">Done:</span>}
+      </span>
+      <div className="min-w-0 flex-1">
+        <h3 className="font-bold text-ink">{title}</h3>
+        {waiting && (
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-cream-dark py-1 pr-3 pl-2 text-sm font-medium text-ink">
+            <Clock className="size-4" />
+            {waiting}
+          </p>
+        )}
+        <p className={`mt-1 ${text.body}`}>{children}</p>
+        {action && (
+          <Button href={action.href} variant={action.outline ? "outline" : "dark"} className="mt-4 w-full justify-center lg:w-auto">
+            {action.label}
+          </Button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+/** Where the renewal's documents are up to, taken together. */
+function documentsProgress(account: Account): DocumentStatus {
+  const statuses = requiredDocuments(account).map((k) => documentStatus(account.documents?.[k]));
+  return statuses.includes("needed") ? "needed" : statuses.includes("review") ? "review" : "approved";
+}
+
+/** The steps after renewing (documents, agreement, voucher), each ticked off as it's done. `here` drops the link to the page it's shown on. */
+export function RenewalNextUp({ account, m, here }: { account: Account; m: Membership; here?: "documents" | "agreement" }) {
+  const documents = documentsProgress(account);
+  return (
+    <AccountCard heading="Next up">
+      <ol className="flex flex-col gap-6">
+        <Step
+          number={1}
+          done={documents === "approved"}
+          title="Upload your documents"
+          waiting={documents === "review" ? "Being checked" : undefined}
+          action={here === "documents" ? undefined : documents === "needed" ? { href: "/account/renewal/documents", label: "Upload documents" } : documents === "review" ? { href: "/account/renewal/documents", label: "View documents", outline: true } : undefined}
+        >
+          {documents === "needed"
+            ? "We need up-to-date copies of your ID and visa to renew your membership."
+            : documents === "review"
+              ? "Thanks, we’re checking them now. This usually takes a working day, and we’ll let you know if we need anything else."
+              : "All checked, thank you."}
+        </Step>
+        <Step
+          number={2}
+          done={Boolean(m.renewal.agreementSignedAt)}
+          title="Sign your membership agreement"
+          waiting={documents === "review" && !m.renewal.agreementSignedAt ? "Waiting for your documents to be checked" : undefined}
+          action={here === "agreement" ? undefined : documents === "approved" && !m.renewal.agreementSignedAt ? { href: "/account/renewal/agreement", label: "Sign agreement" } : m.renewal.agreementSignedAt ? { href: "/account/renewal/agreement", label: "View agreement", outline: true } : undefined}
+        >
+          {m.renewal.agreementSignedAt ? "Signed, so your renewal is confirmed." : documents === "approved" ? "It’s ready for you to sign." : "You can sign as soon as we’ve checked your documents."}
+        </Step>
+        <Step number={3} title={`Get your ${m.renewal.bonus}`}>
+          Our thank-you for staying, once your agreement is signed.
+        </Step>
+      </ol>
+    </AccountCard>
+  );
+}
+
+function RenewalConfirmed({ account, m, request }: { account: Account; m: Membership; request: RenewalRequest }) {
+  const documents = documentsProgress(account);
+  // Re-checks while documents are being checked, so the steps move on by themselves
+  useTick(documents === "review");
+  const status = m.renewal.agreementSignedAt
+    ? "Confirmed"
+    : documents === "approved"
+      ? "Ready to sign"
+      : documents === "review"
+        ? "Documents being checked"
+        : `Requested ${short.format(new Date(request.at))}`;
   return (
     <>
-      <AccountCard heading="Thanks for renewing">
-        <div className="flex flex-col items-start gap-4">
-          <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-sage/20 text-sage">
-            <Check strokeWidth={3} />
-          </span>
-          <p className={text.body}>
-            We’ve emailed you a confirmation and we’re reviewing your renewal. We’ll be in touch with next steps as soon as we can. Any questions, email{" "}
-            <a href={`mailto:${RENEWALS_EMAIL}`} className="font-medium text-ink underline underline-offset-4">
-              {RENEWALS_EMAIL}
-            </a>
-            .
-          </p>
-        </div>
-      </AccountCard>
+      <SuccessCard heading="Thanks for renewing">
+        We’ve emailed you a confirmation and we’re reviewing your renewal. We’ll be in touch with next steps as soon as we can. Any questions, email{" "}
+        <a href={`mailto:${RENEWALS_EMAIL}`} className="font-medium text-ink underline underline-offset-4">
+          {RENEWALS_EMAIL}
+        </a>
+        .
+      </SuccessCard>
+
+      <RenewalNextUp account={account} m={m} />
 
       <PlanCard
         heading="Your new membership"
         m={m}
         schedule
+        status={status}
         plan={{
           months: request.months,
           start: new Date(request.start),
@@ -309,25 +423,6 @@ function RenewalConfirmed({ m, request }: { m: Membership; request: RenewalReque
           monthlyPrice: request.monthlyPrice,
         }}
       />
-
-      <AccountCard heading="Next up">
-        <ol className="flex flex-col gap-6">
-          <li className="flex gap-4">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-cream font-bold text-ink">1</span>
-            <div>
-              <h3 className="font-bold text-ink">Sign your membership agreement</h3>
-              <p className={`mt-1 ${text.body}`}>We’ll email it over as soon as we can. If any of your documents need updating, we’ll let you know.</p>
-            </div>
-          </li>
-          <li className="flex gap-4">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-cream font-bold text-ink">2</span>
-            <div>
-              <h3 className="font-bold text-ink">Get your {m.renewal.bonus}</h3>
-              <p className={`mt-1 ${text.body}`}>Our thank-you for staying, once your agreement is signed.</p>
-            </div>
-          </li>
-        </ol>
-      </AccountCard>
     </>
   );
 }
@@ -337,14 +432,7 @@ function MovingOut({ m }: { m: Membership }) {
   const { checkOut } = renewalDates(m);
   return (
     <>
-      <AccountCard heading="Move-out confirmed">
-        <div className="flex flex-col items-start gap-4">
-          <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-sage/20 text-sage">
-            <Check strokeWidth={3} />
-          </span>
-          <p className={text.body}>We’re sad to see you go, but don’t forget, we’d love to have you back any time.</p>
-        </div>
-      </AccountCard>
+      <SuccessCard heading="Move-out confirmed">We’re sad to see you go, but don’t forget, we’d love to have you back any time.</SuccessCard>
       <AccountCard heading="Your check-out" intro={`Your membership ends on ${long.format(checkOut)}. Check-out is by 10:00.`}>
         <Countdown start={new Date(m.checkIn)} label="Until check-out" target={checkOut} passed="Checked out" />
         <p className={`mt-6 ${text.body}`}>

@@ -121,7 +121,7 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
               <p className="mt-2 text-sm text-stone">You’ve told us you’re not renewing</p>
             </div>
           ) : m.renewal.requested ? (
-            <div className="rounded-2xl bg-sage/20 p-5 text-ink">
+            <div className="rounded-2xl bg-cream p-5 text-ink">
               <p className={text.label}>Renewal</p>
               <p className="mt-2 text-2xl font-bold leading-heading">Requested</p>
               <p className="mt-2 text-sm text-stone">For another {m.renewal.requested.months} months</p>

@@ -11,6 +11,8 @@ import { useSyncExternalStore } from "react";
 // - Direct Debit: start GoCardless's hosted setup (Billing Request Flow) and receive its webhook
 // - requestEmailChange / confirmEmailChange: email a code to the new address and check it
 // - saveDetails / saveComms: store them (comms preferences sync to the email tool, e.g. HubSpot)
+// - documents: upload to secure storage for the team to check (approval comes back from the bookings system)
+// - signAgreement: an e-signature service (e.g. DocuSign) sends and records the agreement
 // - support tickets: create and reply through the help desk (e.g. Zendesk), whose team replies come back by webhook
 // Only members can sign in and refer; rewards come off their rent.
 // TODO: replace with API calls once there's a backend.
@@ -73,6 +75,8 @@ export type Membership = {
     requested?: RenewalRequest;
     /** Set once they've told us they're leaving at the end of the membership. */
     movingOut?: { reasons: string[]; comments?: string; at: string };
+    /** When they signed the new membership agreement (ISO). */
+    agreementSignedAt?: string;
   };
 };
 
@@ -96,6 +100,16 @@ export type Ticket = {
   unread: boolean;
 };
 
+export type DocumentKind = "id" | "visa" | "brp";
+
+/** An uploaded file. `preview` is a small JPEG thumbnail (data URL) for images. */
+export type UploadedFile = { slot: string; name: string; size: number; preview?: string; at: string };
+
+/** One required document and what's been sent for it. */
+export type DocumentRecord = { files: UploadedFile[]; submittedAt?: string };
+
+export type DocumentStatus = "needed" | "review" | "approved";
+
 /** Which optional emails a member gets (essential ones about their membership always go out). */
 export type CommsPreferences = { blog: boolean; marketing: boolean; oneToOne: boolean };
 
@@ -116,6 +130,8 @@ export type Account = {
   /** Missing means the default: everything on. */
   comms?: CommsPreferences;
   phone?: { dialCode: string; mobile: string };
+  /** Documents sent for checking (renewals need them up to date). */
+  documents?: Partial<Record<DocumentKind, DocumentRecord>>;
   /** A new email waiting to be confirmed with the code sent to it. */
   emailChange?: { email: string; code: string };
   /** From their room application; missing if they didn't apply online. */
@@ -138,7 +154,7 @@ type State = {
 };
 
 // Bump the version when the saved shape changes, so old demo data is ignored rather than breaking pages
-const KEY = "tc-account-demo-v4";
+const KEY = "tc-account-demo-v5";
 const empty: State = { account: null, pending: null };
 
 let state: State = empty;
@@ -397,6 +413,53 @@ export function closeTicket(ticketId: string) {
   updateTicket(ticketId, (t) => ({ ...t, status: "closed" }));
 }
 
+/** The documents this member has to keep up to date: ID always, a visa if they need one. */
+export function requiredDocuments(account: Account): DocumentKind[] {
+  return account.profile?.visa === "Yes" ? ["id", "visa"] : ["id"];
+}
+
+/** The documents to ask for: the required ones, plus a residence permit card (optional) alongside a visa. */
+export function requestedDocuments(account: Account): DocumentKind[] {
+  const required = requiredDocuments(account);
+  return required.includes("visa") ? [...required, "brp"] : required;
+}
+
+// The demo's team "checks" documents this long after they're sent
+const REVIEW_MS = 20_000;
+
+/** Where a document is up to. TODO: real approvals come from the bookings system. */
+export function documentStatus(record: DocumentRecord | undefined, now = Date.now()): DocumentStatus {
+  if (!record?.submittedAt) return "needed";
+  return now - new Date(record.submittedAt).getTime() > REVIEW_MS ? "approved" : "review";
+}
+
+/**
+ * Sends files for a document, adding to any already sent. A new or still-under-review document goes
+ * (back) under review; extra files on an approved one keep it approved, so they don't hold up signing.
+ */
+export function submitDocuments(kind: DocumentKind, files: Omit<UploadedFile, "at">[]) {
+  const account = state.account;
+  if (!account) return;
+  const at = new Date().toISOString();
+  const previous = account.documents?.[kind];
+  const submittedAt = documentStatus(previous) === "approved" ? previous?.submittedAt : at;
+  save({
+    ...state,
+    account: { ...account, documents: { ...account.documents, [kind]: { files: [...(previous?.files ?? []), ...files.map((f) => ({ ...f, at }))], submittedAt } } },
+  });
+}
+
+/** Signs the new membership agreement (typed name as the signature). */
+export function signAgreement() {
+  const account = state.account;
+  if (!account?.membership) return;
+  const { membership } = account;
+  save({
+    ...state,
+    account: { ...account, membership: { ...membership, renewal: { ...membership.renewal, agreementSignedAt: new Date().toISOString() } } },
+  });
+}
+
 export function dismissRenewalReminder() {
   const account = state.account;
   if (!account) return;
@@ -454,7 +517,8 @@ function sampleReferrals(): Referral[] {
 
 /** Example application answers for demo accounts. */
 function sampleProfile(): Profile {
-  return { dateOfBirth: "1994-04-12", gender: "Male", nationality: "British", visa: "No", student: "No" };
+  // Needs a visa, so the documents flow asks for one
+  return { dateOfBirth: "1994-04-12", gender: "Male", nationality: "Australian", visa: "Yes", student: "No" };
 }
 
 /** Example tickets every demo account starts with: one with an unread reply, one open, one closed. */

@@ -81,6 +81,18 @@ export function Close(props: IconProps) {
   );
 }
 
+export function Bin(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M18.833 8L18.33 20.083C18.285 21.154 17.404 22 16.332 22H7.668C6.596 22 5.714 21.155 5.67 20.083L5.167 8" strokeLinecap="butt" />
+      <path d="M10 4V3C10 2.448 10.448 2 11 2H13C13.552 2 14 2.448 14 3V4" strokeLinecap="butt" />
+      <line x1="10" y1="18" x2="10" y2="12" />
+      <line x1="14" y1="18" x2="14" y2="12" />
+      <path d="M5 4H19C20.104 4 21 4.896 21 6V8H3V6C3 4.896 3.896 4 5 4Z" />
+    </Icon>
+  );
+}
+
 export function ChevronDown(props: IconProps) {
   return (
     <Icon {...props}>
@@ -1345,6 +1357,35 @@ export function Ban(props: IconProps) {
     <Icon {...props}>
       <line x1="19.091" y1="4.909" x2="4.909" y2="19.091" strokeLinecap="butt" />
       <circle cx="12" cy="12" r="10" />
+    </Icon>
+  );
+}
+
+export function Plus(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 5V19M5 12H19" />
+    </Icon>
+  );
+}
+
+/** Clock face (waiting, under review). */
+export function Clock(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6V12L16 14" />
+    </Icon>
+  );
+}
+
+/** Passport (ID and visa documents). */
+export function Passport(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="4" y="2" width="16" height="20" rx="2" />
+      <circle cx="12" cy="10" r="3" />
+      <path d="M9 17H15" />
     </Icon>
   );
 }
