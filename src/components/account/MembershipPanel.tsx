@@ -127,7 +127,7 @@ export default function MembershipPanel({ directDebitUpdated = false }: { direct
               <p className="mt-2 text-sm text-stone">For another {m.renewal.requested.months} months</p>
             </div>
           ) : (
-            <Countdown start={new Date(m.checkIn)} emphasis label="Time left to renew" target={renewBy} note={`Renew by ${long.format(renewBy)} to keep your room`} passed="Renewal deadline passed" />
+            <Countdown start={new Date(m.checkIn)} label="Time left to renew" target={renewBy} note={`Renew by ${long.format(renewBy)} to keep your room`} passed="Renewal deadline passed" />
           )}
           {/* After renewing, the bar starts full again and drains towards the new check-out */}
           <Countdown start={new Date(m.renewal.requested?.at ?? m.checkIn)} label="Until check-out" target={checkOut} note={`${long.format(checkOut)}, by 10:00`} passed="Checked out" />

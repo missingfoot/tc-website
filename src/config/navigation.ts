@@ -39,6 +39,7 @@ export const mobileNav: MobileNavGroup[] = [
     items: [
       { label: "Mission", href: "/mission" },
       { label: "FAQ", href: "/faq" },
+      { label: "Member support", href: "/support" },
       { label: "Careers", href: "/careers" },
       { label: "Press", href: "/press" },
     ],

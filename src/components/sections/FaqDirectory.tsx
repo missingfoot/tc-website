@@ -17,7 +17,8 @@ type FaqDirectoryProps = {
   raised?: boolean;
 };
 
-const matches = (item: FaqItem, words: string[]) => {
+/** Whether every word (lower case) appears in the question or its answer. */
+export const faqMatches = (item: FaqItem, words: string[]) => {
   const haystack = [item.question, ...(Array.isArray(item.answer) ? item.answer : [item.answer])].join(" ").toLowerCase();
   return words.every((word) => haystack.includes(word));
 };
@@ -30,7 +31,7 @@ export default function FaqDirectory({ topics, tone = "white", raised = false }:
   const [query, setQuery] = useState("");
   const words = useDeferredValue(query).toLowerCase().split(/\s+/).filter(Boolean);
   const searching = words.length > 0;
-  const shown = topics.map((t) => ({ ...t, items: searching ? t.items.filter((item) => matches(item, words)) : t.items })).filter((t) => t.items.length > 0);
+  const shown = topics.map((t) => ({ ...t, items: searching ? t.items.filter((item) => faqMatches(item, words)) : t.items })).filter((t) => t.items.length > 0);
   const count = shown.reduce((n, t) => n + t.items.length, 0);
 
   return (

@@ -89,6 +89,14 @@ export function ChevronDown(props: IconProps) {
   );
 }
 
+export function ChevronRight(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10.5 8L14.5 12L10.5 16" />
+    </Icon>
+  );
+}
+
 /** Wash basin with tap (bathroom). */
 export function Basin(props: IconProps) {
   return (
@@ -844,6 +852,29 @@ export function Membership(props: IconProps) {
   );
 }
 
+/** A circular arrow (renewing a membership). */
+export function Renew(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <path d="M29.5 16C29.5 23.4558 23.4558 29.5 16 29.5C8.54416 29.5 2.5 23.4558 2.5 16C2.5 8.54416 8.54416 2.5 16 2.5C21.0994 2.5 25.5385 5.32737 27.835 9.5L27.7846 9.40917" />
+      <path d="M28.5 2.5V9.5H21.5" />
+    </Icon>
+  );
+}
+
+/** Walking out through an open door (moving out). */
+export function MoveOut(props: IconProps) {
+  return (
+    <Icon large {...props}>
+      <polyline points="3 4 3 3 19 3 19 9" />
+      <polyline points="3 3 13 9 13 30 3 24 3 3" strokeLinecap="butt" />
+      <polyline points="19 14 30 14 29 14" />
+      <polyline points="19 19 19 25 13 25" />
+      <polyline points="24 8 30 14 24 20" />
+    </Icon>
+  );
+}
+
 /** Presenter at a lectern (workshops and learning). */
 export function Workshop(props: IconProps) {
   return (
@@ -1221,6 +1252,155 @@ export function MemberSupport(props: IconProps) {
       <circle cx="5.5" cy="12.5" r="2.5" />
       <path d="m18.5,18h0c-2.485,0-4.5,2.015-4.5,4.5v.5h9v-.5c0-2.485-2.015-4.5-4.5-4.5Z" />
       <circle cx="18.5" cy="12.5" r="2.5" />
+    </Icon>
+  );
+}
+
+/** Lifebuoy (general support). */
+export function Lifebuoy(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="4" />
+      <path d="M4.9 4.9L9.2 9.2M14.8 9.2L19.1 4.9M14.8 14.8L19.1 19.1M9.2 14.8L4.9 19.1" strokeLinecap="butt" />
+    </Icon>
+  );
+}
+
+/** Warning triangle with an exclamation mark, filled (urgent help). */
+export function Warning(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path
+        d="m22.596,17.346L14.697,3.562c-.561-.979-1.569-1.562-2.697-1.562s-2.136.584-2.697,1.562L1.404,17.346c-.558.974-.555,2.134.008,3.104.562.971,1.568,1.55,2.689,1.55h15.798c1.122,0,2.127-.579,2.689-1.55.562-.971.565-2.131.008-3.104Zm-11.596-9.346h2v6h-2v-6Zm1,10c-.689,0-1.25-.561-1.25-1.25s.561-1.25,1.25-1.25,1.25.561,1.25,1.25-.561,1.25-1.25,1.25Z"
+        fill="currentColor"
+        stroke="none"
+      />
+    </Icon>
+  );
+}
+
+/** Two overlapping sheets (copy to clipboard). */
+export function Copy(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="8" y="8" width="13" height="13" rx="2" />
+      <path d="M16 5V5C16 3.895 15.105 3 14 3H5C3.895 3 3 3.895 3 5V14C3 15.105 3.895 16 5 16" />
+    </Icon>
+  );
+}
+
+/** Three dots in a row (other, more). */
+export function More(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="3.75" cy="12" r=".75" fill="currentColor" />
+      <circle cx="12" cy="12" r=".75" fill="currentColor" />
+      <circle cx="20.25" cy="12" r=".75" fill="currentColor" />
+    </Icon>
+  );
+}
+
+/** Two people under a heart (a team people love). */
+export function TeamHeart(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m12,9.5c1.109-.5,5-3.271,5-5.811,0-1.485-1.206-2.689-2.692-2.689-.98,0-1.712.614-2.308,1.303-.595-.69-1.328-1.303-2.308-1.303-1.487,0-2.692,1.204-2.692,2.689,0,2.54,3.891,5.311,5,5.811Z" />
+      <path d="m5.5,18h0c-2.485,0-4.5,2.015-4.5,4.5v.5h9v-.5c0-2.485-2.015-4.5-4.5-4.5Z" />
+      <circle cx="5.5" cy="12.5" r="2.5" />
+      <path d="m18.5,18h0c-2.485,0-4.5,2.015-4.5,4.5v.5h9v-.5c0-2.485-2.015-4.5-4.5-4.5Z" />
+      <circle cx="18.5" cy="12.5" r="2.5" />
+    </Icon>
+  );
+}
+
+/** A cocktail glass with a straw and a slice of fruit (an easy lifestyle). */
+export function CocktailGlass(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 2H9L11 12" />
+      <path d="M17.0134 9H17.5C19.433 9 21 7.433 21 5.5C21 3.567 19.433 2 17.5 2C15.567 2 14 3.567 14 5.5V5.97844" strokeLinecap="butt" />
+      <path d="M11 16C14.3137 16 17 13.3137 17 10V6H5V10C5 13.3137 7.68629 16 11 16Z" strokeLinecap="butt" />
+      <path d="M11 16V22" />
+      <path d="M8 22H14" />
+    </Icon>
+  );
+}
+
+/** A house with a heart (feeling at home). */
+export function HomeHeart(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M1 11L12 2L23 11" strokeLinecap="butt" />
+      <path d="M1.61108 10.5L12 2L22.3889 10.5" />
+      <path d="M4 14V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V14" />
+      <path d="M12.0613 12.0233C12.5262 11.4736 13.0964 11 13.8463 11C15.0355 11.0002 16 12.0133 16 13.2634C16 15.4007 12.8873 17.5789 12 18C11.1127 17.5789 8.00004 15.4007 8 13.2634C8 12.0133 8.96451 11.0002 10.1537 11C10.9036 11 11.4738 11.4736 11.9387 12.0233H12.0613Z" />
+    </Icon>
+  );
+}
+
+/** A circle with a slash (not for me, no). */
+export function Ban(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="19.091" y1="4.909" x2="4.909" y2="19.091" strokeLinecap="butt" />
+      <circle cx="12" cy="12" r="10" />
+    </Icon>
+  );
+}
+
+/** Mobile phone (calling us). */
+export function Phone(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="6" y="2" width="12" height="20" rx="2" />
+      <path d="M11 18H13" />
+    </Icon>
+  );
+}
+
+/** Open book (guides and rules). */
+export function Book(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 6C10 4.5 6.5 4 2 4V19C6.5 19 10 19.5 12 21C14 19.5 17.5 19 22 19V4C17.5 4 14 4.5 12 6Z" />
+      <path d="M12 6V21" strokeLinecap="butt" />
+    </Icon>
+  );
+}
+
+/** Two blocks of flats (the building). */
+export function Building(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 21V10H10V21" />
+      <path d="M10 21V3H21V21" />
+      <path d="M1 21H23" />
+      <path d="M14 7H17M14 11H17M14 15H17M6 14H7" />
+    </Icon>
+  );
+}
+
+/** Member ID card (your membership). */
+export function IdCard(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <circle cx="8" cy="11" r="2" />
+      <path d="M5 16C5.5 14.8 6.6 14 8 14C9.4 14 10.5 14.8 11 16" strokeLinecap="butt" />
+      <path d="M14 10H18M14 14H17" />
+    </Icon>
+  );
+}
+
+/** Price tag with a percent sign (perks and discounts). */
+export function Tag(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2 6C2 4.9 2.9 4 4 4H20C21.1 4 22 4.9 22 6V9C20.3 9 19 10.3 19 12C19 13.7 20.3 15 22 15V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V15C3.7 15 5 13.7 5 12C5 10.3 3.7 9 2 9V6Z" />
+      <path d="M9.5 15L14.5 9" />
+      <circle cx="9.5" cy="9.5" r="0.5" fill="currentColor" />
+      <circle cx="14.5" cy="14.5" r="0.5" fill="currentColor" />
     </Icon>
   );
 }

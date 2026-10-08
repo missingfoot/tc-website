@@ -22,12 +22,10 @@ type CountdownProps = {
   note?: string;
   /** What to show once the date has passed. */
   passed?: string;
-  /** Dark card, for the deadline that matters most. */
-  emphasis?: boolean;
 };
 
 /** Days and hours left until a date, with a bar of how much of the period is left. */
-export default function Countdown({ label, target, start, note, passed = "Passed", emphasis = false }: CountdownProps) {
+export default function Countdown({ label, target, start, note, passed = "Passed" }: CountdownProps) {
   // Hours are the smallest unit shown, so checking once a minute is plenty
   const now = useNow(60_000);
   const left = target.getTime() - now;
@@ -39,14 +37,14 @@ export default function Countdown({ label, target, start, note, passed = "Passed
   ];
 
   return (
-    <div className={`rounded-2xl p-5 ${emphasis ? "bg-ink text-white" : "bg-cream text-ink"}`}>
-      <p className={emphasis ? "text-white/70" : text.label}>{label}</p>
+    <div className="rounded-2xl bg-cream p-5 text-ink">
+      <p className={text.label}>{label}</p>
       {left > 0 ? (
         <p className="mt-2 flex items-baseline gap-4" aria-label={`${units[0][0]} days and ${units[1][0]} hours left`}>
           {units.map(([value, unit]) => (
             <span key={unit} className="flex items-baseline gap-1">
               <span className="text-4xl font-bold leading-heading tabular-nums">{value}</span>
-              <span className={`text-sm ${emphasis ? "text-white/70" : "text-stone"}`}>{unit}</span>
+              <span className="text-sm text-stone">{unit}</span>
             </span>
           ))}
         </p>
@@ -60,12 +58,12 @@ export default function Countdown({ label, target, start, note, passed = "Passed
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(remaining)}
-          className={`mt-4 h-2 overflow-hidden rounded-full ${emphasis ? "bg-white/20" : "bg-ink/10"}`}
+          className="mt-4 h-2 overflow-hidden rounded-full bg-ink/10"
         >
-          <div className={`h-full rounded-full transition-[width] duration-700 ease-smooth ${emphasis ? "bg-white" : "bg-ink"}`} style={{ width: `${remaining}%` }} />
+          <div className="h-full rounded-full bg-ink transition-[width] duration-700 ease-smooth" style={{ width: `${remaining}%` }} />
         </div>
       )}
-      {note && <p className={`mt-2 text-sm ${emphasis ? "text-white/70" : "text-stone"}`}>{note}</p>}
+      {note && <p className="mt-2 text-sm text-stone">{note}</p>}
     </div>
   );
 }

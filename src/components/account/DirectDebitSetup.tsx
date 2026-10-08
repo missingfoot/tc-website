@@ -1,15 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import InfoBox from "@/components/ui/InfoBox";
-import { ArrowLeft, Lock } from "@/components/icons";
+import { Lock } from "@/components/icons";
 import { TextField } from "@/components/application/fields";
-import { completeDirectDebitSetup, useAccount } from "@/lib/account";
+import { completeDirectDebitSetup, fullName, useAccount } from "@/lib/account";
 import { text } from "@/lib/styles";
 import AccountCard from "./AccountCard";
+import BackLink from "@/components/ui/BackLink";
 
 // A few UK sort-code prefixes, so the demo can name the bank like GoCardless does
 const banks: [RegExp, string][] = [
@@ -42,17 +42,14 @@ export default function DirectDebitSetup() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/account#billing" className="inline-flex items-center gap-2 self-start text-base font-medium text-ink hover:opacity-70">
-        <ArrowLeft />
-        Back to your membership
-      </Link>
+      <BackLink href="/account#billing">Back to your membership</BackLink>
 
       <AccountCard
         heading={changing ? "Change your bank details" : "Set up your Direct Debit"}
         intro="Your rent is collected by Direct Debit on the 1st of each month, through our payment partner GoCardless."
       >
         <form onSubmit={submit} className="flex flex-col gap-6">
-          <TextField id="holder" label="Account holder name" autoComplete="name" required defaultValue={account.name} />
+          <TextField id="holder" label="Account holder name" autoComplete="name" required defaultValue={fullName(account)} />
           <div className="grid gap-6 sm:grid-cols-2">
             <TextField id="sortCode" label="Sort code" inputMode="numeric" placeholder="00-00-00" pattern="\d{2}-?\d{2}-?\d{2}" title="6 digits, e.g. 20-00-00" required />
             <TextField id="accountNumber" label="Account number" inputMode="numeric" pattern="\d{8}" title="8 digits" required />

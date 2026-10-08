@@ -9,7 +9,9 @@ import { useSyncExternalStore } from "react";
 // - the membership: read from the bookings system; requestRenewal sends a renewal request
 // - inviteFriends / revokeInvite: store invites and email the friends
 // - Direct Debit: start GoCardless's hosted setup (Billing Request Flow) and receive its webhook
+// - requestEmailChange / confirmEmailChange: email a code to the new address and check it
 // - saveDetails / saveComms: store them (comms preferences sync to the email tool, e.g. HubSpot)
+// - support tickets: create and reply through the help desk (e.g. Zendesk), whose team replies come back by webhook
 // Only members can sign in and refer; rewards come off their rent.
 // TODO: replace with API calls once there's a backend.
 
@@ -74,15 +76,50 @@ export type Membership = {
   };
 };
 
+export type TicketCategory = "maintenance" | "housekeeping" | "general";
+
+export type TicketMessage = {
+  from: "member" | "team";
+  body: string;
+  /** ISO date and time. */
+  at: string;
+};
+
+/** A support request and its conversation with the team. */
+export type Ticket = {
+  /** The reference shown to members, e.g. "474848645". */
+  id: string;
+  category: TicketCategory;
+  status: "open" | "closed";
+  messages: TicketMessage[];
+  /** The team has replied since the member last looked. */
+  unread: boolean;
+};
+
 /** Which optional emails a member gets (essential ones about their membership always go out). */
 export type CommsPreferences = { blog: boolean; marketing: boolean; oneToOne: boolean };
 
+/** What the member told us on their room application (answers as the form gives them, e.g. "Yes"). */
+export type Profile = {
+  /** ISO date. */
+  dateOfBirth: string;
+  gender: string;
+  nationality: string;
+  visa: string;
+  student: string;
+};
+
 export type Account = {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   /** Missing means the default: everything on. */
   comms?: CommsPreferences;
-  phone?: string;
+  phone?: { dialCode: string; mobile: string };
+  /** A new email waiting to be confirmed with the code sent to it. */
+  emailChange?: { email: string; code: string };
+  /** From their room application; missing if they didn't apply online. */
+  profile?: Profile;
   /** Signing in is for members, so this is set; it's missing only if a membership has ended. */
   membership?: Membership;
   /** The renewal reminder banner was dismissed ("Not now"). */
@@ -90,6 +127,8 @@ export type Account = {
   /** Short code in the referral link. */
   code: string;
   referrals: Referral[];
+  /** Newest first. */
+  tickets: Ticket[];
 };
 
 type State = {
@@ -99,7 +138,7 @@ type State = {
 };
 
 // Bump the version when the saved shape changes, so old demo data is ignored rather than breaking pages
-const KEY = "tc-account-demo-v2";
+const KEY = "tc-account-demo-v4";
 const empty: State = { account: null, pending: null };
 
 let state: State = empty;
@@ -145,6 +184,11 @@ export function useAccount(): State | null {
   );
 }
 
+const capitalise = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+
+/** "First Last", e.g. for a greeting or the support conversation. */
+export const fullName = (account: Pick<Account, "firstName" | "lastName">) => [account.firstName, account.lastName].filter(Boolean).join(" ");
+
 const randomCode = (length: number, chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789") =>
   Array.from(crypto.getRandomValues(new Uint32Array(length)), (n) => chars[n % chars.length]).join("");
 const id = () => randomCode(10);
@@ -163,12 +207,18 @@ export function verifyCode(code: string): string | null {
   const pending = state.pending;
   if (!pending || code !== pending.code) return null;
   const existing = state.account?.email === pending.email ? state.account : null;
+  // The demo has no application to read the name from, so it's taken from the email if not given
+  const [firstName, ...rest] = (pending.name || pending.email.split("@")[0].replace(/[._-]+/g, " ")).split(" ");
   const account: Account = existing ?? {
-    name: pending.name || pending.email.split("@")[0],
+    firstName: capitalise(firstName),
+    lastName: rest.map(capitalise).join(" "),
     email: pending.email,
+    phone: { dialCode: "+44", mobile: "07700 900123" },
+    profile: sampleProfile(),
     code: randomCode(8),
     membership: sampleMembership(),
     referrals: sampleReferrals(),
+    tickets: sampleTickets(),
   };
   save({ account, pending: null });
   return pending.next;
@@ -201,10 +251,43 @@ export function revokeInvite(referralId: string) {
   save({ ...state, account: { ...account, referrals: account.referrals.filter((r) => !(r.id === referralId && r.status === "invited")) } });
 }
 
-export function saveDetails(details: { name: string; phone: string }) {
+/** Starts changing the sign-in email: "emails" a code to the new address. Returns it, since the demo can't send email. */
+export function requestEmailChange(email: string): string {
+  const account = state.account;
+  if (!account) return "";
+  const code = randomCode(6, "0123456789");
+  save({ ...state, account: { ...account, emailChange: { email: email.trim().toLowerCase(), code } } });
+  return code;
+}
+
+/** Checks the code sent to the new email; on success it becomes their email (and sign-in). */
+export function confirmEmailChange(code: string): boolean {
+  const account = state.account;
+  if (!account?.emailChange || code !== account.emailChange.code) return false;
+  save({ ...state, account: { ...account, email: account.emailChange.email, emailChange: undefined } });
+  return true;
+}
+
+export function cancelEmailChange() {
   const account = state.account;
   if (!account) return;
-  save({ ...state, account: { ...account, name: details.name.trim() || account.name, phone: details.phone.trim() || undefined } });
+  save({ ...state, account: { ...account, emailChange: undefined } });
+}
+
+export function saveDetails(details: { firstName: string; lastName: string; dialCode: string; mobile: string; gender: string; student: string }) {
+  const account = state.account;
+  if (!account) return;
+  const { firstName, lastName, dialCode, mobile, gender, student } = details;
+  save({
+    ...state,
+    account: {
+      ...account,
+      firstName: firstName.trim() || account.firstName,
+      lastName: lastName.trim() || account.lastName,
+      phone: mobile.trim() ? { dialCode, mobile: mobile.trim() } : undefined,
+      profile: account.profile && { ...account.profile, gender, student },
+    },
+  });
 }
 
 /**
@@ -262,6 +345,57 @@ export function confirmMoveOut(details: { reasons: string[]; comments?: string }
   });
 }
 
+const updateTicket = (ticketId: string, change: (t: Ticket) => Ticket) => {
+  const account = state.account;
+  if (!account) return;
+  save({ ...state, account: { ...account, tickets: account.tickets.map((t) => (t.id === ticketId ? change(t) : t)) } });
+};
+
+/** Opens a ticket and returns its reference. The demo has the team acknowledge it a few seconds later. */
+export function createTicket(category: TicketCategory, body: string): string {
+  const account = state.account;
+  if (!account) return "";
+  const ticket: Ticket = {
+    id: randomCode(9, "0123456789").replace(/^0/, "4"),
+    category,
+    status: "open",
+    messages: [{ from: "member", body: body.trim(), at: new Date().toISOString() }],
+    unread: false,
+  };
+  save({ ...state, account: { ...account, tickets: [ticket, ...account.tickets] } });
+  setTimeout(
+    () =>
+      updateTicket(ticket.id, (t) => ({
+        ...t,
+        unread: true,
+        messages: [
+          ...t.messages,
+          {
+            from: "team",
+            body: `Thanks ${account.firstName}, we’ve got your message. Someone from the team will pick it up shortly and reply here. If it’s urgent, give us a call or come and see us at the front desk.`,
+            at: new Date().toISOString(),
+          },
+        ],
+      })),
+    4000,
+  );
+  return ticket.id;
+}
+
+/** Adds the member's reply; replying to a closed ticket reopens it. */
+export function replyToTicket(ticketId: string, body: string) {
+  updateTicket(ticketId, (t) => ({ ...t, status: "open", messages: [...t.messages, { from: "member", body: body.trim(), at: new Date().toISOString() }] }));
+}
+
+export function markTicketRead(ticketId: string) {
+  if (state.account?.tickets.find((t) => t.id === ticketId)?.unread) updateTicket(ticketId, (t) => ({ ...t, unread: false }));
+}
+
+/** The member says it's sorted. */
+export function closeTicket(ticketId: string) {
+  updateTicket(ticketId, (t) => ({ ...t, status: "closed" }));
+}
+
 export function dismissRenewalReminder() {
   const account = state.account;
   if (!account) return;
@@ -314,6 +448,50 @@ function sampleReferrals(): Referral[] {
     { id: "sample-2", email: "sam.okafor@example.com", invitedAt: daysAgo(41), status: "moved-in", reward: 150 },
     { id: "sample-3", email: "priya.shah@example.com", invitedAt: daysAgo(12), status: "toured" },
     { id: "sample-4", email: "jo.kim@example.com", invitedAt: daysAgo(3), status: "invited" },
+  ];
+}
+
+/** Example application answers for demo accounts. */
+function sampleProfile(): Profile {
+  return { dateOfBirth: "1994-04-12", gender: "Male", nationality: "British", visa: "No", student: "No" };
+}
+
+/** Example tickets every demo account starts with: one with an unread reply, one open, one closed. */
+function sampleTickets(): Ticket[] {
+  const at = (days: number, hours: number) => new Date(Date.now() - days * DAY - hours * 3_600_000).toISOString();
+  return [
+    {
+      id: "474848645",
+      category: "maintenance",
+      status: "open",
+      unread: true,
+      messages: [
+        { from: "member", body: "The shower in my bathroom has been draining really slowly for a few days, and this morning the tray nearly overflowed.", at: at(2, 5) },
+        {
+          from: "team",
+          body: "Sorry about that! We’ve booked our maintenance team in for tomorrow between 10:00 and 12:00. If you’re out they’ll let themselves in and leave a card to say they’ve been. Is that OK?",
+          at: at(1, 22),
+        },
+      ],
+    },
+    {
+      id: "474848213",
+      category: "general",
+      status: "open",
+      unread: false,
+      messages: [{ from: "member", body: "Could a friend stay with me for a weekend later this month? What do I need to do to sign them in?", at: at(4, 3) }],
+    },
+    {
+      id: "474847990",
+      category: "housekeeping",
+      status: "closed",
+      unread: false,
+      messages: [
+        { from: "member", body: "My room was missed on last week’s cleaning round. Could someone come by?", at: at(26, 6) },
+        { from: "team", body: "Apologies, that shouldn’t have happened. Housekeeping will be with you tomorrow morning, and we’ve put you back on the rota.", at: at(26, 2) },
+        { from: "member", body: "All done, thank you!", at: at(25, 1) },
+      ],
+    },
   ];
 }
 

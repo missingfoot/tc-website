@@ -9,7 +9,7 @@ import Select from "@/components/ui/Select";
 import Checkbox from "@/components/ui/Checkbox";
 import InfoBox from "@/components/ui/InfoBox";
 import FaqAccordion from "@/components/ui/FaqAccordion";
-import { Bed, Bill, Check, DoorEntry, HandsHeart, People, Sofa, TeamChat, CalendarCheck } from "@/components/icons";
+import { Bed, CalendarCheck, Check, CocktailGlass, DoorEntry, HandsHeart, HomeHeart, More, MoveOut, People, Renew, Sofa, TeamHeart } from "@/components/icons";
 import { Details } from "@/components/application/fields";
 import { formatMoney } from "@/lib/application";
 import { renewalDates, renewalOptions, requestRenewal, useAccount, type Membership, type RenewalRequest } from "@/lib/account";
@@ -46,13 +46,13 @@ const renewalTerms = [
 ];
 
 const reasons: Reason[] = [
-  { label: "I’m really at home here", icon: Bed },
+  { label: "I’m really at home here", icon: HomeHeart },
   { label: "I’ve made great connections with other members", icon: People },
   { label: "It’s a great place to grow and develop", icon: HandsHeart },
-  { label: "I like the convenient lifestyle", icon: Bill },
-  { label: "I appreciate The Collective team", icon: TeamChat },
+  { label: "I like the convenient lifestyle", icon: CocktailGlass },
+  { label: "I appreciate The Collective team", icon: TeamHeart },
   { label: "I love the shared spaces", icon: Sofa },
-  { label: "Other" },
+  { label: "Other", icon: More },
 ];
 
 function Fact({ icon: FactIcon, label, value }: { icon: ComponentType<{ className?: string }>; label: string; value: string }) {
@@ -136,16 +136,18 @@ export default function RenewalPanel({ initialChoice }: { initialChoice?: Choice
     window.scrollTo({ top: 0, behavior: "instant" });
   };
 
-  const choices: { value: Choice; label: string; hint: string }[] = [
+  const choices: { value: Choice; label: string; hint: string; icon: ComponentType<{ className?: string }> }[] = [
     {
       value: "renew",
       label: "Renew my membership",
       hint: "Stay on in your room",
+      icon: Renew,
     },
     {
       value: "leave",
       label: "I’m moving out",
       hint: `Leave on ${short.format(checkOut)}`,
+      icon: MoveOut,
     },
   ];
 
@@ -157,7 +159,6 @@ export default function RenewalPanel({ initialChoice }: { initialChoice?: Choice
       >
         <Countdown
           start={new Date(m.checkIn)}
-          emphasis
           label="Time left to renew"
           target={renewBy}
           note={`Renew by ${long.format(renewBy)}`}
@@ -182,12 +183,15 @@ export default function RenewalPanel({ initialChoice }: { initialChoice?: Choice
                 role="radio"
                 aria-checked={selected}
                 onClick={() => setChoice(c.value)}
-                className={`flex flex-col items-start rounded-2xl border p-5 text-left transition ${
+                className={`flex items-center gap-4 rounded-2xl border p-5 text-left transition ${
                   selected ? "border-ink bg-ink text-white" : "border-ink/15 bg-white text-ink hover:border-ink/40"
                 }`}
               >
-                <span className="text-lg font-bold">{c.label}</span>
-                <span className={`mt-1 text-sm ${selected ? "text-white/70" : "text-stone"}`}>{c.hint}</span>
+                <c.icon className="shrink-0" />
+                <span className="flex flex-col">
+                  <span className="text-lg font-bold">{c.label}</span>
+                  <span className={`mt-1 text-sm ${selected ? "text-white/70" : "text-stone"}`}>{c.hint}</span>
+                </span>
               </button>
             );
           })}

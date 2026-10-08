@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import InfoBox from "@/components/ui/InfoBox";
-import { DoorEntry, HandsHeart, People, Shelves, Sofa, TeamChat } from "@/components/icons";
+import { Ban, DoorEntry, HandsHeart, More, People, Shelves, TeamChat } from "@/components/icons";
 import { confirmMoveOut } from "@/lib/account";
 import { text } from "@/lib/styles";
 import AccountCard from "./AccountCard";
@@ -17,8 +17,8 @@ const reasons: Reason[] = [
   { label: "It doesn’t feel like home", icon: DoorEntry },
   { label: "I’m moving in with my partner", icon: HandsHeart },
   { label: "I didn’t get on with The Collective team", icon: TeamChat },
-  { label: "Co-living isn’t for me", icon: Sofa },
-  { label: "Other" },
+  { label: "Co-living isn’t for me", icon: Ban },
+  { label: "Other", icon: More },
 ];
 
 /** The "I'm moving out" path: why they're leaving, then confirming. */

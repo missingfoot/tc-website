@@ -17,12 +17,13 @@ type ButtonProps = {
   compact?: boolean;
   className?: string;
 } & (
-  | { href: string; onClick?: never; type?: never; download?: never }
+  /** `newTab` opens the link in a new tab (e.g. a public page from the account area). */
+  | { href: string; newTab?: boolean; onClick?: never; type?: never; download?: never }
   /** A file to download (a plain <a download>, so it isn't routed or prefetched). */
-  | { href: string; download: true; onClick?: never; type?: never }
-  | { href?: never; onClick: () => void; type?: never; download?: never }
+  | { href: string; download: true; newTab?: never; onClick?: never; type?: never }
+  | { href?: never; onClick: () => void; type?: never; download?: never; newTab?: never }
   /** A form's submit button. */
-  | { href?: never; onClick?: never; type: "submit"; download?: never }
+  | { href?: never; onClick?: never; type: "submit"; download?: never; newTab?: never }
 );
 
 const variants = {
@@ -64,8 +65,9 @@ export default function Button({ children, variant = "light", arrow = false, com
   }
   if (action.href !== undefined) {
     return (
-      <Link href={action.href} className={classes}>
+      <Link href={action.href} className={classes} {...(action.newTab && { target: "_blank", rel: "noopener" })}>
         {content}
+        {action.newTab && <span className="sr-only"> (opens in a new tab)</span>}
       </Link>
     );
   }

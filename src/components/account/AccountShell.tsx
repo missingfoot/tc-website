@@ -11,6 +11,7 @@ const tabs = [
   { href: "/account", label: "Membership" },
   { href: "/account/renewal", label: "Renewal" },
   { href: "/account/referrals", label: "Referrals" },
+  { href: "/account/support", label: "Support" },
   { href: "/account/details", label: "Your details" },
   { href: "/account/communication", label: "Communication" },
 ];
@@ -34,6 +35,7 @@ export default function AccountShell({ children }: { children: ReactNode }) {
   if (!account) return <div className="min-h-[60vh]" />;
 
   const renewal = account.membership && renewalDates(account.membership);
+  const unreadTickets = account.tickets.some((t) => t.unread);
   const showReminder = renewal?.due && !account.renewalReminderDismissed && !pathname.startsWith("/account/renewal");
 
   return (
@@ -41,7 +43,7 @@ export default function AccountShell({ children }: { children: ReactNode }) {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
       {/* Desktop: the sidebar stays in view (below the header) while the tab's content scrolls */}
       <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
-        <h1 className="text-3xl font-bold leading-heading text-ink">Hi {account.name}</h1>
+        <h1 className="text-3xl font-bold leading-heading text-ink">Hi {account.firstName}</h1>
         <p className={`mt-1 truncate ${text.label}`}>{account.email}</p>
 
         {/* Mobile: pills that wrap onto a second line rather than run off the screen. Desktop: a sidebar. */}
@@ -58,11 +60,16 @@ export default function AccountShell({ children }: { children: ReactNode }) {
                   <Link
                     href={tab.href}
                     aria-current={current ? "page" : undefined}
-                    className={`block rounded-full px-5 py-3 text-base font-medium whitespace-nowrap transition-colors lg:rounded-xl lg:px-4 ${
+                    className={`flex items-center gap-2 rounded-full px-5 py-3 text-base font-medium whitespace-nowrap transition-colors lg:rounded-xl lg:px-4 ${
                       current ? "bg-ink text-white" : "bg-white text-ink hover:bg-cream-dark lg:bg-transparent"
                     }`}
                   >
                     {tab.label}
+                    {tab.href === "/account/support" && unreadTickets && (
+                      <span className="size-2 rounded-full bg-alert">
+                        <span className="sr-only">(new reply)</span>
+                      </span>
+                    )}
                   </Link>
                 </li>
               );

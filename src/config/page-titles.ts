@@ -5,6 +5,7 @@ import { oldOakRoomDetails } from "@/content/old-oak";
 import { canaryWharfRoomDetails } from "@/content/canary-wharf";
 import { servicedLocationPages } from "@/content/serviced-living";
 import { workingLocationPages } from "@/content/working";
+import { helpTopics } from "@/content/support";
 
 /**
  * Short page titles shown in the middle of the mobile top bar, by path. Detail pages take
@@ -28,6 +29,8 @@ export const pageTitles: Record<string, string> = {
   "/event-spaces/the-private-dining-room": "Private Dining Room",
   "/mission": "Mission",
   "/faq": "FAQ",
+  "/support": "Member support",
+  ...Object.fromEntries(helpTopics.map((topic) => [`/support/${topic.slug}`, topic.title])),
   "/careers": "Careers",
   ...Object.fromEntries(jobs.map((job) => [`/careers/${job.slug}`, job.title])),
   "/press": "Press",

@@ -9,6 +9,8 @@
   --color-sage: #6f8f62;
   /* Search matches, like a browser's find-in-page */
   --color-highlight: #ffe867;
+  /* Needs attention, e.g. an unread reply */
+  --color-alert: #f2542d;
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   /* Line height for large headings (titles, section headings) */
   --leading-heading: 1.1;
